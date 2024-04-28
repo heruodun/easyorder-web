@@ -29,6 +29,8 @@ import 'ant-design-vue/dist/reset.css';
 import '/@/theme/index.less';
 import { localRead } from '/@/utils/local-util.js';
 import LocalStorageKeyConst from '/@/constants/local-storage-key-const.js';
+import VuePluginHiPrint from 'vue-plugin-hiprint';
+
 
 /*
  * -------------------- ※ 着重 解释说明下main.js的初始化逻辑 begin ※ --------------------
@@ -42,7 +44,7 @@ import LocalStorageKeyConst from '/@/constants/local-storage-key-const.js';
  *
  * -------------------- ※ 着重 解释说明下main.js的初始化逻辑 end ※ --------------------
  */
-
+//
 /**
  * 获取用户信息和用户权限对应的路由，构建动态路由
  */
@@ -65,7 +67,8 @@ async function getLoginInfo() {
 
 function initVue() {
   let vueApp = createApp(App);
-  let app = vueApp.use(router).use(store).use(i18n).use(Antd).use(smartEnumPlugin, constantsInfo).use(privilegePlugin).use(JsonViewer);
+  let app = vueApp.use(router).use(store).use(i18n).use(Antd).use(smartEnumPlugin, constantsInfo)
+      .use(privilegePlugin).use(JsonViewer).use(VuePluginHiPrint);
   //注入权限
   app.directive('privilege', {
     mounted(el, binding) {

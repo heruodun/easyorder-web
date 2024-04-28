@@ -52,6 +52,7 @@
         <bcprov.version>1.59</bcprov.version>
         <jackson-datatype-jsr310.version>2.13.4</jackson-datatype-jsr310.version>
         <smartdb.version>1.2.0</smartdb.version>
+
     </properties>
 
     <dependencyManagement>

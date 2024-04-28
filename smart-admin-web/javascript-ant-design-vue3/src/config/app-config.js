@@ -1,12 +1,3 @@
-/*
- * 应用默认配置
- *
- * @Author:    1024创新实验室-主任：卓大
- * @Date:      2022-09-03 22:07:01
- * @Wechat:    zhuda1024
- * @Email:     lab1024@163.com
- * @Copyright  1024创新实验室 （ https://1024lab.net ），Since 2012
- */
 export const appDefaultConfig = {
   // i18n 语言选择
   language: 'zh_CN',
@@ -31,7 +22,7 @@ export const appDefaultConfig = {
   // 水印
   watermarkFlag: true,
   // 网站名称
-  websiteName: 'SmartAdmin 3.X',
+  websiteName: '小王牛筋管理系统',
   // 主题颜色
   primaryColor: '#1677ff',
   // 紧凑

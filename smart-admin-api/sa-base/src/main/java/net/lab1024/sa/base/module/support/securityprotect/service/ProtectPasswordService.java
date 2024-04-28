@@ -40,7 +40,7 @@ public class ProtectPasswordService {
      * 密码复杂度开启, 默认为true 开启，false 不开启
      */
     @Value("${classified-protect.password-complexity-enabled}")
-    private Boolean passwordComplexityEnabled;
+    private Boolean passwordComplexityEnabled = false;
 
 
     @Resource

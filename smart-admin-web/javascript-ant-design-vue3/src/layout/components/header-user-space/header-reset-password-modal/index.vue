@@ -31,13 +31,16 @@
 
   const visible = ref(false);
   const formRef = ref();
-  const tips = '密码长度8-20位且包含大写字母、小写字母、数字三种'; //校验规则
-  const reg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,20}$/;
+  const tips = ''; //校验规则
+  // const tips = '密码长度8-20位且包含大写字母、小写字母、数字三种'; //校验规则
+  // const reg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,20}$/;
 
   const rules = {
     oldPassword: [{ required: true, message: '请输入原密码' }],
-    newPassword: [{ type: 'string', pattern: reg, message: '密码格式错误' }],
-    confirmPwd: [{ type: 'string', pattern: reg, message: '请输入确认密码' }],
+    newPassword: [{ type: 'string',  message: '密码格式错误' }],
+    // newPassword: [{ type: 'string', pattern: reg, message: '密码格式错误' }],
+    // confirmPwd: [{ type: 'string', pattern: reg, message: '请输入确认密码' }],
+    confirmPwd: [{ type: 'string',  message: '请输入确认密码' }],
   };
 
   const formDefault = {

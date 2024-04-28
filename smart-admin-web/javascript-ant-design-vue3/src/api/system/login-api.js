@@ -11,7 +11,7 @@ import { getRequest, postRequest } from '/src/lib/axios';
 
 export const loginApi = {
   /**
-   * 登录 @author 卓大
+   * 登录
    */
   login: (param) => {
     return postRequest('/login', param);

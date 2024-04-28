@@ -1,0 +1,409 @@
+{
+  "panels": [
+    {
+      "index": 0,
+      "name": 1,
+      "height": 150,
+      "width": 100,
+      "paperHeader": 0,
+      "paperFooter": 426,
+      "printElements": [
+        {
+          "options": {
+            "left": 195,
+            "top": 2.5,
+            "height": 19.5,
+            "width": 73.5,
+            "title": "小王牛筋",
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "fontFamily": "STHeitiSC-Light",
+            "fontSize": 16,
+            "fontWeight": "bold",
+            "qrCodeLevel": 0,
+            "right": 295.9921875,
+            "bottom": 21.99609375,
+            "vCenter": 247.2421875,
+            "hCenter": 12.24609375
+          },
+          "printElementType": {
+            "title": "文本",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 115,
+            "top": 12.5,
+            "height": 67.5,
+            "width": 67.5,
+            "textAlign": "center",
+            "textType": "qrcode",
+            "right": 181.9921875,
+            "bottom": 79.9921875,
+            "vCenter": 148.2421875,
+            "hCenter": 46.2421875,
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "fixed": true,
+            "qrCodeLevel": 0,
+            "field": "qrcodestr1",
+            "hideTitle": true,
+            "title": "自定义文本",
+            "testData": "333333333333",
+            "qid": "qrcodestr_1"
+          },
+          "printElementType": {
+            "title": "自定义文本",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 192.5,
+            "top": 17.5,
+            "height": 69,
+            "width": 76.5,
+            "right": 267.99609375,
+            "bottom": 87.24609375,
+            "vCenter": 229.74609375,
+            "hCenter": 52.74609375,
+            "src": "data:image/png;base64,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",
+            "fit": ""
+          },
+          "printElementType": {
+            "title": "图片",
+            "type": "image"
+          }
+        },
+        {
+          "options": {
+            "left": 167.5,
+            "top": 87.5,
+            "height": 16.5,
+            "width": 112.5,
+            "title": "18057290533",
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "fontSize": 16,
+            "fontWeight": "bold",
+            "qrCodeLevel": 0,
+            "fixed": true
+          },
+          "printElementType": {
+            "title": "文本",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 2.5,
+            "top": 92.5,
+            "height": 10.5,
+            "width": 120,
+            "title": "高品质牛筋*无缝对接",
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "fontSize": 11,
+            "qrCodeLevel": 0,
+            "fixed": true
+          },
+          "printElementType": {
+            "title": "文本",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 0,
+            "top": 105,
+            "height": 54,
+            "width": 280.5,
+            "title": "文本",
+            "field": "address",
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "fixed": true,
+            "fontSize": 24,
+            "color": "#0a0a0a",
+            "qrCodeLevel": 0,
+            "right": 279.99609375,
+            "bottom": 144,
+            "vCenter": 139.74609375,
+            "hCenter": 114,
+            "hideTitle": true,
+            "fontWeight": "bolder",
+            "textDecoration": "underline",
+            "testData": "发发发发发发发发发发发发发发啊发发发发",
+            "textContentVerticalAlign": "middle",
+            "lineHeight": 24.75,
+            "textAlign": "center",
+            "fontFamily": "Microsoft YaHei",
+            "borderTop": "solid",
+            "borderBottom": "solid",
+            "borderWidth": "0.75"
+          },
+          "printElementType": {
+            "title": "文本",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 0,
+            "top": 165,
+            "height": 162,
+            "width": 280.5,
+            "right": 189.75,
+            "bottom": 420.4921875,
+            "vCenter": 93,
+            "hCenter": 305.7421875,
+            "field": "table",
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "fontSize": 18,
+            "fontFamily": "Microsoft YaHei",
+            "lineHeight": 20.25,
+            "tableBodyRowHeight": 21,
+            "tableBodyCellBorder": "border",
+            "tableHeaderFontWeight": "bold",
+            "tableHeaderFontSize": 15,
+            "columns": [
+              [
+                {
+                  "width": 42.78735259589034,
+                  "title": "序号",
+                  "field": "id",
+                  "checked": true,
+                  "columnId": "id",
+                  "fixed": false,
+                  "rowspan": 1,
+                  "colspan": 1
+                },
+                {
+                  "width": 105.09800302819798,
+                  "title": "规格",
+                  "field": "guige",
+                  "checked": true,
+                  "columnId": "length",
+                  "fixed": false,
+                  "rowspan": 1,
+                  "colspan": 1,
+                  "tableQRCodeLevel": 0,
+                  "tableSummaryTitle": true,
+                  "tableSummary": ""
+                },
+                {
+                  "width": 80.42089789224559,
+                  "title": "数量",
+                  "field": "count",
+                  "checked": true,
+                  "columnId": "count",
+                  "fixed": false,
+                  "rowspan": 1,
+                  "colspan": 1,
+                  "tableQRCodeLevel": 0,
+                  "tableSummaryTitle": true,
+                  "tableSummary": ""
+                },
+                {
+                  "width": 52.193746483666075,
+                  "title": "单位",
+                  "field": "danwei",
+                  "checked": true,
+                  "columnId": "danwei",
+                  "fixed": false,
+                  "rowspan": 1,
+                  "colspan": 1,
+                  "tableQRCodeLevel": 0,
+                  "tableSummaryTitle": true,
+                  "tableSummary": ""
+                }
+              ]
+            ]
+          },
+          "printElementType": {
+            "title": "",
+            "type": "table",
+            "editable": true,
+            "columnDisplayEditable": true,
+            "columnDisplayIndexEditable": true,
+            "columnTitleEditable": true,
+            "columnResizable": true,
+            "columnAlignEditable": true,
+            "isEnableEditField": true,
+            "isEnableContextMenu": true,
+            "isEnableInsertRow": true,
+            "isEnableDeleteRow": true,
+            "isEnableInsertColumn": true,
+            "isEnableDeleteColumn": true,
+            "isEnableMergeCell": true
+          }
+        },
+        {
+          "options": {
+            "left": 197.5,
+            "top": 332.5,
+            "height": 67.5,
+            "width": 67.5,
+            "textAlign": "center",
+            "textType": "qrcode",
+            "right": 265.2421875,
+            "bottom": 393,
+            "vCenter": 231.4921875,
+            "hCenter": 359.25,
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "fixed": true,
+            "qrCodeLevel": 0,
+            "field": "qrcodestr",
+            "hideTitle": true,
+            "title": "自定义文本",
+            "testData": "333333333333"
+          },
+          "printElementType": {
+            "title": "自定义文本",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 0,
+            "top": 322.5,
+            "height": 75,
+            "width": 190.5,
+            "title": "文本",
+            "field": "beizhu",
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "qrCodeLevel": 0,
+            "right": 187.5,
+            "bottom": 404.49609375,
+            "vCenter": 92.25,
+            "hCenter": 366.99609375,
+            "hideTitle": true,
+            "fontWeight": "bold",
+            "testData": "备注：fafaf发发发反反复复反反复复发发发发发",
+            "fontSize": 18,
+            "lineHeight": 20.25,
+            "fixed": true
+          },
+          "printElementType": {
+            "title": "文本",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 85,
+            "top": 407.5,
+            "height": 9.75,
+            "width": 108,
+            "title": "文本",
+            "field": "time",
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "qrCodeLevel": 0,
+            "hideTitle": true,
+            "fontSize": 9,
+            "fontWeight": "bold",
+            "right": 195.4921875,
+            "bottom": 411.4921875,
+            "vCenter": 141.4921875,
+            "hCenter": 406.6171875,
+            "testData": "2025-12-23 00:00:00",
+            "fixed": true
+          },
+          "printElementType": {
+            "title": "文本",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 190,
+            "top": 407.5,
+            "height": 12,
+            "width": 91.5,
+            "title": "长文",
+            "right": 308.7421875,
+            "bottom": 331.2421875,
+            "vCenter": 262.9921875,
+            "hCenter": 324.4921875,
+            "field": "orderid",
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "hideTitle": true,
+            "fontSize": 9,
+            "fontWeight": "bold",
+            "testData": "2025415400000005",
+            "fixed": true
+          },
+          "printElementType": {
+            "title": "长文",
+            "type": "longText"
+          }
+        },
+        {
+          "options": {
+            "left": 2.5,
+            "top": 407.5,
+            "height": 9.75,
+            "width": 76.5,
+            "title": "文本",
+            "field": "man",
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "fixed": true,
+            "qrCodeLevel": 0,
+            "hideTitle": true,
+            "fontSize": 9,
+            "fontWeight": "bold",
+            "testData": "操作人：发啊发"
+          },
+          "printElementType": {
+            "title": "文本",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 0,
+            "top": 405,
+            "height": 9,
+            "width": 282,
+            "borderWidth": "0.75",
+            "right": 256.5,
+            "bottom": 418.2421875,
+            "vCenter": 115.5,
+            "hCenter": 413.7421875,
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "fixed": true
+          },
+          "printElementType": {
+            "title": "横线",
+            "type": "hline"
+          }
+        }
+      ],
+      "paperNumberLeft": 253,
+      "paperNumberTop": 261,
+      "paperNumberDisabled": true,
+      "paperNumberContinue": true,
+      "watermarkOptions": {
+        "content": "小王牛筋",
+        "rotate": 25,
+        "timestamp": true,
+        "format": "YYYY-MM-DD HH:mm",
+        "fillStyle": "rgba(184, 184, 184, 0.3)",
+        "fontSize": "14px",
+        "width": 200,
+        "height": 200
+      },
+      "panelLayoutOptions": {
+
+      }
+    }
+  ]
+}

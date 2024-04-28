@@ -1,12 +1,3 @@
-<!--
-  * 主应用页面
-  * 
-  * @Author:    1024创新实验室-主任：卓大 
-  * @Date:      2022-09-12 23:46:47 
-  * @Wechat:    zhuda1024 
-  * @Email:     lab1024@163.com 
-  * @Copyright  1024创新实验室 （ https://1024lab.net ），Since 2012 
--->
 
 <template>
   <a-config-provider
@@ -33,7 +24,7 @@
     }"
   >
     <!---全局loading--->
-    <a-spin :spinning="spinning" tip="稍等片刻，我在拼命加载中..." size="large">
+    <a-spin :spinning="spinning" tip="稍等片刻，加载中..." size="large">
       <!--- 路由 -->
       <RouterView />
     </a-spin>

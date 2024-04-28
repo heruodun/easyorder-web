@@ -1,12 +1,3 @@
-<!--
-  *  帮助文档 
-  *
-  * @Author:    1024创新实验室-主任：卓大 
-  * @Date:      2022-09-06 20:40:16 
-  * @Wechat:    zhuda1024 
-  * @Email:     lab1024@163.com 
-  * @Copyright  1024创新实验室 （ https://1024lab.net ），Since 2012 
--->
 <template>
   <div class="help-doc-wrapper">
     <!-----头部---->
@@ -21,8 +12,8 @@
         <phone-outlined style="font-size: 23px; line-height: 50px; margin-top: 5px" />
       </div>
       <div class="help-doc-contact-right">
-        <a>联系客服</a>
-        <div class="help-doc-contac-time">9:00-17:00 5x7小时</div>
+        <a>等待开放</a>
+        <div class="help-doc-contac-time">0:00-24:00 7x24小时</div>
       </div>
     </div>
 

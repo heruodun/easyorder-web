@@ -13,7 +13,7 @@
       <a-input-search
         @click="search"
         style="margin-right: 30px; width: 250px"
-        placeholder="搜索：六边形工程师、1024"
+        placeholder=""
         enter-button="搜索"
         size="small"
       />
@@ -74,7 +74,7 @@
 
   //搜索
   function search() {
-    window.open('https://1024lab.net');
+    // window.open('https://1024lab.net');
   }
 
   const { useToken } = theme;
