@@ -12,7 +12,7 @@
           "options": {
             "left": 0,
             "top": 105,
-            "height": 54,
+            "height": 57,
             "width": 280.5,
             "title": "文本",
             "field": "address",
@@ -31,12 +31,13 @@
             "textDecoration": "underline",
             "testData": "发发发发发发发发发发发发发发啊发发发发",
             "textContentVerticalAlign": "middle",
-            "lineHeight": 24.75,
+            "lineHeight": 25.5,
             "textAlign": "center",
             "fontFamily": "Microsoft YaHei",
             "borderTop": "solid",
             "borderBottom": "solid",
-            "borderWidth": "0.75"
+            "borderWidth": "0.75",
+            "letterSpacing": 0.75
           },
           "printElementType": {
             "title": "文本",
@@ -64,7 +65,8 @@
             "hCenter": 156,
             "testData": "规格：TY@#.555",
             "lineHeight": 21,
-            "fixed": true
+            "fixed": true,
+            "fontFamily": "Microsoft YaHei"
           },
           "printElementType": {
             "title": "文本",
@@ -73,19 +75,19 @@
         },
         {
           "options": {
-            "left": 190,
+            "left": 192.5,
             "top": 185,
-            "height": 237,
-            "width": 91.5,
+            "height": 220.5,
+            "width": 87,
             "title": "文本",
             "field": "beizhu",
             "coordinateSync": false,
             "widthHeightSync": false,
             "qrCodeLevel": 0,
-            "right": 282.24609375,
-            "bottom": 306.99609375,
-            "vCenter": 236.49609375,
-            "hCenter": 245.49609375,
+            "right": 281.49609375,
+            "bottom": 405.4921875,
+            "vCenter": 235.74609375,
+            "hCenter": 295.2421875,
             "hideTitle": true,
             "fontWeight": "bold",
             "testData": "备注：fafaf发发发反反复复反反复复发发发发发",
@@ -94,7 +96,8 @@
             "borderLeft": "solid",
             "borderTop": "solid",
             "borderRight": "solid",
-            "fixed": true
+            "fixed": true,
+            "fontFamily": "Microsoft YaHei"
           },
           "printElementType": {
             "title": "文本",
@@ -103,7 +106,7 @@
         },
         {
           "options": {
-            "left": 197.5,
+            "left": 200,
             "top": 325,
             "height": 67.5,
             "width": 67.5,
@@ -129,10 +132,10 @@
         },
         {
           "options": {
-            "left": 190,
+            "left": 192.5,
             "top": 407.5,
             "height": 12,
-            "width": 91.5,
+            "width": 87,
             "title": "长文",
             "right": 308.7421875,
             "bottom": 331.2421875,
@@ -203,7 +206,7 @@
             "left": 0,
             "top": 185,
             "height": 229.5,
-            "width": 190,
+            "width": 193.5,
             "right": 189.75,
             "bottom": 420.4921875,
             "vCenter": 93,
@@ -216,38 +219,53 @@
             "lineHeight": 18.75,
             "tableBodyRowHeight": 20.25,
             "tableBodyCellBorder": "border",
-            "tableHeaderFontWeight": "bold",
+            "tableHeaderFontSize": 13.5,
             "columns": [
               [
                 {
-                  "width": 46.57323381243189,
+                  "width": 39.7146649578259,
                   "title": "序号",
                   "field": "id",
                   "checked": true,
                   "columnId": "id",
                   "fixed": false,
                   "rowspan": 1,
-                  "colspan": 1
+                  "colspan": 1,
+                  "align": "center",
+                  "vAlign": "middle",
+                  "tableQRCodeLevel": 0,
+                  "tableSummaryTitle": true,
+                  "tableSummary": ""
                 },
                 {
-                  "width": 58.76605884892972,
+                  "width": 66.73346236312898,
                   "title": "长度",
                   "field": "length",
                   "checked": true,
                   "columnId": "length",
                   "fixed": false,
                   "rowspan": 1,
-                  "colspan": 1
+                  "colspan": 1,
+                  "align": "center",
+                  "vAlign": "middle",
+                  "tableQRCodeLevel": 0,
+                  "tableSummaryTitle": true,
+                  "tableSummary": ""
                 },
                 {
-                  "width": 84.66070733863839,
+                  "width": 85.55187267904512,
                   "title": "条数",
                   "field": "count",
                   "checked": true,
                   "columnId": "count",
                   "fixed": false,
                   "rowspan": 1,
-                  "colspan": 1
+                  "colspan": 1,
+                  "align": "center",
+                  "vAlign": "middle",
+                  "tableQRCodeLevel": 0,
+                  "tableSummaryTitle": true,
+                  "tableSummary": ""
                 }
               ]
             ]
@@ -274,8 +292,8 @@
           "options": {
             "left": 0,
             "top": 387.5,
-            "height": 15,
-            "width": 199.5,
+            "height": 18,
+            "width": 190.5,
             "title": "文本",
             "field": "totalcount",
             "coordinateSync": false,
@@ -292,7 +310,10 @@
             "hCenter": 398.25,
             "testData": "总条数：300000",
             "qid": "guige_1",
-            "fixed": true
+            "fixed": true,
+            "fontFamily": "Microsoft YaHei",
+            "borderLeft": "solid",
+            "borderColor": "#363535"
           },
           "printElementType": {
             "title": "文本",
@@ -337,7 +358,7 @@
         },
         {
           "options": {
-            "left": 175,
+            "left": 165,
             "top": 87.5,
             "height": 16.5,
             "width": 109.5,
@@ -347,7 +368,11 @@
             "fontSize": 16,
             "fontWeight": "bold",
             "qrCodeLevel": 0,
-            "fixed": true
+            "fixed": true,
+            "right": 284.49609375,
+            "bottom": 103.9921875,
+            "vCenter": 229.74609375,
+            "hCenter": 95.7421875
           },
           "printElementType": {
             "title": "文本",
@@ -399,24 +424,6 @@
         },
         {
           "options": {
-            "left": 0,
-            "top": 387.5,
-            "height": 46.5,
-            "width": 9,
-            "coordinateSync": false,
-            "widthHeightSync": false,
-            "right": 3.75,
-            "bottom": 406.5,
-            "vCenter": 0,
-            "hCenter": 393
-          },
-          "printElementType": {
-            "title": "竖线",
-            "type": "vline"
-          }
-        },
-        {
-          "options": {
             "left": 105,
             "top": 17.5,
             "height": 67.5,
@@ -448,7 +455,7 @@
       "paperNumberDisabled": true,
       "paperNumberContinue": true,
       "watermarkOptions": {
-        "content": "小王牛筋",
+        "content": "黛雯",
         "rotate": 25,
         "timestamp": true,
         "format": "YYYY-MM-DD HH:mm",
@@ -458,7 +465,9 @@
         "height": 200
       },
       "panelLayoutOptions": {
-
+        "layoutType": "column",
+        "layoutRowGap": 0,
+        "layoutColumnGap": 0
       }
     }
   ]

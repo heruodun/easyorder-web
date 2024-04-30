@@ -1,20 +1,31 @@
 /*
  * vite配置
  *
- * @Author:    1024创新实验室-主任：卓大
- * @Date:      2022-05-02 23:44:56
- * @Wechat:    zhuda1024
- * @Email:     lab1024@163.com
- * @Copyright  1024创新实验室 （ https://1024lab.net ），Since 2012
  */
 import { resolve } from 'path';
 import vue from '@vitejs/plugin-vue';
 import customVariables from '/@/theme/custom-variables.js';
 
+// 一个运行时函数检测，用于判断你是否想要自定义环境名称
+const isInnerProduction = process.env.NODE_ENV === 'innerproduction';
+const isOuterProduction = process.env.NODE_ENV === 'outerproduction';
+
 const pathResolve = (dir) => {
   return resolve(__dirname, '.', dir);
 };
+
+let mode;
+if (isInnerProduction) {
+  mode = 'innerproduction';
+} else if (isOuterProduction) {
+  mode = 'outerproduction';
+} else {
+  mode = process.env.NODE_ENV;
+}
+
 export default {
+  // 在这里，您可以根据条件配置不同的插件、路径等
+  mode,
   base: process.env.NODE_ENV === 'production' ? '/' : '/',
   root: process.cwd(),
   resolve: {
@@ -88,3 +99,4 @@ export default {
     'process.env': process.env,
   },
 };
+

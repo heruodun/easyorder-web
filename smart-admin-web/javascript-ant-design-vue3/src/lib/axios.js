@@ -23,6 +23,12 @@ const smartAxios = axios.create({
   baseURL: import.meta.env.VITE_APP_API_URL,
 });
 
+const smartAxios4Python = axios.create({
+  baseURL: import.meta.env.VITE_APP_PYTHON_API_URL,
+});
+
+
+
 // 退出系统
 function logout() {
   localClear();
@@ -124,6 +130,36 @@ smartAxios.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// ================================= 对外提供python服务器请求方法：通用请求，get， post, 下载download等 =================================
+
+/**
+ * get请求
+ */
+export const getPythonRequest = (url, params) => {
+  return requestPython({ url, method: 'get', params });
+};
+
+/**
+ * 通用请求封装
+ * @param config
+ */
+export const requestPython = (config) => {
+  return smartAxios4Python.request(config);
+};
+
+/**
+ * post请求
+ */
+export const postPythonRequest = (url, data) => {
+  return requestPython({
+    data,
+    url,
+    method: 'post',
+  });
+};
+
+
 
 // ================================= 对外提供请求方法：通用请求，get， post, 下载download等 =================================
 

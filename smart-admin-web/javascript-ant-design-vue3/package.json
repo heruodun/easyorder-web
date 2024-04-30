@@ -13,7 +13,10 @@
     "dev": "vite",
     "build:test": "vite build  --mode test",
     "build:pre": "vite build  --mode pre",
+    "build:innerprod": "vite build  --mode innerproduction",
+    "build:outerprod": "vite build  --mode outerproduction",
     "build:prod": "vite build  --mode production"
+
   },
   "type": "module",
   "dependencies": {

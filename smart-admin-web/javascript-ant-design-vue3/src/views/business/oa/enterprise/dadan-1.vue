@@ -1,13 +1,13 @@
 <template>
-    <a-form
-        ref="formRef"
-        :model="formData"
-        name="basic"
-        autocomplete="off"
-        @finish="onFinish"
-        @submit="handleSubmit"
-        @finishFailed="onFinishFailed"
-        layout="horizontal">
+  <a-form
+      ref="formRef"
+      :model="formData"
+      name="basic"
+      autocomplete="off"
+      @finish="onFinish"
+      @submit="handleSubmit"
+      @finishFailed="onFinishFailed"
+      layout="horizontal">
 
     <!-- 第一行：地址、规格、备注 -->
     <a-row :gutter="16">
@@ -15,21 +15,21 @@
         <a-form-item
             name="address"
             label="地址"
-            :rules="[{ required: true, message: '请选择地址' }]">
-          <a-select
-              v-model:value="formData.address"
-              show-search
-              placeholder="请输入地址"
-              style="width: 200px"
-              :default-active-first-option="false"
-              :show-arrow="false"
-              :filter-option="false"
-              :not-found-content="null"
-              :options="data"
-              @search="handleSearch"
-              @change="handleChange"
-          ></a-select>
-
+            :rules="[{ required: true, message: '请输入地址' }]">
+          <!--          <a-select-->
+          <!--              v-model:value="formData.address"-->
+          <!--              show-search-->
+          <!--              placeholder="请输入地址"-->
+          <!--              style="width: 200px"-->
+          <!--              :default-active-first-option="false"-->
+          <!--              :show-arrow="false"-->
+          <!--              :filter-option="false"-->
+          <!--              :not-found-content="null"-->
+          <!--              :options="data"-->
+          <!--              @search="handleSearch"-->
+          <!--              @change="handleChange"-->
+          <!--          ></a-select>-->
+          <a-input v-model:value="formData.address" placeholder="请输入地址" />
         </a-form-item>
       </a-col>
       <a-col :span="8">
@@ -91,17 +91,16 @@
 import { ref, reactive, computed} from 'vue';
 import jsonp from 'fetch-jsonp';
 import qs from 'qs';
-import axios from "axios";
+import { message } from 'ant-design-vue';
 let timeout;
 let currentValue = '';
-import {hiPrintPlugin } from 'vue-plugin-hiprint';
-import mb1 from './mb1.json';
 import { useUserStore } from '/@/store/modules/system/user';
 import {now} from "lodash";
+import { orderApi } from '/src/api/business/oa/order-api';
+import { printT1 } from '/@/lib/smart-print.js';
 
 const formRef = ref(); // Create a reference to the form
-hiprint.init();
-hiprint.hiwebSocket.setHost("localhost:17521")
+
 
 function orderPrint(time, orderId, orderIdStr){
   const userStore = useUserStore(); // 使用你的 store
@@ -112,51 +111,57 @@ function orderPrint(time, orderId, orderIdStr){
     orderid:orderId,
     qrcodestr:orderIdStr,
     qrcodestr1:orderIdStr,
-    address:formData.address,
+    address:`地址：${formData.address}`,
     beizhu:formData.remark,
-    guige:formData.spec,
+    guige:`规格：${formData.spec}`,
     table:formData.tableData.map(item => ({
       id: String(item.id), // Convert id to string
       length: item.length === null ? "" : item.length, // Replace null with an empty string
       count: item.count === null ? "" : item.count // Replace null with an empty string
     }))
   };
-  let hiPrintTemplate = new hiprint.PrintTemplate({ template: mb1});
 // 打印
-  hiPrintTemplate.print2(printData);
+  printT1(printData);
 }
-// hiPrintPlugin.disAutoConnect();  //取消自动打印直接连接客户端
 
-
-function fetch(value, callback) {
+async function fetch(value, callback) {
   if (timeout) {
     clearTimeout(timeout);
-    timeout = null;
   }
+
   currentValue = value;
-  function fake() {
-    const str = qs.stringify({
-      code: 'utf-8',
-      q: value,
-    });
-    jsonp(`https://suggest.taobao.com/sug?${str}`)
-        .then(response => response.json())
-        .then(d => {
-          if (currentValue === value) {
-            const result = d.result;
-            const data = [];
-            result.forEach(r => {
-              data.push({
-                value: r[0],
-                label: r[0],
-              });
-            });
-            callback(data);
-          }
-        });
+
+  async function fake() {
+    try {
+      // 构造请求URL参数
+      const params = qs.stringify({
+        code: 'utf-8',
+        q: value,
+      });
+
+      // 发起请求并等待返回
+      const response = await orderApi.searchAddress(params);
+      const results = response.data.result;
+
+      // 检查当前值是否与请求发起时的值一致
+      if (currentValue === value) {
+        // 映射结果到我们想要的格式
+        const data = results.map(r => ({
+          value: r[0],
+          label: r[0],
+        }));
+
+        callback(data);
+      }
+    } catch (error) {
+      // 处理错误
+      console.error('Error fetching data:', error);
+    }
   }
+
   timeout = setTimeout(fake, 300);
 }
+
 const data = ref([]);
 const value = ref();
 const handleSearch = val => {
@@ -182,6 +187,14 @@ const formData = reactive({
 async function saveAndPrint() {
   try {
     SmartLoading.show();
+    //检查打印机客户端是否连接上
+    if (hiprint.hiwebSocket.opened) {
+      console.log("已连接打印客户端")
+    }
+    else{
+      message.error('打印客户端未连接，请启动桌面上打印客户端');
+      return;
+    }
     const userName = useUserStore().actualName;
     const time = now()
 
@@ -339,20 +352,17 @@ async function saveAndPrint() {
         ]
       ]
     }
-    const response = await axios.post('http://127.0.0.1:5000/order1', payload, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
+
+    const response = await orderApi.create1(payload);
     console.log(response.data);
     if (response.status == 201) {
       const {create_time, order_id, qr_code} = response.data;
       orderPrint(create_time, order_id, qr_code);
-      console.log("print success");
+      console.log(`打印成功: ${order_id}`)
     } else {
       // This block will execute for any status code other than 201
       const {error} = response.data;
-      alert(`表单提交失败: ${error}`); // Corrected to use template literals
+      message.error(`表单提交失败: ${error}`); // Corrected to use template literals
       console.error(error);
     }
 
@@ -360,9 +370,9 @@ async function saveAndPrint() {
     console.error('提交失败:', exception);
     // It's a good practice to check if exception.response exists and has data
     const errorMessage = exception.response?.data?.error || 'Unknown error';
-    alert(`表单提交失败: ${errorMessage}`); // Corrected to use template literals
+    message.error(`表单提交失败: ${errorMessage}`); // Corrected to use template literals
   }finally {
-      SmartLoading.hide();
+    SmartLoading.hide();
   }
 }
 
@@ -383,17 +393,20 @@ const onFinish = async values => {
 
 import { onMounted, onBeforeUnmount } from 'vue';
 import {SmartLoading} from "/@/components/framework/smart-loading/index.js";
+const isActive = ref(false);
 
 onMounted(() => {
+  isActive.value = true;
   document.addEventListener('keydown', handleKeyPress);
 });
 
 onBeforeUnmount(() => {
+  isActive.value = false;
   document.removeEventListener('keydown', handleKeyPress);
 });
 
 function handleKeyPress(event) {
-  if ((event.ctrlKey || event.metaKey) && event.key === 'p') {
+  if (isActive.value && (event.ctrlKey || event.metaKey) && event.key === 'p') {
     event.preventDefault(); // 阻止默认行为，如此处为打印操作
     //add formdata submit validation
     handleSubmit()

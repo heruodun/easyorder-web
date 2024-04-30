@@ -168,6 +168,7 @@
             "tableBodyCellBorder": "border",
             "tableHeaderFontWeight": "bold",
             "tableHeaderFontSize": 15,
+            "textAlign": "center",
             "columns": [
               [
                 {
@@ -178,7 +179,12 @@
                   "columnId": "id",
                   "fixed": false,
                   "rowspan": 1,
-                  "colspan": 1
+                  "colspan": 1,
+                  "align": "center",
+                  "vAlign": "middle",
+                  "tableQRCodeLevel": 0,
+                  "tableSummaryTitle": true,
+                  "tableSummary": ""
                 },
                 {
                   "width": 105.09800302819798,
@@ -189,6 +195,8 @@
                   "fixed": false,
                   "rowspan": 1,
                   "colspan": 1,
+                  "align": "center",
+                  "vAlign": "middle",
                   "tableQRCodeLevel": 0,
                   "tableSummaryTitle": true,
                   "tableSummary": ""
@@ -202,6 +210,8 @@
                   "fixed": false,
                   "rowspan": 1,
                   "colspan": 1,
+                  "align": "center",
+                  "vAlign": "middle",
                   "tableQRCodeLevel": 0,
                   "tableSummaryTitle": true,
                   "tableSummary": ""
@@ -215,6 +225,8 @@
                   "fixed": false,
                   "rowspan": 1,
                   "colspan": 1,
+                  "align": "center",
+                  "vAlign": "middle",
                   "tableQRCodeLevel": 0,
                   "tableSummaryTitle": true,
                   "tableSummary": ""
@@ -392,7 +404,7 @@
       "paperNumberDisabled": true,
       "paperNumberContinue": true,
       "watermarkOptions": {
-        "content": "小王牛筋",
+        "content": "黛雯",
         "rotate": 25,
         "timestamp": true,
         "format": "YYYY-MM-DD HH:mm",
