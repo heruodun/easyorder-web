@@ -27,9 +27,6 @@
 </template>
 <script setup>
   import { ref, reactive, nextTick, computed } from 'vue';
-  import zhuoda from '/@/assets/images/1024lab/zhuoda-wechat.jpg';
-  import lab1024 from '/@/assets/images/1024lab/1024lab-gzh.jpg';
-  import xiaozhen from '/@/assets/images/1024lab/gzh.jpg';
 
   defineExpose({
     show,

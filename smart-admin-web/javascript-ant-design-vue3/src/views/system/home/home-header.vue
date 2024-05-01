@@ -20,7 +20,7 @@
       <a-row class="content">
         <span class="left-content">
           <p class="last-login-info"><AlertOutlined />{{ lastLoginInfo }}</p>
-          <a class="sentence" href="https://sentence.1024lab.net/" target="_blank"> <smile-outlined spin /> {{ heartSentence }} </a>
+          <a class="sentence"> <smile-outlined spin /> {{ heartSentence }} </a>
         </span>
         <div class="weather">
           <iframe

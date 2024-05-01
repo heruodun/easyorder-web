@@ -5,8 +5,8 @@
       name="basic"
       autocomplete="off"
       @finish="onFinish"
-      @submit="handleSubmit"
       @finishFailed="onFinishFailed"
+      @keydown.enter.prevent="noOperation"
       layout="horizontal">
 
     <!-- 第一行：地址、规格、备注 -->
@@ -15,24 +15,21 @@
         <a-form-item
             name="address"
             label="地址"
-            :rules="[{ required: true, message: '请输入地址' }]">
-          <!--          <a-select-->
-          <!--              v-model:value="formData.address"-->
-          <!--              show-search-->
-          <!--              placeholder="请输入地址"-->
-          <!--              style="width: 200px"-->
-          <!--              :default-active-first-option="false"-->
-          <!--              :show-arrow="false"-->
-          <!--              :filter-option="false"-->
-          <!--              :not-found-content="null"-->
-          <!--              :options="data"-->
-          <!--              @search="handleSearch"-->
-          <!--              @change="handleChange"-->
-          <!--          ></a-select>-->
-          <a-input v-model:value="formData.address" placeholder="请输入地址" />
+            :rules="[{ required: true, message: '请输入地址',trigger: 'blur' }]">
+          <AddressSelect ref="addressSelect"
+                         placeholder="请输入地址"
+                         v-model:value="formData.address" />
         </a-form-item>
       </a-col>
-      <a-col :span="8">
+
+      <a-col :span="2">
+        <div>
+          <a target="_blank"
+             href="https://c1um9dohzwz.feishu.cn/base/YfZ0bTG5pahNddsk3VLcTXVwn3o?table=tblGkLjcHmOfHG1Y&view=vewVGgt3EA">
+            添加地址</a>
+        </div>
+      </a-col>
+      <a-col :span="5">
         <a-form-item
             name="spec"
             label="规格"
@@ -89,18 +86,15 @@
 
 <script setup>
 import { ref, reactive, computed} from 'vue';
-import jsonp from 'fetch-jsonp';
-import qs from 'qs';
+import AddressSelect from '/@/components/system/address-select/index.vue';
 import { message } from 'ant-design-vue';
-let timeout;
-let currentValue = '';
 import { useUserStore } from '/@/store/modules/system/user';
 import {now} from "lodash";
 import { orderApi } from '/src/api/business/oa/order-api';
 import { printT1 } from '/@/lib/smart-print.js';
 
 const formRef = ref(); // Create a reference to the form
-
+const addressSelect = ref();
 
 function orderPrint(time, orderId, orderIdStr){
   const userStore = useUserStore(); // 使用你的 store
@@ -111,7 +105,7 @@ function orderPrint(time, orderId, orderIdStr){
     orderid:orderId,
     qrcodestr:orderIdStr,
     qrcodestr1:orderIdStr,
-    address:`地址：${formData.address}`,
+    address:formData.address,
     beizhu:formData.remark,
     guige:`规格：${formData.spec}`,
     table:formData.tableData.map(item => ({
@@ -124,54 +118,6 @@ function orderPrint(time, orderId, orderIdStr){
   printT1(printData);
 }
 
-async function fetch(value, callback) {
-  if (timeout) {
-    clearTimeout(timeout);
-  }
-
-  currentValue = value;
-
-  async function fake() {
-    try {
-      // 构造请求URL参数
-      const params = qs.stringify({
-        code: 'utf-8',
-        q: value,
-      });
-
-      // 发起请求并等待返回
-      const response = await orderApi.searchAddress(params);
-      const results = response.data.result;
-
-      // 检查当前值是否与请求发起时的值一致
-      if (currentValue === value) {
-        // 映射结果到我们想要的格式
-        const data = results.map(r => ({
-          value: r[0],
-          label: r[0],
-        }));
-
-        callback(data);
-      }
-    } catch (error) {
-      // 处理错误
-      console.error('Error fetching data:', error);
-    }
-  }
-
-  timeout = setTimeout(fake, 300);
-}
-
-const data = ref([]);
-const value = ref();
-const handleSearch = val => {
-  fetch(val, d => (data.value = d));
-};
-const handleChange = val => {
-  console.log(val);
-  value.value = val;
-  fetch(val, d => (data.value = d));
-};
 
 const formData = reactive({
   address: '',
@@ -231,7 +177,7 @@ async function saveAndPrint() {
           ""
         ],
         [
-          "3.5",
+          formData.spec,
           "1",
           formData.tableData[0].length,
           "",
@@ -358,6 +304,7 @@ async function saveAndPrint() {
     if (response.status == 201) {
       const {create_time, order_id, qr_code} = response.data;
       orderPrint(create_time, order_id, qr_code);
+      message.info(`打印成功: ${order_id}`)
       console.log(`打印成功: ${order_id}`)
     } else {
       // This block will execute for any status code other than 201
@@ -376,40 +323,44 @@ async function saveAndPrint() {
   }
 }
 
-function handleSubmit() {
-  // This function can be used to programmatically trigger form submission
-  // You might need to manually call validation here
+function noOperation(){
+
+}
+
+function shortCutPressed() {
   formRef.value.validate().then(() => {
-    onFinish(formData); // Directly calling onFinish assuming validation is successful
+    console.log("validate ok");
+    saveAndPrint()
   }).catch((err) => {
-    console.error("Validation error:", err);
     onFinishFailed(err); // Handle validation errors
   });
 }
-const onFinish = async values => {
+const onFinish = values => {
   console.log('Success:', values);
-  await saveAndPrint();
+  saveAndPrint()
 };
 
 import { onMounted, onBeforeUnmount } from 'vue';
 import {SmartLoading} from "/@/components/framework/smart-loading/index.js";
-const isActive = ref(false);
+import { activeTabStore } from '/@/store/modules/system/tab';
+
+const currentUrl = ref('');
 
 onMounted(() => {
-  isActive.value = true;
+  activeTabStore().setActive(window.location.hash);
   document.addEventListener('keydown', handleKeyPress);
 });
 
 onBeforeUnmount(() => {
-  isActive.value = false;
   document.removeEventListener('keydown', handleKeyPress);
+  activeTabStore().setActive(null);
 });
 
 function handleKeyPress(event) {
-  if (isActive.value && (event.ctrlKey || event.metaKey) && event.key === 'p') {
+  if (('#/business/oa/enterprise/dadan_1' == activeTabStore().getActive()) && (event.ctrlKey || event.metaKey) && event.key === 'p') {
+    console.log(currentUrl.value);
     event.preventDefault(); // 阻止默认行为，如此处为打印操作
-    //add formdata submit validation
-    handleSubmit()
+    shortCutPressed()
   }
 }
 const onFinishFailed = errorInfo => {

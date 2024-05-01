@@ -12,7 +12,7 @@ export const appDefaultConfig = {
   // 顶部菜单页面宽度
   pageWidth: '99%',
   // 标签页
-  pageTagFlag: true,
+  pageTagFlag: false,
   // 面包屑
   breadCrumbFlag: true,
   // 页脚

@@ -1,11 +1,5 @@
 <!--
   * 设置模块
-  * 
-  * @Author:    1024创新实验室-主任：卓大 
-  * @Date:      2022-09-06 20:18:20 
-  * @Wechat:    zhuda1024 
-  * @Email:     lab1024@163.com 
-  * @Copyright  1024创新实验室 （ https://1024lab.net ），Since 2012 
 -->
 
 <template>
@@ -70,9 +64,9 @@
       <a-form-item :label="$t('setting.bread')">
         <a-switch @change="changeBreadCrumbFlag" v-model:checked="formState.breadCrumbFlag" checked-children="显示" un-checked-children="隐藏" />
       </a-form-item>
-      <a-form-item :label="$t('setting.pagetag')">
-        <a-switch @change="changePageTagFlag" v-model:checked="formState.pageTagFlag" checked-children="显示" un-checked-children="隐藏" />
-      </a-form-item>
+<!--      <a-form-item :label="$t('setting.pagetag')">-->
+<!--        <a-switch @change="changePageTagFlag" v-model:checked="formState.pageTagFlag" checked-children="显示" un-checked-children="隐藏" />-->
+<!--      </a-form-item>-->
       <a-form-item :label="$t('setting.footer')">
         <a-switch @change="changeFooterFlag" v-model:checked="formState.footerFlag" checked-children="显示" un-checked-children="隐藏" />
       </a-form-item>

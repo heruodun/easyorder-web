@@ -322,6 +322,8 @@
                     <exclude>test/*</exclude>
                     <exclude>pre/*</exclude>
                     <exclude>prod/*</exclude>
+                    <exclude>innerprod/*</exclude>
+                    <exclude>outerprod/*</exclude>
                 </excludes>
             </resource>
 
@@ -391,6 +393,20 @@
             <id>prod</id>
             <properties>
                 <profiles.active>prod</profiles.active>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>innerprod</id>
+            <properties>
+                <profiles.active>innerprod</profiles.active>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>outerprod</id>
+            <properties>
+                <profiles.active>outerprod</profiles.active>
             </properties>
         </profile>
     </profiles>

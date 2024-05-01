@@ -17,7 +17,7 @@ export const orderApi = {
 
     // 模糊查询地址
     searchAddress: (param) => {
-        return getPythonRequest('/address/fsearch', param);
+        return getPythonRequest('/local/address/fsearch', param);
     },
 };
 
