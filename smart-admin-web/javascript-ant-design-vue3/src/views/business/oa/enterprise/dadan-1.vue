@@ -1,6 +1,7 @@
 <template>
   <a-form
       ref="formRef"
+
       :model="formData"
       name="basic"
       autocomplete="off"
@@ -17,6 +18,7 @@
             label="地址"
             :rules="[{ required: true, message: '请输入地址',trigger: 'blur' }]">
           <AddressSelect ref="addressSelect"
+
                          placeholder="请输入地址"
                          v-model:value="formData.address" />
         </a-form-item>
@@ -29,12 +31,13 @@
             添加地址</a>
         </div>
       </a-col>
-      <a-col :span="5">
+      <a-col :span="5" >
         <a-form-item
             name="spec"
             label="规格"
             :rules="[{ required: true, message: '请输入规格' }]">
-          <a-input v-model:value="formData.spec" placeholder="请输入规格" />
+
+          <a-input  v-model:value="formData.spec"  placeholder="请输入规格" />
         </a-form-item>
       </a-col>
       <a-col :span="8">
@@ -55,12 +58,14 @@
           <a-table-column title="编号" dataIndex="id" key="id" />
           <a-table-column title="长度" dataIndex="length" key="length">
             <template #default="{ record, index }">
-              <a-input-number string-mode v-model:value="record.length" @change="onInputChange" style="width: 100%;" />
+              <a-input-number string-mode v-model:value="record.length" @change="onInputChange"
+                              class="bold-microsoft-yahei"
+                              />
             </template>
           </a-table-column>
           <a-table-column title="条数" dataIndex="count" key="count">
             <template #default="{ record, index }">
-              <a-input-number v-model:value="record.count" style="width: 100%;" />
+              <a-input-number v-model:value="record.count" class="bold-microsoft-yahei" />
             </template>
           </a-table-column>
         </a-table>
@@ -69,7 +74,7 @@
         <a-statistic
             title="总条数"
             :value="totalQuantity"
-            :value-style="{ color: '#3f8600' }"/>
+            :value-style="{color: '#3f8600'}"/>
       </a-col>
     </a-row>
 
@@ -78,7 +83,7 @@
       <a-button
           type="primary"
           htmlType="submit">
-        保存并打印
+        保存并打印（Ctr+P）
       </a-button>
     </a-form-item>
   </a-form>
@@ -375,3 +380,17 @@ const onInputChange = () => {
   // 由于我们使用了computed属性，当输入改变会自动更新totalQuantity
 };
 </script>
+
+<style scoped>
+.static-data{
+  font-size: 30px; /* 设置你需要的字体大小 */
+}
+
+.bold-microsoft-yahei {
+  width: 100%;
+  font-family: "Microsoft YaHei", sans-serif;
+  font-weight: 700; /* 或者 700 */
+  font-size: 25px; /* 设置你需要的字体大小 */
+}
+
+</style>

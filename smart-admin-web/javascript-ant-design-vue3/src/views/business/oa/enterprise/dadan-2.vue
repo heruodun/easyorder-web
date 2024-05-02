@@ -19,6 +19,7 @@
             :rules="[{ required: true, message: '请输入地址' }]">
           <AddressSelect ref="addressSelect"
                          placeholder="请输入地址"
+
                          v-model:value="formData.address" />
 
         </a-form-item>
@@ -33,7 +34,7 @@
 
       <a-col :span="8">
         <a-form-item label="备注">
-          <a-input v-model:value="formData.remark" placeholder="请输入备注" />
+          <a-input  v-model:value="formData.remark" placeholder="请输入备注" />
         </a-form-item>
       </a-col>
     </a-row>
@@ -47,19 +48,19 @@
             rowKey="id"
             border>
           <a-table-column title="编号" dataIndex="id" key="id" />
-          <a-table-column title="规格" dataIndex="length" key="length">
+          <a-table-column title="规格" dataIndex="length" key="length" >
             <template #default="{ record, index }">
-              <a-input string-mode v-model:value="record.guige" @change="onInputChange" style="width: 100%;" />
+              <a-input string-mode class="bold-microsoft-yahei" v-model:value="record.guige" @change="onInputChange" style="width: 100%;" />
             </template>
           </a-table-column>
           <a-table-column title="数量" dataIndex="count" key="count">
             <template #default="{ record, index }">
-              <a-input-number v-model:value="record.count" style="width: 100%;" />
+              <a-input-number class="bold-microsoft-yahei" v-model:value="record.count" style="width: 100%;" />
             </template>
           </a-table-column>
           <a-table-column title="单位" dataIndex="length" key="length">
             <template #default="{ record, index }">
-              <a-input string-mode v-model:value="record.danwei" @change="onInputChange" style="width: 100%;" />
+              <a-input string-mode class="bold-microsoft-yahei" v-model:value="record.danwei" @change="onInputChange" style="width: 100%;" />
             </template>
           </a-table-column>
         </a-table>
@@ -71,7 +72,7 @@
       <a-button
           type="primary"
           htmlType="submit">
-        保存并打印
+        保存并打印（Ctr+P）
       </a-button>
     </a-form-item>
   </a-form>
@@ -298,6 +299,7 @@ async function saveAndPrint() {
     if (response.status == 201) {
       const {create_time, order_id, qr_code} = response.data;
       orderPrint(create_time, order_id, qr_code);
+      message.info(`打印成功: ${order_id}`)
       console.log(`打印成功: ${order_id}`)
     } else {
       // This block will execute for any status code other than 201
@@ -363,3 +365,17 @@ const onInputChange = () => {
   // 由于我们使用了computed属性，当输入改变会自动更新totalQuantity
 };
 </script>
+
+<style scoped>
+.static-data{
+  font-size: 30px; /* 设置你需要的字体大小 */
+}
+
+.bold-microsoft-yahei {
+  width: 100%;
+  font-family: "Microsoft YaHei", sans-serif;
+  font-weight: 700; /* 或者 700 */
+  font-size: 25px; /* 设置你需要的字体大小 */
+}
+
+</style>

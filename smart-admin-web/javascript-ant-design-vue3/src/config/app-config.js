@@ -18,7 +18,7 @@ export const appDefaultConfig = {
   // 页脚
   footerFlag: true,
   // 帮助文档
-  helpDocFlag: true,
+  helpDocFlag: false,
   // 水印
   watermarkFlag: true,
   // 网站名称
