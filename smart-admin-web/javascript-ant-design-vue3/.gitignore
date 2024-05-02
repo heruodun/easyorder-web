@@ -4,3 +4,6 @@ dist
 dist-ssr
 *.local
 .idea
+/javascript-ant-design-vue3.iml
+/package-lock.json
+/yarn.lock
