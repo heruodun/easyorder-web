@@ -282,11 +282,11 @@ public class EmployeeService {
             return ResponseDTO.userErrorParam("新密码与原始密码相同，请重新输入");
         }
 
-        // 校验密码复杂度
-        ResponseDTO<String> validatePassComplexity = protectPasswordService.validatePassComplexity(newPassword);
-        if (!validatePassComplexity.getOk()) {
-            return validatePassComplexity;
-        }
+//        // 校验密码复杂度
+//        ResponseDTO<String> validatePassComplexity = protectPasswordService.validatePassComplexity(newPassword);
+//        if (!validatePassComplexity.getOk()) {
+//            return validatePassComplexity;
+//        }
 
         // 更新密码
         EmployeeEntity updateEntity = new EmployeeEntity();

@@ -12,8 +12,9 @@
             v-model:value="loginForm.password"
             autocomplete="on"
             :type="showPassword ? 'text' : 'password'"
-            placeholder="请输入密码：至少三种字符，最小 8 位"
+            placeholder="请输入密码"
           />
+          <!--            placeholder="请输入密码：至少三种字符，最小 8 位"-->
         </a-form-item>
         <a-form-item name="captchaCode">
           <a-input class="captcha-input" v-model:value.trim="loginForm.captchaCode" placeholder="请输入验证码" />
