@@ -1,7 +1,6 @@
 <template>
   <a-form
       ref="formRef"
-
       :model="formData"
       name="basic"
       autocomplete="off"
@@ -18,7 +17,6 @@
             label="地址"
             :rules="[{ required: true, message: '请输入地址',trigger: 'blur' }]">
           <AddressSelect ref="addressSelect"
-
                          placeholder="请输入地址"
                          v-model:value="formData.address" />
         </a-form-item>
@@ -41,7 +39,7 @@
         </a-form-item>
       </a-col>
       <a-col :span="8">
-        <a-form-item label="备注">
+        <a-form-item  name="remark" label="备注">
           <a-input v-model:value="formData.remark" placeholder="请输入备注" />
         </a-form-item>
       </a-col>
@@ -51,6 +49,7 @@
     <a-row :gutter="16">
       <a-col :span="19">
         <a-table
+            ref="tableRef"
             :dataSource="formData.tableData"
             :pagination="false"
             rowKey="id"
@@ -65,13 +64,14 @@
           </a-table-column>
           <a-table-column title="条数" dataIndex="count" key="count">
             <template #default="{ record, index }">
-              <a-input-number v-model:value="record.count" class="bold-microsoft-yahei" />
+              <a-input-number v-model:value="record.count" class="bold-number" />
             </template>
           </a-table-column>
         </a-table>
       </a-col>
       <a-col :span="5" style="display: flex; align-items: center; justify-content: center;">
         <a-statistic
+            name="totalCount"
             title="总条数"
             :value="totalQuantity"
             :value-style="{color: '#3f8600'}"/>
@@ -79,12 +79,10 @@
     </a-row>
 
     <!-- 提交按钮 -->
-    <a-form-item>
-      <a-button
-          type="primary"
-          htmlType="submit">
-        保存并打印（Ctr+P）
+    <a-form-item :wrapper-col="{ span: 14, offset: 4 }">
+      <a-button type="primary" htmlType="submit">保存并打印（Ctr+P）
       </a-button>
+      <a-button style="margin-left: 10px" @click="resetForm">一键清空</a-button>
     </a-form-item>
   </a-form>
 </template>
@@ -99,7 +97,9 @@ import { orderApi } from '/src/api/business/oa/order-api';
 import { printT1 } from '/@/lib/smart-print.js';
 
 const formRef = ref(); // Create a reference to the form
+const tableRef = ref();
 const addressSelect = ref();
+
 
 function orderPrint(time, orderId, orderIdStr){
   const userStore = useUserStore(); // 使用你的 store
@@ -134,6 +134,20 @@ const formData = reactive({
     count: null
   }))
 });
+
+
+function resetForm() {
+  // 重置简单表单字段
+  addressSelect.value.reset()
+  formData.spec = '';
+  formData.remark = '';
+  // 重置表格数据
+  formData.tableData = formData.tableData.map((item, i) => ({
+    id: i + 1,
+    length: null,
+    count: null
+  }));
+}
 
 async function saveAndPrint() {
   try {
@@ -382,13 +396,16 @@ const onInputChange = () => {
 </script>
 
 <style scoped>
-.static-data{
-  font-size: 30px; /* 设置你需要的字体大小 */
-}
 
 .bold-microsoft-yahei {
   width: 100%;
   font-family: "Microsoft YaHei", sans-serif;
+  font-weight: 700; /* 或者 700 */
+  font-size: 25px; /* 设置你需要的字体大小 */
+}
+
+.bold-number {
+  width: 100%;
   font-weight: 700; /* 或者 700 */
   font-size: 25px; /* 设置你需要的字体大小 */
 }

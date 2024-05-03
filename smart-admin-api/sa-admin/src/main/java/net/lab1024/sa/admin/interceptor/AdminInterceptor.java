@@ -84,7 +84,7 @@ public class AdminInterceptor implements HandlerInterceptor {
             Method method = ((HandlerMethod) handler).getMethod();
             NoNeedLogin noNeedLogin = ((HandlerMethod) handler).getMethodAnnotation(NoNeedLogin.class);
             if (noNeedLogin != null) {
-                checkActiveTimeout(requestEmployee,debugNumberTokenFlag);
+//                checkActiveTimeout(requestEmployee,debugNumberTokenFlag);
                 return true;
             }
 
@@ -94,7 +94,7 @@ public class AdminInterceptor implements HandlerInterceptor {
             }
 
             // 检测token 活跃频率
-            checkActiveTimeout(requestEmployee,debugNumberTokenFlag);
+//            checkActiveTimeout(requestEmployee,debugNumberTokenFlag);
 
 
             // --------------- 第三步： 校验 权限 ---------------

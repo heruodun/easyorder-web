@@ -16,7 +16,7 @@
 
 
 <script setup>
-  import { onMounted, ref, watch } from 'vue';
+  import { ref, watch } from 'vue';
   import {orderApi} from "/@/api/business/oa/order-api.js";
   let timeout;
   let currentValue = '';
@@ -46,18 +46,21 @@
 
 
   const onSearch = searchText => {
-    console.log('searchText');
+    console.log('onSearch ' + searchText);
     fetch(searchText, d => (options.value = d));
   };
   const onSelect = value => {
+    console.log("onSelect " + value);
     emit('update:value', value);  // 跟上面类似，确保在选择时更新外部 v-model 绑定的值
   };
 
   const handleChange = val => {
-    console.log(val);
+    console.log("handleChange " + val);
     fetch(val, d => (options.value = d));
     emit('update:value', val);  // emit an event for v-model binding
   };
+
+
 
   async function fetch(value, callback) {
     if (timeout) {
@@ -107,4 +110,14 @@
         selectAddress.value = newValue;
       }
   );
+
+  function reset(){
+    console.log("reset");
+    emit('update:value', '');
+  }
+
+  defineExpose({
+    reset,
+  });
+
 </script>
