@@ -1,0 +1,320 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <style>
+        html,
+        body,
+        #container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    <title>规划结果 + 驾车路线绘制</title>
+    <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css" />
+    <script type="text/javascript">
+        window._AMapSecurityConfig = {
+            securityJsCode: "ab4572c62d456fbc4c78d1861e88c7b3",
+        };
+    </script>
+    <script src="https://webapi.amap.com/maps?v=2.0&key=ef07b68f9ba4b5cf14dc3f84e6afdac7&plugin=AMap.Driving"></script>
+    <script src="https://a.amap.com/jsapi_demos/static/demo-center/js/demoutils.js"></script>
+</head>
+<body>
+<div id="container"></div>
+<div id="panel"></div>
+<script type="text/javascript">
+    var map = new AMap.Map("container", {
+        center: [120.241519, 30.885556],
+        zoom: 14
+    });
+
+    var drivingOption = {
+        policy: AMap.DrivingPolicy.LEAST_TIME, // 其它policy参数请参考 https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingPolicy
+        ferry: 1, // 是否可以使用轮渡
+        province: '京', // 车牌省份的汉字缩写
+    }
+
+    var locations =[
+        [
+            21,
+            1030,
+            "小王牛筋",
+            120.241519,
+            30.885556
+        ],
+        [
+            13,
+            30,
+            "中华1001-29-6",
+            120.2751696660481,
+            30.87736287623377
+        ],
+        [
+            12,
+            29,
+            "中华1001-29-2",
+            120.27519158993762,
+            30.8773800856168
+        ],
+        [
+            7,
+            24,
+            "中华1001-19-5",
+            120.27521116039274,
+            30.876683759161356
+        ],
+        [
+            6,
+            23,
+            "中华1001-19-4西",
+            120.27524082451413,
+            30.876673109682027
+        ],
+        [
+            5,
+            22,
+            "中华1001-19-2-西",
+            120.27522283751743,
+            30.876638283206336
+        ],
+        [
+            4,
+            21,
+            "中华1001-18-302",
+            120.27599,
+            30.876596
+        ],
+        [
+            8,
+            25,
+            "中华1001-21-3",
+            120.27672832295713,
+            30.87699895552295
+        ],
+        [
+            11,
+            28,
+            "中华1001-27-3",
+            120.276651,
+            30.877386
+        ],
+        [
+            10,
+            27,
+            "中华1001-26-3",
+            120.27711151324998,
+            30.87746402383949
+        ],
+        [
+            2,
+            19,
+            "中华西1001-15-502",
+            120.27767188984778,
+            30.87699796334388
+        ],
+        [
+            3,
+            20,
+            "中华1001-16-6",
+            120.277239,
+            30.876745
+        ],
+        [
+            9,
+            26,
+            "中华1001-2-502",
+            120.27680442065245,
+            30.875613006232456
+        ],
+        [
+            18,
+            1012,
+            "昌大隔壁家纺",
+            120.30313,
+            30.845852
+        ],
+        [
+            0,
+            17,
+            "彩虹100",
+            120.257382,
+            30.86128
+        ],
+        [
+            1,
+            18,
+            "钱塘江100",
+            120.260843,
+            30.850746
+        ],
+        [
+            14,
+            740,
+            "利强72",
+            120.255788,
+            30.846612
+        ],
+        [
+            20,
+            1029,
+            "织里中393",
+            120.25761,
+            30.84574
+        ],
+        [
+            17,
+            954,
+            "富兴52",
+            120.256109,
+            30.845049
+        ],
+        [
+            15,
+            752,
+            "富兴73",
+            120.254637,
+            30.844803
+        ],
+        [
+            16,
+            840,
+            "利安88-3",
+            120.246735,
+            30.85029
+        ],
+        [
+            19,
+            1022,
+            "送安康西518-2-4王佳新",
+            120.245881,
+            30.852062
+        ],
+        [
+            21,
+            1030,
+            "小王牛筋",
+            120.241519,
+            30.885556
+        ]
+    ];
+
+
+    // 构造路线导航类
+    var driving = new AMap.Driving(drivingOption)
+
+    //点标记显示内容
+    const markerContent = `<div class="custom-content-marker">
+<img src="//a.amap.com/jsapi_demos/static/demo-center/icons/dir-via-marker.png">
+<div class="close-btn" onclick="clearMarker()">X</div>
+</div>`
+
+    function planAndDrawDrivingRoute() {
+        //mark location
+        var startMarker = new AMap.Marker({
+            position: [120.241519, 30.885556],
+            icon: 'https://webapi.amap.com/theme/v1.3/markers/n/start.png',
+            map: map});
+        var endMarker;
+        for(var k = 1; k < locations.length - 1; k++){
+            var marker = new AMap.Marker({
+                position: [locations[k][3], locations[k][4]],
+                icon: 'https://webapi.amap.com/theme/v1.3/markers/n/end.png',
+                map: map});
+            if(k == locations.length - 2){
+                endMarker = marker;
+            }
+        }
+
+
+        var routeList = [];
+        for (var i = 0; i < locations.length - 1; i++) {
+
+            // 当前位置作为起点
+            var startLocation = locations[i];
+            // 下一个位置作为终点
+            var endLocation = locations[i + 1];
+            // 使用 AMap.LngLat 对象实例化起点和终点坐标
+            var startPoint = new AMap.LngLat(startLocation[3], startLocation[4]);
+            var endPoint = new AMap.LngLat(endLocation[3], endLocation[4]);
+
+            // 调用AMap路线规划API
+            driving.search(startPoint, endPoint, function(status, result) {
+                if (status === 'complete') {
+                    if (result.routes && result.routes.length) {
+                        // 这里的 drawRoute 方法代表将驾车路线绘制在地图上，您需要根据自己的业务需求实现它
+                        routeList.push(result.routes[0]);
+                        if(routeList.length === locations.length - 1){
+                            drawRoute(routeList, startMarker, endMarker);
+                        }
+                        console.log(result.routes[0] + " " + routeList);
+                    }
+                } else {
+                    console.error('获取驾车数据失败：' + result);
+                }
+            });
+        }
+    }
+
+
+    function drawRoute (routeList, startMarker, endMarker) {
+        var totalPath = []
+        for(let j = 0; j < routeList.length; j++) {
+            var path = parseRouteToPath(routeList[j]);
+            totalPath.push(path)
+
+            console.log(" path : " + path );
+            console.log("path 0 " + path[0]);
+        }
+
+
+        var routeLine = new AMap.Polyline({
+            path: totalPath,
+            showDir:true,
+            isOutline: true,
+            outlineColor: '#ffeeee',
+            borderWeight: 2,
+            strokeWeight: 5,
+            strokeOpacity: 0.9,
+            strokeColor: '#008cff',
+            lineJoin: 'round'
+        })
+        map.add(routeLine);
+        // 调整视野达到最佳显示区域
+        map.setFitView([ startMarker, endMarker, routeLine ])
+    }
+
+    // 解析DrivingRoute对象，构造成AMap.Polyline的path参数需要的格式
+    // DrivingResult对象结构参考文档 https://lbs.amap.com/api/javascript-api/reference/route-search#m_DriveRoute
+    function parseRouteToPath(route) {
+        var path = []
+
+        for (var i = 0, l = route.steps.length; i < l; i++) {
+            var step = route.steps[i]
+
+            for (var j = 0, n = step.path.length; j < n; j++) {
+                path.push(step.path[j])
+            }
+        }
+
+        return path
+    }
+
+    planAndDrawDrivingRoute();
+
+    //
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
