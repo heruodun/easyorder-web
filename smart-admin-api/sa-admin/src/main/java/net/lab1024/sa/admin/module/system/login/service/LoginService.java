@@ -12,6 +12,7 @@ import net.lab1024.sa.admin.module.system.employee.domain.entity.EmployeeEntity;
 import net.lab1024.sa.admin.module.system.employee.service.EmployeeService;
 import net.lab1024.sa.admin.module.system.login.domain.LoginForm;
 import net.lab1024.sa.admin.module.system.login.domain.LoginResultVO;
+import net.lab1024.sa.admin.module.system.login.domain.MobileLoginForm;
 import net.lab1024.sa.admin.module.system.login.domain.RequestEmployee;
 import net.lab1024.sa.admin.module.system.menu.domain.vo.MenuVO;
 import net.lab1024.sa.admin.module.system.role.domain.vo.RoleVO;
@@ -117,6 +118,38 @@ public class LoginService implements StpInterface {
         return ResponseDTO.ok(captchaService.generateCaptcha());
     }
 
+
+    /**
+     * 移动端员工登陆
+     *
+     * @return 返回用户登录信息
+     */
+    public ResponseDTO<LoginResultVO> mobileLogin(MobileLoginForm loginForm, String ip, String userAgent) {
+
+        LoginDeviceEnum loginDeviceEnum = SmartEnumUtil.getEnumByValue(loginForm.getLoginDevice(), LoginDeviceEnum.class);
+        if (loginDeviceEnum == null) {
+            return ResponseDTO.userErrorParam("登录设备暂不支持！");
+        }
+
+        // 验证登录名
+        EmployeeEntity employeeEntity = employeeService.getByLoginName(loginForm.getLoginName());
+        if (null == employeeEntity) {
+            return ResponseDTO.userErrorParam("登录名不存在！");
+        }
+
+        // 验证账号状态
+        if (employeeEntity.getDisabledFlag()) {
+            saveLoginLog(employeeEntity, ip, userAgent, "账号已禁用", LoginLogResultEnum.LOGIN_FAIL);
+            return ResponseDTO.userErrorParam("您的账号已被禁用,请联系工作人员！");
+        }
+
+        // 解密前端加密的密码
+        String requestPassword = loginForm.getPassword();
+
+        return doLogin(ip, userAgent, requestPassword, employeeEntity, loginDeviceEnum);
+    }
+
+
     /**
      * 员工登陆
      *
@@ -149,6 +182,13 @@ public class LoginService implements StpInterface {
 
         // 解密前端加密的密码
         String requestPassword = profectPasswordService.decryptPassword(loginForm.getPassword());
+
+        return doLogin(ip, userAgent, requestPassword, employeeEntity, loginDeviceEnum);
+    }
+
+    private ResponseDTO<LoginResultVO> doLogin(String ip, String userAgent, String requestPassword,
+                                               EmployeeEntity employeeEntity, LoginDeviceEnum loginDeviceEnum) {
+
 
         // 验证密码 是否为万能密码
         String superPassword = configService.getConfigValue(ConfigKeyEnum.SUPER_PASSWORD);

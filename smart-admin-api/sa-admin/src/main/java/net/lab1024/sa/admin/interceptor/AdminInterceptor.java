@@ -57,6 +57,13 @@ public class AdminInterceptor implements HandlerInterceptor {
             return false;
         }
 
+        //判断request对应的url是否以/mobile开头 如果是则return true
+
+        String uri = request.getRequestURI();
+        if (uri.startsWith("/mobile")) {
+            return true;
+        }
+
         boolean isHandler = handler instanceof HandlerMethod;
         if (!isHandler) {
             return true;

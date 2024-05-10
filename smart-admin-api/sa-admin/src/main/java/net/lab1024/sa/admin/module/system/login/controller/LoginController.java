@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import net.lab1024.sa.admin.constant.AdminSwaggerTagConst;
 import net.lab1024.sa.admin.module.system.login.domain.LoginForm;
 import net.lab1024.sa.admin.module.system.login.domain.LoginResultVO;
+import net.lab1024.sa.admin.module.system.login.domain.MobileLoginForm;
 import net.lab1024.sa.admin.module.system.login.service.LoginService;
 import net.lab1024.sa.admin.util.AdminRequestUtil;
 import net.lab1024.sa.base.common.annoation.NoNeedLogin;
@@ -43,6 +44,15 @@ public class LoginController {
         String ip = ServletUtil.getClientIP(request);
         String userAgent = ServletUtil.getHeaderIgnoreCase(request, RequestHeaderConst.USER_AGENT);
         return loginService.login(loginForm, ip, userAgent);
+    }
+
+    @NoNeedLogin
+    @PostMapping("/mobile/login")
+    @Operation(summary = "移动端登录 @author 大航")
+    public ResponseDTO<LoginResultVO> mobileLogin(@Valid @RequestBody MobileLoginForm loginForm, HttpServletRequest request) {
+        String ip = ServletUtil.getClientIP(request);
+        String userAgent = ServletUtil.getHeaderIgnoreCase(request, RequestHeaderConst.USER_AGENT);
+        return loginService.mobileLogin(loginForm, ip, userAgent);
     }
 
     @GetMapping("/login/getLoginInfo")
