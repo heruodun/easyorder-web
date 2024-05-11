@@ -57,7 +57,7 @@ public class WaveInfoService {
         // 转换为SQL可用的字符串格式（这里例子假设数据库使用的是DateTime格式）
         String startOfDayStr = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(startOfDay);
         String startOfNextDayStr = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(startOfNextDay);
-        List<WaveInfoEntity> list = waveInfoDao.queryPage(startOfDayStr, startOfNextDayStr);
+        List<WaveInfoEntity> list = waveInfoDao.queryByTime(startOfDayStr, startOfNextDayStr);
         int[] waveIds = new int[list.size()];
         int i = 0;
         for(WaveInfoEntity waveInfoVO : list){
@@ -66,22 +66,41 @@ public class WaveInfoService {
 
         Map<Integer, Object> map = WaveHttpService.get(waveIds);
         for (WaveInfoEntity waveInfoEntity : list) {
-            WaveInfoVO waveInfoVO = SmartBeanUtil.copy(waveInfoEntity, WaveInfoVO.class);
-
-            if(map != null && map.get(waveInfoEntity.getWaveId()) != null) {
-                waveInfoVO.setWaveDetail( map.get(waveInfoEntity.getWaveId()));
-            }
-            else {
-                Map<String, Object> map1 = new HashMap<>();
-                map1.put("addresses", new ArrayList<>());
-                map1.put("totalCount", 0);
-                map1.put("addressCount", 0);
-                waveInfoVO.setWaveDetail(map1);
-            }
-            resultList.add(waveInfoVO);
+            resultList.add(getWaveInfoVO(waveInfoEntity, map));
         }
 
         return resultList;
+    }
+
+    private WaveInfoVO getWaveInfoVO(WaveInfoEntity waveInfoEntity, Map<Integer, Object> map){
+        WaveInfoVO waveInfoVO = SmartBeanUtil.copy(waveInfoEntity, WaveInfoVO.class);
+
+        if(map != null && map.get(waveInfoEntity.getWaveId()) != null) {
+            waveInfoVO.setWaveDetail( map.get(waveInfoEntity.getWaveId()));
+        }
+        else {
+            Map<String, Object> map1 = new HashMap<>();
+            map1.put("addresses", new ArrayList<>());
+            map1.put("totalCount", 0);
+            map1.put("addressCount", 0);
+            waveInfoVO.setWaveDetail(map1);
+        }
+        return waveInfoVO;
+    }
+
+
+    public WaveInfoVO queryById(Integer waveId) {
+
+        WaveInfoEntity waveInfoEntity = waveInfoDao.queryById(waveId);
+        if(waveInfoEntity == null){
+            return new WaveInfoVO();
+        }
+
+        int[] waveIds = new int[]{waveInfoEntity.getWaveId()};
+
+        Map<Integer, Object> map = WaveHttpService.get(waveIds);
+
+        return getWaveInfoVO(waveInfoEntity, map);
     }
 
 

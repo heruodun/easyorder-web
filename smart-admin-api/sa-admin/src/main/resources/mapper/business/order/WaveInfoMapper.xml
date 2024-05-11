@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="net.lab1024.sa.admin.module.business.order.dao.WaveInfoDao">
-    <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.order.domain.entity.WaveInfoEntity">
+    <select id="queryByTime" resultType="net.lab1024.sa.admin.module.business.order.domain.entity.WaveInfoEntity">
         SELECT * FROM t_wave_info
-        WHERE create_time &gt;= #{startTime} AND  create_time  &lt; #{endTime}
+        WHERE create_time &gt;= #{startTime} AND  create_time  &lt; #{endTime} order by create_time desc
+    </select>
+
+    <select id="queryById" resultType="net.lab1024.sa.admin.module.business.order.domain.entity.WaveInfoEntity">
+        SELECT * FROM t_wave_info
+        WHERE wave_id = #{waveId}
     </select>
 
     <insert id="insertWaveInfo" parameterType="net.lab1024.sa.admin.module.business.order.domain.entity.WaveInfoEntity" useGeneratedKeys="true" keyProperty="waveId">

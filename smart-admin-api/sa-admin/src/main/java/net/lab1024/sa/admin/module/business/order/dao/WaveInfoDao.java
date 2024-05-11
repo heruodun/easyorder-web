@@ -23,7 +23,9 @@ import org.springframework.stereotype.Component;
 public interface WaveInfoDao extends BaseMapper<WaveInfoEntity> {
 
 
-    List<WaveInfoEntity> queryPage(@Param("startTime") String startTime, @Param("endTime") String endTime);
+    List<WaveInfoEntity> queryByTime(@Param("startTime") String startTime, @Param("endTime") String endTime);
+
+    WaveInfoEntity queryById(@Param("waveId")Integer waveId);
 
     int insertWaveInfo(WaveInfoEntity waveInfoEntity);
 }

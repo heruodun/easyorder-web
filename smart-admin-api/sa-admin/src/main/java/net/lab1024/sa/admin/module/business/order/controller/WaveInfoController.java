@@ -34,9 +34,15 @@ public class WaveInfoController {
 
 
     @Operation(summary = "查询 @author dahang")
-    @GetMapping("/mobile/waveInfo")
+    @GetMapping("/mobile/waveInfos")
     public ResponseDTO<List<WaveInfoVO>> queryPage(@RequestParam @Valid String date) {
         return ResponseDTO.ok(waveInfoService.queryPage(date));
+    }
+
+    @Operation(summary = "查询 @author dahang")
+    @GetMapping("/mobile/waveInfo")
+    public ResponseDTO<WaveInfoVO> queryById(@RequestParam @Valid Integer waveId) {
+        return ResponseDTO.ok(waveInfoService.queryById(waveId));
     }
 
     @Operation(summary = "添加 @author dahang")
