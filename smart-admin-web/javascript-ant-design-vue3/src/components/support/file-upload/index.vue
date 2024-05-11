@@ -75,7 +75,7 @@
     },
     maxSize: {
       type: Number,
-      default: 10,
+      default: 100,
     },
     // 上传的文件类型
     accept: {
