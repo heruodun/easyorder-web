@@ -60,7 +60,7 @@ public class AdminInterceptor implements HandlerInterceptor {
         //判断request对应的url是否以/mobile开头 如果是则return true
 
         String uri = request.getRequestURI();
-        if (uri.startsWith("/mobile")) {
+        if (uri.startsWith("/mobile") || uri.startsWith("/support/file/downLoad")) {
             return true;
         }
 
