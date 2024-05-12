@@ -151,7 +151,13 @@ function resetForm() {
 
 async function saveAndPrint() {
   try {
+    if (isSubmitting.value) {
+      message.error(`提交太频繁，稍后重试`);
+      return;
+    }
+
     SmartLoading.show();
+    isSubmitting.value = true; // 开始提交，设置状态为true以避免重复提交
     //检查打印机客户端是否连接上
     if (hiprint.hiwebSocket.opened) {
       console.log("已连接打印客户端")
@@ -339,6 +345,7 @@ async function saveAndPrint() {
     message.error(`表单提交失败: ${errorMessage}`); // Corrected to use template literals
   }finally {
     SmartLoading.hide();
+    isSubmitting.value = false; // 无论成功或失败，重置提交状态
   }
 }
 
@@ -374,6 +381,9 @@ onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleKeyPress);
   activeTabStore().setActive(null);
 });
+
+
+const isSubmitting = ref(false); // 控制提交状态的变量
 
 function handleKeyPress(event) {
   if (('#/business/oa/enterprise/dadan_1' == activeTabStore().getActive()) && (event.ctrlKey || event.metaKey) && event.key === 'p') {
