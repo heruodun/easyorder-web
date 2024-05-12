@@ -273,6 +273,7 @@ public class LoginService implements StpInterface {
             loginResultVO.setLastLoginIpRegion(loginLogVO.getLoginIpRegion());
             loginResultVO.setLastLoginTime(loginLogVO.getCreateTime());
             loginResultVO.setLastLoginUserAgent(loginLogVO.getUserAgent());
+            loginResultVO.setRoleList(userPermission.getRoleList());
         }
 
         return loginResultVO;
