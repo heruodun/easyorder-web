@@ -52,7 +52,7 @@ public class WaveHttpService {
     }
 
 
-    public static JSONObject getOrder(int orderId) {
+    public static JSONObject getOrder(Long orderId) {
 
         final String SERVICE_URL2 =  "http://yourwebsite.com/order?order_id=" + orderId;
 

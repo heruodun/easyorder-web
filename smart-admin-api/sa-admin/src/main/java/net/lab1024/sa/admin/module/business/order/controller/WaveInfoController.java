@@ -47,7 +47,7 @@ public class WaveInfoController {
 
     @Operation(summary = "查询 @author dahang")
     @GetMapping("/mobile/waveInfoFromOrderId")
-    public ResponseDTO<WaveInfoVO> queryByOrderId(@RequestParam @Valid Integer orderId) {
+    public ResponseDTO<WaveInfoVO> queryByOrderId(@RequestParam @Valid Long orderId) {
         return ResponseDTO.ok(waveInfoService.queryByOrderId(orderId));
     }
 

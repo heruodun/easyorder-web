@@ -104,7 +104,7 @@ public class WaveInfoService {
         return getWaveInfoVO(waveInfoEntity, map);
     }
 
-    public WaveInfoVO queryByOrderId(Integer orderId) {
+    public WaveInfoVO queryByOrderId(Long orderId) {
 
         JSONObject jsonObject = WaveHttpService.getOrder(orderId);
         if(jsonObject == null){
