@@ -45,6 +45,13 @@ public class WaveInfoController {
         return ResponseDTO.ok(waveInfoService.queryById(waveId));
     }
 
+    @Operation(summary = "查询 @author dahang")
+    @GetMapping("/mobile/waveInfoFromOrderId")
+    public ResponseDTO<WaveInfoVO> queryByOrderId(@RequestParam @Valid Integer orderId) {
+        return ResponseDTO.ok(waveInfoService.queryByOrderId(orderId));
+    }
+
+
     @Operation(summary = "添加 @author dahang")
     @PostMapping("/mobile/waveInfo/add")
     public ResponseDTO<WaveInfoVO> add(@RequestBody @Valid WaveInfoAddForm addForm) {

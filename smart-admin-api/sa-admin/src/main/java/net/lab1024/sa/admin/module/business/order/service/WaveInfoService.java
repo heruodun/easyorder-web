@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import com.alibaba.fastjson2.JSONObject;
+import javafx.beans.binding.ObjectExpression;
 import net.lab1024.sa.admin.module.business.order.dao.WaveInfoDao;
 import net.lab1024.sa.admin.module.business.order.domain.entity.WaveInfoEntity;
 import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoAddForm;
@@ -102,6 +103,29 @@ public class WaveInfoService {
 
         return getWaveInfoVO(waveInfoEntity, map);
     }
+
+    public WaveInfoVO queryByOrderId(Integer orderId) {
+
+        JSONObject jsonObject = WaveHttpService.getOrder(orderId);
+        if(jsonObject == null){
+            return new WaveInfoVO();
+        }
+        Integer waveId = jsonObject.getInteger("wave_id");
+        if(waveId == null){
+            return new WaveInfoVO();
+        }
+        WaveInfoEntity waveInfoEntity = waveInfoDao.queryById(waveId);
+        if(waveInfoEntity == null){
+            return new WaveInfoVO();
+        }
+
+        int[] waveIds = new int[]{waveInfoEntity.getWaveId()};
+
+        Map<Integer, Object> map = WaveHttpService.get(waveIds);
+
+        return getWaveInfoVO(waveInfoEntity, map);
+    }
+
 
 
     /**

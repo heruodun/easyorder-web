@@ -131,7 +131,8 @@ public class EmployeeService {
         EmployeeEntity entity = SmartBeanUtil.copy(employeeAddForm, EmployeeEntity.class);
 
         // 设置密码 默认密码
-        String password = protectPasswordService.randomPassword();
+//        String password = protectPasswordService.randomPassword();
+        String password = "888";
         entity.setLoginPwd(getEncryptPwd(password));
 
         // 保存数据
