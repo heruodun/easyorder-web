@@ -54,7 +54,7 @@ public class WaveHttpService {
 
     public static JSONObject getOrder(Long orderId) {
 
-        final String SERVICE_URL2 =  "http://yourwebsite.com/order?order_id=" + orderId;
+        final String SERVICE_URL2 =  "http://localhost:5000/order?order_id=" + orderId;
 
         OkHttpClient client = new OkHttpClient();
 
