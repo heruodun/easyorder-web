@@ -46,6 +46,16 @@ public class WaveInfoEntity {
     private LocalDateTime updateTime;
 
     /**
+     * 状态 0拣货 1送货
+     */
+    private int status = 0;
+
+    /**
+     * 送货时间
+     */
+    private LocalDateTime shipTime;
+
+    /**
      * 第一次扫码时间
      */
     private LocalDateTime firstScanTime;

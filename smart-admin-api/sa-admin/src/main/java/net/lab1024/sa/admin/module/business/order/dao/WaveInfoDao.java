@@ -28,4 +28,6 @@ public interface WaveInfoDao extends BaseMapper<WaveInfoEntity> {
     WaveInfoEntity queryById(@Param("waveId")Integer waveId);
 
     int insertWaveInfo(WaveInfoEntity waveInfoEntity);
+
+    int updateWaveInfo(@Param("waveId")Integer waveId, @Param("status")Integer status, @Param("shipTime") String shipTime);
 }

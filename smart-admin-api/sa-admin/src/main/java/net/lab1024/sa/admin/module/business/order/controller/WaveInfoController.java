@@ -2,6 +2,7 @@ package net.lab1024.sa.admin.module.business.order.controller;
 
 import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoAddForm;
 import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoQueryForm;
+import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoShipForm;
 import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoUpdateForm;
 import net.lab1024.sa.admin.module.business.order.domain.vo.WaveInfoVO;
 import net.lab1024.sa.admin.module.business.order.service.WaveInfoService;
@@ -56,6 +57,12 @@ public class WaveInfoController {
     @PostMapping("/mobile/waveInfo/add")
     public ResponseDTO<WaveInfoVO> add(@RequestBody @Valid WaveInfoAddForm addForm) {
         return waveInfoService.add(addForm);
+    }
+
+    @Operation(summary = "添加 @author dahang")
+    @PostMapping("/mobile/waveInfo/ship")
+    public ResponseDTO<Boolean> ship(@RequestBody @Valid WaveInfoShipForm shipForm) {
+        return waveInfoService.ship(shipForm);
     }
 
         @Operation(summary = "更新 @author dahang")

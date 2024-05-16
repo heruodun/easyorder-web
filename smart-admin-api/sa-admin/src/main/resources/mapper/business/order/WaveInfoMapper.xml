@@ -16,4 +16,10 @@
         VALUES (#{waveAlias}, #{createMan})
     </insert>
 
+    <update id="updateWaveInfo">
+        UPDATE t_wave_info
+        SET status = #{status}, ship_time = #{shipTime}
+        WHERE wave_id = #{waveId}
+    </update>
+
 </mapper>

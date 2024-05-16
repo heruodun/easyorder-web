@@ -14,8 +14,11 @@ import net.lab1024.sa.admin.module.business.order.dao.WaveInfoDao;
 import net.lab1024.sa.admin.module.business.order.domain.entity.WaveInfoEntity;
 import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoAddForm;
 import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoQueryForm;
+import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoShipForm;
 import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoUpdateForm;
 import net.lab1024.sa.admin.module.business.order.domain.vo.WaveInfoVO;
+import net.lab1024.sa.base.common.code.ErrorCode;
+import net.lab1024.sa.base.common.code.OrderErrorCode;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import net.lab1024.sa.base.common.util.SmartPageUtil;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
@@ -152,6 +155,36 @@ public class WaveInfoService {
         // 返回带有新插入波次信息的ResponseDTO
         return ResponseDTO.ok(waveInfoVO);
     }
+
+    /**
+     * 送货
+     */
+    public ResponseDTO<Boolean> ship(WaveInfoShipForm shipForm) {
+        WaveInfoEntity waveInfoEntity = waveInfoDao.selectById(shipForm.getWaveId());
+        if(waveInfoEntity == null){
+            return ResponseDTO.error(OrderErrorCode.DATA_NOT_EXIST);
+        }
+        LocalDateTime now = LocalDateTime.now();
+        String nowStr = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(now);
+        int ok = waveInfoDao.updateWaveInfo(shipForm.getWaveId(), 1, nowStr);
+
+        if(ok > 0){
+            //update remote
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    WaveHttpService.ship(shipForm.getWaveId(), shipForm.getOperator());
+                }
+            });
+            thread.start();
+            return ResponseDTO.ok(Boolean.TRUE);
+        }
+
+        // 返回带有新插入波次信息的ResponseDTO
+        return ResponseDTO.error(OrderErrorCode.FORM_SUBMIT_FAIL);
+    }
+
+    /**
 
     /**
      * 更新
