@@ -1,29 +1,21 @@
 package net.lab1024.sa.admin.module.business.order.service;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import com.alibaba.fastjson2.JSONObject;
-import javafx.beans.binding.ObjectExpression;
 import net.lab1024.sa.admin.module.business.order.dao.WaveInfoDao;
 import net.lab1024.sa.admin.module.business.order.domain.entity.WaveInfoEntity;
 import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoAddForm;
-import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoQueryForm;
 import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoShipForm;
 import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoUpdateForm;
 import net.lab1024.sa.admin.module.business.order.domain.vo.WaveInfoVO;
-import net.lab1024.sa.base.common.code.ErrorCode;
 import net.lab1024.sa.base.common.code.OrderErrorCode;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
-import net.lab1024.sa.base.common.util.SmartPageUtil;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
 import net.lab1024.sa.base.common.domain.PageResult;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
@@ -114,7 +106,7 @@ public class WaveInfoService {
             return new WaveInfoVO();
         }
         Integer waveId = jsonObject.getInteger("wave_id");
-        if(waveId == null){
+        if(waveId == null || waveId <= 0){
             return new WaveInfoVO();
         }
         WaveInfoEntity waveInfoEntity = waveInfoDao.queryById(waveId);
