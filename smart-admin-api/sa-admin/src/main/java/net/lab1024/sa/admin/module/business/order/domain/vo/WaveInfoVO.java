@@ -41,4 +41,10 @@ public class WaveInfoVO {
     @Schema(description = "波次详情")
     private Object waveDetail;
 
+    /**
+     * 状态 0拣货 1送货
+     */
+    @Schema(description = "波次状态")
+    private Integer status = 0;
+
 }
