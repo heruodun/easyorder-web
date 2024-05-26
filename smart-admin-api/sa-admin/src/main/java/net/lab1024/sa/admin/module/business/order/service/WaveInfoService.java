@@ -9,14 +9,15 @@ import com.alibaba.fastjson2.JSONObject;
 import net.lab1024.sa.admin.module.business.order.dao.WaveInfoDao;
 import net.lab1024.sa.admin.module.business.order.domain.entity.WaveInfoEntity;
 import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoAddForm;
+import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoAddDelShipForm;
 import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoShipForm;
 import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoUpdateForm;
 import net.lab1024.sa.admin.module.business.order.domain.vo.WaveInfoVO;
 import net.lab1024.sa.base.common.code.OrderErrorCode;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
-import net.lab1024.sa.base.common.domain.PageResult;
 import org.apache.commons.collections4.CollectionUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -146,6 +147,83 @@ public class WaveInfoService {
 
         // 返回带有新插入波次信息的ResponseDTO
         return ResponseDTO.ok(waveInfoVO);
+    }
+
+    /**
+     * 添加
+     */
+    public ResponseDTO<Boolean> addDelShip(WaveInfoAddDelShipForm addShipForm) {
+        int waveId = addShipForm.getWaveId();
+        String shipIds = addShipForm.getShipIds();
+
+        String[] addShipIdArr = shipIds.split(",");
+
+        WaveInfoEntity entity = waveInfoDao.selectById(waveId);
+
+        if(entity == null){
+            return ResponseDTO.error(OrderErrorCode.DATA_NOT_EXIST);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        String originalShipIds = entity.getShipIds();
+        if(addShipForm.getType() == 1) {
+            Set<String> uniqueShipIds = getShipIds(originalShipIds, addShipIdArr);
+            // 构建裁剪无重复元素的StringBuilder
+            for (String shipId : uniqueShipIds) {
+                sb.append(shipId).append(",");
+            }
+        }
+        //删除
+        else {
+            if (originalShipIds != null) {
+                String[] shipIdArr = originalShipIds.split(",");
+                for (String s : shipIdArr) {
+                    boolean f = false;
+                    for (String ss : addShipIdArr) {
+                        if(s.equals(ss)){
+                            f = true;
+                            break;
+                        }
+                    }
+                    if(!f) {
+                        if(s.length() > 0) {
+                            sb.append(s).append(",");
+                        }
+                    }
+
+                }
+            }
+        }
+        if(sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+
+        int ok = waveInfoDao.updateWaveShip(waveId, sb.toString());
+
+        if(ok > 0){
+            return ResponseDTO.ok(Boolean.TRUE);
+        }
+
+        return ResponseDTO.error(OrderErrorCode.FORM_SUBMIT_FAIL);
+    }
+
+    @NotNull
+    private static Set<String> getShipIds(String originalShipIds, String[] addShipIdArr) {
+        Set<String> uniqueShipIds = new HashSet<>();  // 使用HashSet来存储唯一的shipId
+        if (originalShipIds != null) {
+            String[] shipIdArr = originalShipIds.split(",");
+            for (String s : shipIdArr) {
+                if (s.length() > 0) {
+                    uniqueShipIds.add(s);  // 添加到Set中以保持唯一性
+                }
+            }
+        }
+        for (String s : addShipIdArr) {
+            if (s.length() > 0) {
+                uniqueShipIds.add(s);  // 添加到Set中以保持唯一性
+            }
+        }
+        return uniqueShipIds;
     }
 
     /**

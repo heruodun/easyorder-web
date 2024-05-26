@@ -1,15 +1,11 @@
 package net.lab1024.sa.admin.module.business.order.controller;
 
-import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoAddForm;
-import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoQueryForm;
-import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoShipForm;
-import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoUpdateForm;
+import net.lab1024.sa.admin.module.business.order.domain.form.*;
 import net.lab1024.sa.admin.module.business.order.domain.vo.WaveInfoVO;
 import net.lab1024.sa.admin.module.business.order.service.WaveInfoService;
 import net.lab1024.sa.base.common.domain.ValidateList;
 import org.springframework.web.bind.annotation.*;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
-import net.lab1024.sa.base.common.domain.PageResult;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -59,13 +55,19 @@ public class WaveInfoController {
         return waveInfoService.add(addForm);
     }
 
-    @Operation(summary = "添加 @author dahang")
+    @Operation(summary = "开始送货 @author dahang")
     @PostMapping("/mobile/waveInfo/ship")
     public ResponseDTO<Boolean> ship(@RequestBody @Valid WaveInfoShipForm shipForm) {
         return waveInfoService.ship(shipForm);
     }
 
-        @Operation(summary = "更新 @author dahang")
+    @Operation(summary = "添加/删除送货单 @author dahang")
+    @PostMapping("/mobile/waveInfo/addDelShip")
+    public ResponseDTO<Boolean> addDelShip(@RequestBody @Valid WaveInfoAddDelShipForm waveInfoAddShipForm) {
+        return waveInfoService.addDelShip(waveInfoAddShipForm);
+    }
+
+    @Operation(summary = "更新 @author dahang")
     @PostMapping("/waveInfo/update")
     public ResponseDTO<String> update(@RequestBody @Valid WaveInfoUpdateForm updateForm) {
         return waveInfoService.update(updateForm);

@@ -3,6 +3,7 @@ package net.lab1024.sa.admin.module.business.order.domain.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -64,5 +65,10 @@ public class WaveInfoEntity {
      * 最后一次扫码时间
      */
     private LocalDateTime lastScanTime;
+
+    /**
+     * 送货单id列表
+     */
+    private String shipIds;
 
 }

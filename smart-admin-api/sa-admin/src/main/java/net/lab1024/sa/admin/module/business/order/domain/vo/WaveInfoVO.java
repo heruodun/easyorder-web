@@ -47,4 +47,10 @@ public class WaveInfoVO {
     @Schema(description = "波次状态")
     private Integer status = 0;
 
+    /**
+     * 用逗号分割
+     */
+    @Schema(description = "送货单id列表")
+    private String shipIds;
+
 }
