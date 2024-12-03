@@ -11,19 +11,19 @@
 <template>
   <a-form class="smart-query-form" v-privilege="'oa:notice:query'">
     <a-row class="smart-query-form-row">
-      <a-form-item label="分类" class="smart-query-form-item">
+      <!-- <a-form-item label="分类" class="smart-query-form-item">
         <a-select v-model:value="queryForm.noticeTypeId" style="width: 100px" :showSearch="true" :allowClear="true" placeholder="分类">
           <a-select-option v-for="item in noticeTypeList" :key="item.noticeTypeId" :value="item.noticeTypeId">
             {{ item.noticeTypeName }}
           </a-select-option>
         </a-select>
+      </a-form-item> -->
+
+      <a-form-item label="地址" class="smart-query-form-item">
+        <a-input style="width: 300px" v-model:value="queryForm.keywords" placeholder="请输入地址关键词" />
       </a-form-item>
 
-      <a-form-item label="关键字" class="smart-query-form-item">
-        <a-input style="width: 300px" v-model:value="queryForm.keywords" placeholder="标题、作者、来源" />
-      </a-form-item>
-
-      <a-form-item label="文号" class="smart-query-form-item">
+      <!-- <a-form-item label="文号" class="smart-query-form-item">
         <a-input style="width: 150px" v-model:value="queryForm.documentNumber" placeholder="文号" />
       </a-form-item>
 
@@ -41,7 +41,7 @@
 
       <a-form-item label="创建时间" class="smart-query-form-item">
         <a-range-picker v-model:value="createDate" :presets="defaultTimeRanges" @change="createDateChange" style="width: 220px" />
-      </a-form-item>
+      </a-form-item> -->
 
       <a-form-item class="smart-query-form-item smart-margin-left10">
         <a-button-group>
@@ -158,83 +158,75 @@
 
   const tableColumns = ref([
     {
-      title: `标题`,
-      dataIndex: 'title',
-      width: 300,
-      ellipsis: true,
-    },
-    {
-      title: `文号`,
-      dataIndex: 'documentNumber',
-      width: 100,
-      ellipsis: true,
-    },
-    {
-      title: '分类',
-      dataIndex: 'noticeTypeName',
+      title: `编号`,
+      dataIndex: 'id',
       width: 60,
       ellipsis: true,
     },
     {
-      title: `作者`,
-      dataIndex: 'author',
-      width: 80,
+      title: `订单编号`,
+      dataIndex: 'order_id',
+      width: 120,
       ellipsis: true,
     },
     {
-      title: `来源`,
-      dataIndex: 'source',
-      width: 90,
+      title: '地址',
+      dataIndex: 'address',
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: `货物`,
+      dataIndex: 'content',
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: `当前状态`,
+      dataIndex: 'cur_status',
+      width: 60,
       ellipsis: true,
     },
 
     {
-      title: '可见范围',
-      dataIndex: 'allVisibleFlag',
+      title: '当前处理人',
+      dataIndex: 'cur_man',
       width: 90,
       ellipsis: true,
     },
     {
-      title: '发布',
-      dataIndex: 'publishFlag',
+      title: '当前处理时间',
+      dataIndex: 'cur_time',
       width: 80,
     },
     {
-      title: '删除',
-      dataIndex: 'deletedFlag',
+      title: '波次编号',
+      dataIndex: 'wave_id',
       width: 80,
     },
     {
-      title: '发布时间',
-      dataIndex: 'publishTime',
-      width: 150,
+      title: '订单轨迹',
+      dataIndex: 'order_trace',
+      width: 200,
     },
+    
     {
-      title: '页面浏览量',
-      dataIndex: 'pageViewCount',
+      title: '打单时间',
+      dataIndex: 'print_time',
       width: 90,
     },
     {
-      title: '用户浏览量',
-      dataIndex: 'userViewCount',
+      title: '打单人',
+      dataIndex: 'printer',
       width: 90,
     },
+ 
     {
-      title: '创建人',
-      dataIndex: 'createUserName',
-      width: 80,
+      title: '更新时间',
+      dataIndex: 'update_time',
+      width: 100,
     },
-    {
-      title: '创建时间',
-      dataIndex: 'createTime',
-      width: 150,
-    },
-    {
-      title: '操作',
-      dataIndex: 'action',
-      fixed: 'right',
-      width: 90,
-    },
+ 
   ]);
 
   // ------------------ 通知分类 ------------------
