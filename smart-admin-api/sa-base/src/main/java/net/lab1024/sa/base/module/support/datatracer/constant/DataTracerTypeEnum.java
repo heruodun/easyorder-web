@@ -33,6 +33,11 @@ public enum DataTracerTypeEnum implements BaseEnum {
      */
     OA_ENTERPRISE(3, "OA-企业信息"),
 
+    /**
+     * 地址
+     */
+    ADDRESS(4, "地址"),
+
     ;
 
     private final Integer value;

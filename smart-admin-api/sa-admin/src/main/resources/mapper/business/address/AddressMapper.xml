@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.lab1024.sa.admin.module.business.address.dao.AddressDao">
+    <update id="batchUpdateDeleted">
+        update t_address
+        set deleted_flag = #{deletedFlag}
+        WHERE address_id IN
+        <foreach collection="addressIdList" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </update>
+
+    <!-- 分页 查询地址 -->
+    <select id="query" resultType="net.lab1024.sa.admin.module.business.address.domain.vo.AddressVO">
+        SELECT * FROM t_address
+        <where>
+            <if test="query.searchWord != null and query.searchWord !=''">
+                INSTR(place,#{query.searchWord})
+            </if>
+
+            <if test="query.deletedFlag != null">
+                AND deleted_flag = #{query.deletedFlag}
+            </if>
+        </where>
+        <if test="query.sortItemList == null or query.sortItemList.size == 0">
+            ORDER BY address_id DESC
+        </if>
+    </select>
+
+</mapper>
