@@ -4,7 +4,6 @@ package net.lab1024.sa.admin.module.business.order.service;
 
 import com.alibaba.fastjson2.*;
 import com.mysql.cj.xdevapi.JsonArray;
-import javafx.beans.binding.ObjectExpression;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -121,13 +120,13 @@ public class WaveHttpService {
         return null; // 出错或响应码非成功时返回null
     }
 
-    
 
-     public static JSONArray getOrdersByKeyword(String keyword, int limit, int offset) {
+
+    public static JSONObject getOrdersByKeyword(String keyword, int limit, int offset) {
         final String SERVICE_URL1 = "http://localhost:5000/order/search";
         OkHttpClient client = new OkHttpClient();
 
-         Map<String, Object> requestMap = new HashMap<>();
+        Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("keyword", keyword);
         requestMap.put("limit", limit);
         requestMap.put("offset", offset);
@@ -146,10 +145,8 @@ public class WaveHttpService {
 
                 // 直接解析整个结构，注意这里的路径“waves”需要根据实际的JSON结构进行调整
                 JSONObject jsonResponse = JSON.parseObject(responseBody);
-                JSONArray orders = jsonResponse.getJSONArray("orders");
-                
-
-                return orders;
+//                JSONArray orders = jsonResponse.getJSONArray("orders");
+                return jsonResponse;
             } else {
                 System.err.println("Error: " + response.code() + ", Message: " + response.message());
                 return null;

@@ -95,10 +95,18 @@
         <template v-else-if="column.dataIndex === 'publishFlag'">
           {{ text ? '已发布' : '待发布' }}
         </template>
-        <template v-else-if="column.dataIndex === 'deletedFlag'">
-          <a-tag v-show="text" color="error">已删除</a-tag>
-          <a-tag v-show="!text" color="success">未删除</a-tag>
-        </template>
+        
+      <template v-else-if="column.dataIndex === 'cur_status'">
+        <a-tag 
+        :color="record.cur_status === '打单' ? 'red' : 
+                record.cur_status === '对接' ? 'purple' :
+                record.cur_status === '配货' ? 'yellow' :
+                record.cur_status === '拣货' ? 'blue' :
+                record.cur_status === '送货' ? 'green' : 'black'">
+          {{ record.cur_status }}
+        </a-tag>
+      </template>
+
         <template v-else-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
             <a-button type="link" @click="addOrUpdate(record.noticeId)" v-privilege="'oa:notice:update'">编辑</a-button>
@@ -166,7 +174,7 @@
     {
       title: `订单编号`,
       dataIndex: 'order_id',
-      width: 120,
+      width: 130,
       ellipsis: true,
     },
     {

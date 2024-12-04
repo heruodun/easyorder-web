@@ -96,21 +96,20 @@ public class NoticeController {
     public ResponseDTO<PageResult<OrderVO>> query(@RequestBody @Valid NoticeQueryForm queryForm) throws JsonProcessingException {
         Page<?> page = SmartPageUtil.convert2PageQuery(queryForm);
         String keyword = queryForm.getKeywords();
-        int offset = (int) (queryForm.getPageNum() - 1);
+        int offset = (int) ((queryForm.getPageNum() - 1) * queryForm.getPageSize());
         int limit = Math.toIntExact(queryForm.getPageSize());
 
-        JSONArray json = WaveHttpService.getOrdersByKeyword(keyword, limit, offset);
-
-
-        System.out.println(json.toString());
-
-
-        // 假设 json 是从 WaveHttpService 获取到的 JSONObject
+        JSONObject jsonObject = WaveHttpService.getOrdersByKeyword(keyword, limit, offset);
 
         // 使用 Jackson 处理 JSON 数组
         ObjectMapper objectMapper = new ObjectMapper();
 
+        JSONArray json = jsonObject.getJSONArray("orders");
 
+        int count = jsonObject.getIntValue("count");
+
+        page.setTotal(count);
+        page.setPages(queryForm.getPageNum());
 
         List<OrderVO> orderVoList = objectMapper.readValue(json.toString(), new TypeReference<List<OrderVO>>(){});
 
