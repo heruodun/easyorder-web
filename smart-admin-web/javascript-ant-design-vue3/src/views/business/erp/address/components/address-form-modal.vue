@@ -73,9 +73,7 @@
     if (rowData && !_.isEmpty(rowData)) {
       Object.assign(form, rowData);
     }
-    if (form.place && form.place.length > 0) {
-      form.place = form.place[0].valueCode;
-    }
+   
     console.log(form);
     visible.value = true;
     nextTick(() => {

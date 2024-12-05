@@ -72,7 +72,7 @@
         <template v-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
             <a-button @click="addAddress(record)" type="link" v-privilege="'address:update'">编辑</a-button>
-            <a-button @click="deleteAddress(record)" danger type="link" v-privilege="'address:delete'">删除</a-button>
+            <!-- <a-button @click="deleteAddress(record)" danger type="link" v-privilege="'address:delete'">删除</a-button> -->
           </div>
         </template>
       </template>

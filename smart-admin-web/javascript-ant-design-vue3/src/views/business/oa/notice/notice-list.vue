@@ -107,6 +107,24 @@
         </a-tag>
       </template>
 
+      <template v-else-if="column.dataIndex === 'order_trace'">
+          <div v-for="(item, index) in record.order_trace_arr" :key="index" >
+            <a-tag 
+            :color="item.cur_status === '打单' ? 'red' : 
+                    item.cur_status === '对接' ? 'purple' :
+                    item.cur_status === '配货' ? 'yellow' :
+                    item.cur_status === '拣货' ? 'blue' :
+                    item.cur_status === '送货' ? 'green' : 'black'">
+              {{ item.cur_status }}
+            </a-tag>
+              
+              {{ item.person }}: {{ item.time }}
+            
+          </div>
+
+    </template>
+
+
         <template v-else-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
             <a-button type="link" @click="addOrUpdate(record.noticeId)" v-privilege="'oa:notice:update'">编辑</a-button>
@@ -180,7 +198,7 @@
     {
       title: '地址',
       dataIndex: 'address',
-      width: 200,
+      width: 180,
       ellipsis: true,
     },
     {
@@ -199,13 +217,13 @@
     {
       title: '当前处理人',
       dataIndex: 'cur_man',
-      width: 90,
+      width: 70,
       ellipsis: true,
     },
     {
       title: '当前处理时间',
       dataIndex: 'cur_time',
-      width: 80,
+      width: 90,
     },
     {
       title: '波次编号',
@@ -215,7 +233,7 @@
     {
       title: '订单轨迹',
       dataIndex: 'order_trace',
-      width: 200,
+      width: 230,
     },
     
     {
@@ -226,13 +244,13 @@
     {
       title: '打单人',
       dataIndex: 'printer',
-      width: 90,
+      width: 70,
     },
  
     {
       title: '更新时间',
       dataIndex: 'update_time',
-      width: 100,
+      width: 90,
     },
  
   ]);

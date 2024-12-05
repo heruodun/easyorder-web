@@ -2,7 +2,7 @@
  * 打单
  *
  */
-import { getPythonRequest, postPythonRequest } from '/@/lib/axios';
+import { getRequest, postPythonRequest } from '/@/lib/axios';
 
 export const orderApi = {
     // 模版1创单
@@ -17,7 +17,8 @@ export const orderApi = {
 
     // 模糊查询地址
     searchAddress: (param) => {
-        return getPythonRequest('/local/address/fsearch', param);
+        return getRequest('/address/fquery', param);
     },
+
 };
 
