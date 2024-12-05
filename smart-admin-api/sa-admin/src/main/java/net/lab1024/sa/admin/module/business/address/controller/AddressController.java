@@ -15,6 +15,9 @@ import net.lab1024.sa.base.common.domain.ValidateList;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 地址业务
@@ -35,6 +38,17 @@ public class AddressController {
     @SaCheckPermission("address:query")
     public ResponseDTO<PageResult<AddressVO>> query(@RequestBody @Valid AddressQueryForm queryForm) {
         return addressService.query(queryForm);
+    }
+
+    @Operation(summary = "模糊查询")
+    @GetMapping("/address/fquery")
+    @SaCheckPermission("address:fquery")
+    public ResponseDTO<Map> fquery(@RequestParam String key) {
+        Set<String> set = addressService.fquery(key);
+        Map map = new HashMap();
+        map.put("result", set);
+        return ResponseDTO.ok(map);
+
     }
 
     @Operation(summary = "添加地址")
@@ -64,6 +78,5 @@ public class AddressController {
     public ResponseDTO<String> batchDelete(@RequestBody @Valid ValidateList<Long> idList) {
         return addressService.batchDelete(idList);
     }
-
 
 }

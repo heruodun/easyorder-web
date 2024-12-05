@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 /**
@@ -45,6 +46,9 @@ public class OrderVO {
 
     @Schema(description = "order_trace")
     private String order_trace;
+
+    @Schema(description = "order_trace_arr")
+    private List order_trace_arr;
 
     @Schema(description = "print_time")
     private String print_time;

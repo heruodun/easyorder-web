@@ -8,6 +8,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Lists;
 import com.mysql.cj.xdevapi.JsonArray;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,8 +32,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -130,6 +130,7 @@ public class NoticeController {
                 String formattedDate = sdf.format(date);
                 orderVO.setPrint_time(formattedDate);
             }
+            orderVO.setOrder_trace_arr(process(orderVO.getOrder_trace()));
         }
 
         // 现在 noticeList 中包含所有的 NoticeVO 对象
@@ -193,4 +194,49 @@ public class NoticeController {
     public ResponseDTO<PageResult<NoticeViewRecordVO>> queryViewRecord(@RequestBody @Valid NoticeViewRecordQueryForm noticeViewRecordQueryForm) {
         return ResponseDTO.ok(noticeEmployeeService.queryViewRecord(noticeViewRecordQueryForm));
     }
+
+    public static List process(String str){
+        // 依据 \n\n 分割字符串
+        String[] elements = str.split("\n\n");
+
+        // 创建 JSONArray 用于存储结果
+        List list = new ArrayList();
+
+        for (String element : elements) {
+            // 依据，分隔元素
+            String[] parts = element.split("，");
+            if (parts.length < 2) {
+                continue; // 如果没有足够的部分，跳过
+            }
+
+            // 处理第一个部分
+            String[] x1Parts = parts[0].split("：");
+            if (x1Parts.length < 2) {
+                continue; // 如果分隔后没有足够的元素，跳过
+            }
+            String s1 = x1Parts[0].substring(0, 2); // 取前两个中文字符
+            String s2 = x1Parts[1].trim(); // 取出第二个子元素
+
+            // 处理第二个部分
+            String[] x2Parts = parts[1].split("：");
+            if (x2Parts.length < 2) {
+                continue; // 如果分隔后没有足够的元素，跳过
+            }
+            String s3 = x2Parts[1].trim(); // 取第二个子元素
+
+            // 构建 JSON 对象
+            Map jsonObject = new HashMap();
+            jsonObject.put("cur_status", s1);
+            jsonObject.put("person", s2);
+            jsonObject.put("time", s3);
+
+            // 将 JSON 对象添加到数组中
+            list.add(jsonObject);
+        }
+        return Lists.reverse(list);
+
+    }
+
+
+
 }

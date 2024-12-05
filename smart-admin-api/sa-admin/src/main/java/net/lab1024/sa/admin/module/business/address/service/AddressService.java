@@ -16,10 +16,12 @@ import net.lab1024.sa.base.common.exception.BusinessException;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import net.lab1024.sa.base.common.util.SmartEnumUtil;
 import net.lab1024.sa.base.common.util.SmartPageUtil;
+import net.lab1024.sa.base.common.util.SmartSearchUtil;
 import net.lab1024.sa.base.module.support.datatracer.constant.DataTracerTypeEnum;
 import net.lab1024.sa.base.module.support.datatracer.service.DataTracerService;
 import net.lab1024.sa.base.module.support.dict.service.DictCacheService;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
@@ -28,17 +30,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 商品
+ * 地址
  *
- * @Author 1024创新实验室: 胡克
- * @Date 2021-10-25 20:26:54
- * @Wechat zhuoda1024
- * @Email lab1024@163.com
- * @Copyright <a href="https://1024lab.net">1024创新实验室</a>
  */
 @Service
 @Slf4j
-public class AddressService {
+public class AddressService implements InitializingBean {
 
     @Resource
     private AddressDao addressDao;
@@ -51,6 +48,8 @@ public class AddressService {
 
     @Resource
     private DictCacheService dictCacheService;
+
+    private Set addressSet = new HashSet();
 
     /**
      * 添加地址
@@ -65,6 +64,7 @@ public class AddressService {
         addressEntity.setDeletedFlag(Boolean.FALSE);
         addressDao.insert(addressEntity);
         dataTracerService.insert(addressEntity.getAddressId(), DataTracerTypeEnum.ADDRESS);
+        addressSet.add(addressEntity.getPlace());
         return ResponseDTO.ok();
     }
 
@@ -77,6 +77,8 @@ public class AddressService {
         AddressEntity addressEntity = SmartBeanUtil.copy(updateForm, AddressEntity.class);
         addressDao.updateById(addressEntity);
         dataTracerService.update(updateForm.getAddressId(), DataTracerTypeEnum.ADDRESS, originEntity, addressEntity);
+        addressSet.remove(originEntity.getPlace());
+        addressSet.add(addressEntity.getPlace());
         return ResponseDTO.ok();
     }
 
@@ -106,7 +108,8 @@ public class AddressService {
         }
 
         batchDelete(Collections.singletonList(goodsId));
-        dataTracerService.batchDelete(Collections.singletonList(goodsId), DataTracerTypeEnum.GOODS);
+        dataTracerService.batchDelete(Collections.singletonList(goodsId), DataTracerTypeEnum.ADDRESS);
+        addressSet.remove(addressEntity.getPlace());
         return ResponseDTO.ok();
     }
 
@@ -132,6 +135,22 @@ public class AddressService {
         List<AddressVO> list = addressDao.query(page, queryForm);
         PageResult<AddressVO> pageResult = SmartPageUtil.convert2PageResult(page, list);
         return ResponseDTO.ok(pageResult);
+    }
+
+
+
+    public Set<String> fquery(String keyword){
+        Set<String> set = SmartSearchUtil.search(keyword, addressSet);
+        return set;
+    }
+
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        List<AddressEntity> list = addressDao.selectByMap(new HashMap<>());
+        for(AddressEntity entity:list){
+            addressSet.add(entity.getPlace());
+        }
     }
 
 

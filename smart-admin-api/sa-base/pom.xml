@@ -265,6 +265,11 @@
             <version>${smartdb.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.belerweb</groupId>
+            <artifactId>pinyin4j</artifactId>
+        </dependency>
+
 
     </dependencies>
 
