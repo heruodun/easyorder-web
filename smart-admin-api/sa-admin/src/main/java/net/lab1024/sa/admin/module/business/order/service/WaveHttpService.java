@@ -4,12 +4,14 @@ package net.lab1024.sa.admin.module.business.order.service;
 
 import com.alibaba.fastjson2.*;
 import com.mysql.cj.xdevapi.JsonArray;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class WaveHttpService {
 
     private static final MediaType JSON_TYPE = MediaType.get("application/json; charset=utf-8");
@@ -77,11 +79,11 @@ public class WaveHttpService {
 
                 return true;
             } else {
-                System.err.println("Error: " + response.code() + ", Message: " + response.message());
+                log.error("Error: " + response.code() + ", Message: " + response.message());
                 return null;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("",e);
             return false;
         }
     }
@@ -122,8 +124,11 @@ public class WaveHttpService {
 
 
 
-    public static JSONObject getOrdersByKeyword(String keyword, int limit, int offset) {
-        final String SERVICE_URL1 = "http://localhost:5000/order/search";
+    public static JSONObject getOrdersByKeyword(String keyword, int limit, int offset, int type) {
+        String SERVICE_URL1 = "http://localhost:5000/order/search";
+        if(type == 1){
+            SERVICE_URL1 = "http://localhost:5000/order/search2";
+        }
         OkHttpClient client = new OkHttpClient();
 
         Map<String, Object> requestMap = new HashMap<>();

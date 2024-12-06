@@ -143,6 +143,11 @@ import { addressApi } from '/@/api/business/address/address-api';
       width: 150,
     },
     {
+      title: '修改时间',
+      dataIndex: 'updateTime',
+      width: 150,
+    },
+    {
       title: '操作',
       dataIndex: 'action',
       fixed: 'right',

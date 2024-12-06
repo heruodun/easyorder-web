@@ -78,7 +78,7 @@
     </a-row>
 
     <a-table
-      rowKey="noticeId"
+      rowKey="orderId"
       :columns="tableColumns"
       :dataSource="tableData"
       :scroll="{ x: 1510 }"
@@ -88,8 +88,8 @@
       bordered
     >
       <template #bodyCell="{ column, record, text }">
-        <template v-if="column.dataIndex === 'title'">
-          <a @click="toDetail(record.noticeId)">{{ text }}</a>
+        <template v-if="column.dataIndex === 'order_id'">
+          <a @click="toDetail(record.order_id)">{{ text }}</a>
         </template>
         <template v-else-if="column.dataIndex === 'allVisibleFlag'"> {{ text ? '全部可见' : '部分可见' }} </template>
         <template v-else-if="column.dataIndex === 'publishFlag'">
@@ -127,8 +127,8 @@
 
         <template v-else-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
-            <a-button type="link" @click="addOrUpdate(record.noticeId)" v-privilege="'oa:notice:update'">编辑</a-button>
-            <a-button type="link" @click="onDelete(record.noticeId)" v-privilege="'oa:notice:delete'" danger>删除</a-button>
+            <a-button type="link" @click="addOrUpdate(record.order)" v-privilege="'oa:notice:update'">编辑</a-button>
+            <a-button type="link" @click="onDelete(record.orderId)" v-privilege="'oa:notice:delete'" danger>删除</a-button>
           </div>
         </template>
       </template>
@@ -324,28 +324,28 @@
 
   // 新建、编辑
   const noticeFormDrawer = ref();
-  function addOrUpdate(noticeId) {
-    noticeFormDrawer.value.showModal(noticeId);
+  function addOrUpdate(orderId) {
+    noticeFormDrawer.value.showModal(orderId);
   }
 
   // ------------------ 删除 ------------------
 
   // 删除
-  function onDelete(noticeId) {
+  function onDelete(orderId) {
     Modal.confirm({
       title: '提示',
       content: '确认删除此数据吗?',
       onOk() {
-        deleteNotice(noticeId);
+        deleteNotice(orderId);
       },
     });
   }
 
   // 删除API
-  async function deleteNotice(noticeId) {
+  async function deleteNotice(orderId) {
     try {
       tableLoading.value = true;
-      await noticeApi.deleteNotice(noticeId);
+      await noticeApi.deleteNotice(orderId);
       message.success('删除成功');
       queryNoticeList();
     } catch (err) {
@@ -359,10 +359,10 @@
 
   // 进入详情
   const router = useRouter();
-  function toDetail(noticeId) {
+  function toDetail(orderId) {
     router.push({
       path: '/oa/notice/notice-detail',
-      query: { noticeId },
+      query: { orderId },
     });
   }
 </script>

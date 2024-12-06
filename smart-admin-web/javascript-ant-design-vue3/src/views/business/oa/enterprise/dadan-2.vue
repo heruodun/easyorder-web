@@ -24,13 +24,7 @@
 
         </a-form-item>
       </a-col>
-      <a-col :span="2">
-        <div>
-          <a target="_blank"
-             href="https://c1um9dohzwz.feishu.cn/base/YfZ0bTG5pahNddsk3VLcTXVwn3o?table=tblGkLjcHmOfHG1Y&view=vewVGgt3EA">
-            添加地址</a>
-        </div>
-      </a-col>
+      
 
       <a-col :span="8">
         <a-form-item label="备注">

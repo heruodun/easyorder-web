@@ -24,6 +24,9 @@ public class NoticeQueryForm extends PageParam {
     @Schema(description = "标题、作者、来源")
     private String keywords;
 
+    @Schema(description = "类型，0模糊1精确")
+    private Integer type;
+
     @Schema(description = "文号")
     private String documentNumber;
 

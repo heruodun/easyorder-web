@@ -26,6 +26,7 @@ import net.lab1024.sa.base.common.util.SmartPageUtil;
 import net.lab1024.sa.base.common.util.SmartRequestUtil;
 import net.lab1024.sa.base.module.support.operatelog.annotation.OperateLog;
 import net.lab1024.sa.base.module.support.repeatsubmit.annoation.RepeatSubmit;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -49,7 +50,7 @@ import java.util.List;
  */
 @Tag(name = AdminSwaggerTagConst.Business.OA_NOTICE)
 @RestController
-@OperateLog
+//@OperateLog
 public class NoticeController {
 
     @Resource
@@ -90,16 +91,22 @@ public class NoticeController {
     // --------------------- 【管理】通知公告-------------------------
 
 
-    @Operation(summary = "【管理】通知公告-分页查询 @author 卓大")
+//    @Operation(summary = "【管理】通知公告-分页查询 @author 卓大")
     @PostMapping("/oa/notice/query")
     @SaCheckPermission("oa:notice:query")
     public ResponseDTO<PageResult<OrderVO>> query(@RequestBody @Valid NoticeQueryForm queryForm) throws JsonProcessingException {
         Page<?> page = SmartPageUtil.convert2PageQuery(queryForm);
         String keyword = queryForm.getKeywords();
+
         int offset = (int) ((queryForm.getPageNum() - 1) * queryForm.getPageSize());
         int limit = Math.toIntExact(queryForm.getPageSize());
 
-        JSONObject jsonObject = WaveHttpService.getOrdersByKeyword(keyword, limit, offset);
+        Integer type = queryForm.getType();
+        if(type == null){
+            type = 0;
+        }
+
+        JSONObject jsonObject = WaveHttpService.getOrdersByKeyword(keyword, limit, offset,type);
 
         // 使用 Jackson 处理 JSON 数组
         ObjectMapper objectMapper = new ObjectMapper();
@@ -155,12 +162,31 @@ public class NoticeController {
         return noticeService.update(updateForm);
     }
 
+
     @Operation(summary = "【管理】通知公告-更新详情 @author 卓大")
     @GetMapping("/oa/notice/getUpdateVO/{noticeId}")
     @SaCheckPermission("oa:notice:update")
-    public ResponseDTO<NoticeUpdateFormVO> getUpdateFormVO(@PathVariable Long noticeId) {
-        return ResponseDTO.ok(noticeService.getUpdateFormVO(noticeId));
+    public ResponseDTO<OrderVO> getUpdateFormVO(@PathVariable Long noticeId) throws JsonProcessingException {
+        JSONObject jsonObject = WaveHttpService.getOrder(noticeId);
+        ObjectMapper objectMapper = new ObjectMapper();
+        OrderVO orderVO = objectMapper.readValue(jsonObject.toString(), OrderVO.class);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        if(orderVO.getCur_time() != null){
+            long m =  Long.valueOf(orderVO.getCur_time());
+            Date date = new Date(m);
+            String formattedDate = sdf.format(date);
+            orderVO.setCur_time(formattedDate);
+        }
+        if(orderVO.getPrint_time() != null){
+            long m =  Long.valueOf(orderVO.getPrint_time());
+            Date date = new Date(m);
+            String formattedDate = sdf.format(date);
+            orderVO.setPrint_time(formattedDate);
+        }
+        orderVO.setOrder_trace_arr(process(orderVO.getOrder_trace()));
+        return ResponseDTO.ok(orderVO);
     }
+
 
     @Operation(summary = "【管理】通知公告-删除 @author 卓大")
     @GetMapping("/oa/notice/delete/{noticeId}")

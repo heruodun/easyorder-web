@@ -1,61 +1,59 @@
 <!--
-  * 通知  详情
+  * 订单  详情
   * 
-  * @Author:    1024创新实验室-主任：卓大 
-  * @Date:      2022-08-21 19:52:43 
-  * @Wechat:    zhuda1024 
-  * @Email:     lab1024@163.com 
-  * @Copyright  1024创新实验室 （ https://1024lab.net ），Since 2012 
 -->
 <template>
-  <a-card style="margin-bottom: 15px" size="small">
-    <a-descriptions :title="noticeDetail.title" :column="4" size="small">
+  <a-card style="margin-bottom: 15px; padding: 15px;"  :title="noticeDetail.order_id">
       <template #extra>
-        <a-button v-if="!noticeDetail.publishFlag" type="primary" size="small" @click="onEdit">编辑</a-button>
+        <a-button type="primary" size="big" @click="onDelete(noticeDetail.order_id)" v-privilege="'oa:notice:delete'" danger>
+          删除
+        </a-button>
       </template>
-      <a-descriptions-item label="分类">{{ noticeDetail.noticeTypeName }}</a-descriptions-item>
-      <a-descriptions-item label="文号">{{ noticeDetail.documentNumber }}</a-descriptions-item>
-      <a-descriptions-item label="来源">{{ noticeDetail.source }}</a-descriptions-item>
-      <a-descriptions-item label="作者">{{ noticeDetail.author }}</a-descriptions-item>
-      <a-descriptions-item label="页面浏览量">{{ noticeDetail.pageViewCount }}</a-descriptions-item>
-      <a-descriptions-item label="用户浏览量">{{ noticeDetail.userViewCount }}</a-descriptions-item>
-      <a-descriptions-item label="创建时间">{{ noticeDetail.createTime }}</a-descriptions-item>
-      <a-descriptions-item label="发布时间">{{ noticeDetail.publishTime }}</a-descriptions-item>
-      <a-descriptions-item label="定时发布">{{ noticeDetail.publishFlag ? '已发布' : '待发布' }}</a-descriptions-item>
-      <a-descriptions-item label="删除状态">{{ noticeDetail.deletedFlag ? '已删除' : '未删除' }}</a-descriptions-item>
-      <a-descriptions-item v-if="!$lodash.isEmpty(noticeDetail.attachment)" label="附件">
-        <div class="file-list">
-          <a class="file-item" v-for="item in noticeDetail.attachment" :key="item.fileId" @click="onPrevFile(item)">{{ item.fileName }}</a>
-        </div>
+
+    <a-descriptions :column="2" size="middle" bordered>
+      <a-descriptions-item label="地址" span="2">{{ noticeDetail.address }}</a-descriptions-item>
+      <a-descriptions-item label="货物" span="2">{{ noticeDetail.content }}</a-descriptions-item>
+      <a-descriptions-item label="当前状态">
+        <a-tag 
+        :color="noticeDetail.cur_status === '打单' ? 'red' : 
+                noticeDetail.cur_status === '对接' ? 'purple' :
+                noticeDetail.cur_status === '配货' ? 'yellow' :
+                noticeDetail.cur_status === '拣货' ? 'blue' :
+                noticeDetail.cur_status === '送货' ? 'green' : 'black'">
+          {{ noticeDetail.cur_status }}
+        </a-tag>
       </a-descriptions-item>
-      <a-descriptions-item label="可见范围">
-        <template v-if="noticeDetail.allVisibleFlag">全部可见</template>
-        <div class="visible-list">
-          <div class="visible-item" v-for="item in noticeDetail.visibleRangeList" :key="item.dataId">
-            {{ item.dataName }}
+      <a-descriptions-item label="当前处理时间">{{ noticeDetail.cur_time }}</a-descriptions-item>
+      <a-descriptions-item label="订单轨迹" span="2">
+
+        <div v-for="(item, index) in noticeDetail.order_trace_arr" :key="index" >
+            <a-tag 
+            :color="item.cur_status === '打单' ? 'red' : 
+                    item.cur_status === '对接' ? 'purple' :
+                    item.cur_status === '配货' ? 'yellow' :
+                    item.cur_status === '拣货' ? 'blue' :
+                    item.cur_status === '送货' ? 'green' : 'black'">
+              {{ item.cur_status }}
+            </a-tag>
+              
+              {{ item.person }}  &nbsp;  &nbsp; {{ item.time }}
+            
           </div>
-        </div>
+        
       </a-descriptions-item>
+      <a-descriptions-item label="打单人">{{ noticeDetail.printer }}</a-descriptions-item>
+      <a-descriptions-item label="打单时间">{{ noticeDetail.print_time }}</a-descriptions-item>
+      <a-descriptions-item label="波次编号">{{ noticeDetail.wave_id }}</a-descriptions-item>
+      <a-descriptions-item label="更新时间">{{ noticeDetail.update_time}}</a-descriptions-item>
+     
     </a-descriptions>
   </a-card>
 
-  <a-card size="small">
-    <a-tabs v-model:activeKey="activeKey" size="small">
-      <a-tab-pane :key="1" tab="内容">
-        <div class="content-html" v-html="noticeDetail.contentHtml"></div>
-      </a-tab-pane>
-      <a-tab-pane :key="2" tab="查看记录" force-render>
-        <NoticeViewRecordList ref="noticeViewRecordList" :noticeId="route.query.noticeId" />
-      </a-tab-pane>
-      <a-tab-pane :key="3" tab="操作记录" />
-    </a-tabs>
-  </a-card>
 
-  <!-- 编辑 -->
-  <NoticeFormDrawer ref="noticeFormDrawerRef" @reloadList="queryNoticeDetail" />
+ 
 
   <!-- 预览附件 -->
-  <FilePreviewModal ref="filePreviewRef" />
+  <!-- <FilePreviewModal ref="filePreviewRef" /> -->
 </template>
 
 <script setup>
@@ -67,6 +65,7 @@
   import { SmartLoading } from '/@/components/framework/smart-loading';
   import FilePreviewModal from '/@/components/support/file-preview-modal/index.vue';
   import { smartSentry } from '/@/lib/smart-sentry';
+  import { message, Modal } from 'ant-design-vue';
 
   const route = useRoute();
 
@@ -79,20 +78,19 @@
   const activeKey = ref(1);
 
   const noticeDetail = ref({});
-  const noticeViewRecordList = ref();
 
   onMounted(() => {
-    if (route.query.noticeId) {
+    if (route.query.orderId) {
       queryNoticeDetail();
-      noticeViewRecordList.value.onSearch();
     }
   });
+
 
   // 查询详情
   async function queryNoticeDetail() {
     try {
       SmartLoading.show();
-      const result = await noticeApi.getUpdateNoticeInfo(route.query.noticeId);
+      const result = await noticeApi.getUpdateNoticeInfo(route.query.orderId);
       noticeDetail.value = result.data;
     } catch (err) {
       smartSentry.captureError(err);
@@ -104,8 +102,35 @@
   // 点击编辑
   const noticeFormDrawerRef = ref();
   function onEdit() {
-    noticeFormDrawerRef.value.showModal(noticeDetail.value.noticeId);
+    noticeFormDrawerRef.value.showModal(noticeDetail.value.orderId);
   }
+
+
+  // 删除
+  function onDelete(orderId) {
+    Modal.confirm({
+      title: '提示',
+      content: '确认删除此数据吗?',
+      onOk() {
+        deleteNotice(orderId);
+      },
+    });
+  }
+
+  // 删除API
+  async function deleteNotice(orderId) {
+    try {
+      tableLoading.value = true;
+      await noticeApi.deleteNotice(orderId);
+      message.success('删除成功');
+      queryNoticeDetail();
+    } catch (err) {
+      smartSentry.captureError(err);
+    } finally {
+      tableLoading.value = false;
+    }
+  }
+
 
   // 预览附件
   const filePreviewRef = ref();

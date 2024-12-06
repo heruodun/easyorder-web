@@ -11,72 +11,123 @@
 
     <!-- 第一行：地址、规格、备注 -->
     <a-row :gutter="16">
-      <a-col :span="8">
-        <a-form-item
-            name="address"
-            label="地址"
-            :rules="[{ required: true, message: '请输入地址',trigger: 'blur' }]">
-          <AddressSelect ref="addressSelect"
-                         placeholder="请输入地址"
-                         v-model:value="formData.address" />
-        </a-form-item>
-      </a-col>
+  <a-col :span="8">
+    <a-form-item
+        name="address"
+        label="地址"
+        :rules="[{ required: true, message: '请输入地址',trigger: 'blur' }]">
+      <AddressSelect ref="addressSelect"
+                     placeholder="请输入地址"
+                     v-model:value="formData.address" 
+                     @update:value="onAddressSelect"
+                     />
+    </a-form-item>
+  </a-col>
 
-      <a-col :span="2">
-        <div>
-          <a target="_blank"
-             href="https://c1um9dohzwz.feishu.cn/base/YfZ0bTG5pahNddsk3VLcTXVwn3o?table=tblGkLjcHmOfHG1Y&view=vewVGgt3EA">
-            添加地址</a>
+  <a-col :span="8" >
+    <a-form-item
+        name="spec"
+        label="规格"
+        :rules="[{ required: true, message: '请输入规格' }]">
+
+      <a-input  v-model:value="formData.spec"  placeholder="请输入规格" />
+    </a-form-item>
+  </a-col>
+</a-row>
+
+<a-row :gutter="16">
+  <a-col :span="8">
+    <a-form-item  name="remark" label="备注">
+      <a-input v-model:value="formData.remark" placeholder="请输入备注" />
+    </a-form-item>
+  </a-col>
+
+  <a-col :span="8" style="display: flex; align-items: center; justify-content: center;">
+    <a-statistic
+        name="totalCount"
+        title="总条数"
+        :value="totalQuantity"
+        :value-style="{color: '#3f8600'}"/>
+  </a-col>
+
+</a-row>
+
+<!-- 第二行：表格和统计 -->
+<a-row :gutter="32">
+  <a-col :span="15">
+    <a-table
+        ref="tableRef"
+        :dataSource="formData.tableData"
+        :pagination="false"
+        rowKey="id"
+        border>
+      <a-table-column title="编号" dataIndex="id" key="id" />
+      <a-table-column title="长度" dataIndex="length" key="length">
+        <template #default="{ record, index }">
+          <a-input-number string-mode v-model:value="record.length" @change="onInputChange"
+                          class="bold-microsoft-yahei"
+                          />
+        </template>
+      </a-table-column>
+      <a-table-column title="条数" dataIndex="count" key="count">
+        <template #default="{ record, index }">
+          <a-input-number v-model:value="record.count" class="bold-number" />
+        </template>
+      </a-table-column>
+    </a-table>
+  </a-col>
+
+
+  <a-col :span="9">
+
+    <a-descriptions :title="`上一笔订单: ${orderDetail.order_id || ''}`" :column="2" size="middle" bordered>
+
+
+
+    <!-- <template #extra>
+      <a-button v-if="!orderDetail.publishFlag" type="primary" size="small" @click="onEdit">编辑</a-button>
+    </template> -->
+    <a-descriptions-item label="地址" span="2">{{ orderDetail.address }}</a-descriptions-item>
+    <a-descriptions-item label="货物" span="2">{{ orderDetail.content }}</a-descriptions-item>
+    <a-descriptions-item label="当前状态">
+      <a-tag 
+      :color="orderDetail.cur_status === '打单' ? 'red' : 
+              orderDetail.cur_status === '对接' ? 'purple' :
+              orderDetail.cur_status === '配货' ? 'yellow' :
+              orderDetail.cur_status === '拣货' ? 'blue' :
+              orderDetail.cur_status === '送货' ? 'green' : 'black'">
+        {{ orderDetail.cur_status }}
+      </a-tag>
+    </a-descriptions-item>
+    <a-descriptions-item label="当前处理时间">{{ orderDetail.cur_time }}</a-descriptions-item>
+    <a-descriptions-item label="订单轨迹" span="2">
+
+      <div v-for="(item, index) in orderDetail.order_trace_arr" :key="index" >
+          <a-tag 
+          :color="item.cur_status === '打单' ? 'red' : 
+                  item.cur_status === '对接' ? 'purple' :
+                  item.cur_status === '配货' ? 'yellow' :
+                  item.cur_status === '拣货' ? 'blue' :
+                  item.cur_status === '送货' ? 'green' : 'black'">
+            {{ item.cur_status }}
+          </a-tag>
+            
+            {{ item.person }}  &nbsp;  &nbsp; {{ item.time }}
+          
         </div>
-      </a-col>
-      <a-col :span="5" >
-        <a-form-item
-            name="spec"
-            label="规格"
-            :rules="[{ required: true, message: '请输入规格' }]">
+      
+    </a-descriptions-item>
+    <a-descriptions-item label="打单人">{{ orderDetail.printer }}</a-descriptions-item>
+    <a-descriptions-item label="打单时间">{{ orderDetail.print_time }}</a-descriptions-item>
+    <a-descriptions-item label="波次编号">{{ orderDetail.wave_id }}</a-descriptions-item>
+    <a-descriptions-item label="更新时间">{{ orderDetail.update_time}}</a-descriptions-item>
+ 
+      </a-descriptions>
 
-          <a-input  v-model:value="formData.spec"  placeholder="请输入规格" />
-        </a-form-item>
-      </a-col>
-      <a-col :span="8">
-        <a-form-item  name="remark" label="备注">
-          <a-input v-model:value="formData.remark" placeholder="请输入备注" />
-        </a-form-item>
-      </a-col>
-    </a-row>
+  </a-col>
+  
+</a-row>
 
-    <!-- 第二行：表格和统计 -->
-    <a-row :gutter="16">
-      <a-col :span="19">
-        <a-table
-            ref="tableRef"
-            :dataSource="formData.tableData"
-            :pagination="false"
-            rowKey="id"
-            border>
-          <a-table-column title="编号" dataIndex="id" key="id" />
-          <a-table-column title="长度" dataIndex="length" key="length">
-            <template #default="{ record, index }">
-              <a-input-number string-mode v-model:value="record.length" @change="onInputChange"
-                              class="bold-microsoft-yahei"
-                              />
-            </template>
-          </a-table-column>
-          <a-table-column title="条数" dataIndex="count" key="count">
-            <template #default="{ record, index }">
-              <a-input-number v-model:value="record.count" class="bold-number" />
-            </template>
-          </a-table-column>
-        </a-table>
-      </a-col>
-      <a-col :span="5" style="display: flex; align-items: center; justify-content: center;">
-        <a-statistic
-            name="totalCount"
-            title="总条数"
-            :value="totalQuantity"
-            :value-style="{color: '#3f8600'}"/>
-      </a-col>
-    </a-row>
 
     <!-- 提交按钮 -->
     <a-form-item :wrapper-col="{ span: 14, offset: 4 }">
@@ -94,12 +145,43 @@ import { message } from 'ant-design-vue';
 import { useUserStore } from '/@/store/modules/system/user';
 import {now} from "lodash";
 import { orderApi } from '/src/api/business/oa/order-api';
+import { noticeApi } from '/@/api/business/oa/notice-api';
 import { printT1 } from '/@/lib/smart-print.js';
 
 const formRef = ref(); // Create a reference to the form
 const tableRef = ref();
 const addressSelect = ref();
 
+const orderDetail = ref({});
+
+
+  // 查询详情
+  async function queryOrderDetail(value) {
+    try {
+      SmartLoading.show();
+      let payload = {
+        "keywords": value,
+        "pageNum": 1,
+        "pageSize":2,
+        "type":1
+      }
+      const result = await noticeApi.queryNotice(payload);
+      console.log("queryOrderDetail " + result.data);
+
+
+      // 判空并取出第一个元素
+    if (Array.isArray(result.data.list) && result.data.list.length > 0) {
+        orderDetail.value = result.data.list[0]; // 取出第一个元素
+    } else {
+        orderDetail.value = {}; // 或者设定为其他适当的默认值
+    }
+    console.log("queryOrderDetail " + orderDetail.value);
+    } catch (err) {
+      smartSentry.captureError(err);
+    } finally {
+      SmartLoading.hide();
+    }
+  }
 
 function orderPrint(time, orderId, orderIdStr){
   const userStore = useUserStore(); // 使用你的 store
@@ -134,6 +216,15 @@ const formData = reactive({
     count: null
   }))
 });
+
+
+
+const onAddressSelect = value => {
+    console.log("onAddressSelect " + value);
+
+    queryOrderDetail(value)
+  };
+
 
 
 function resetForm() {
