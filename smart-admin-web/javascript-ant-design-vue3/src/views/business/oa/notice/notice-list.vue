@@ -19,9 +19,20 @@
         </a-select>
       </a-form-item> -->
 
-      <a-form-item label="地址" class="smart-query-form-item">
+      <!-- <a-form-item label="地址" class="smart-query-form-item">
         <a-input style="width: 300px" v-model:value="queryForm.keywords" placeholder="请输入地址关键词" />
-      </a-form-item>
+      </a-form-item> -->
+
+      <a-form-item
+        name="address"
+        label="地址"
+        class="smart-query-form-item">
+      <AddressSelect ref="addressSelect"
+                     placeholder="请输入地址"
+                     width="250px"
+                     v-model:value="queryForm.keywords" 
+                     />
+    </a-form-item>
 
       <!-- <a-form-item label="文号" class="smart-query-form-item">
         <a-input style="width: 150px" v-model:value="queryForm.documentNumber" placeholder="文号" />
@@ -166,6 +177,7 @@
   import { smartSentry } from '/@/lib/smart-sentry';
   import TableOperator from '/@/components/support/table-operator/index.vue';
   import { TABLE_ID_CONST } from '/@/constants/support/table-id-const';
+  import AddressSelect from '/@/components/system/address-select/index.vue';
 
   const queryFormState = {
     noticeTypeId: undefined, //分类

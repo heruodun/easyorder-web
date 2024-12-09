@@ -161,4 +161,79 @@ public class WaveHttpService {
             return null;
         }
     }
+
+    public static Boolean operation(Long orderId, String operator, int type) {
+        final String SERVICE_URL = "http://localhost:5000/order/operation2";
+        OkHttpClient client = new OkHttpClient();
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("order_id", orderId);
+        requestMap.put("operator", operator);
+        requestMap.put("type", type);
+        String jsonRequestBody = JSON.toJSONString(requestMap);
+        RequestBody body = RequestBody.create(jsonRequestBody, JSON_TYPE);
+
+        Request request = new Request.Builder()
+                .url(SERVICE_URL)
+                .post(body)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful() && response.body() != null) {
+                String responseBody = response.body().string();
+                System.out.println("Response JSON: " + responseBody);
+
+                // 直接解析整个结构，注意这里的路径“waves”需要根据实际的JSON结构进行调整
+                JSONObject jsonResponse = JSON.parseObject(responseBody);
+                System.out.println(jsonResponse);
+
+                return true;
+            } else {
+                System.err.println("Error: " + response.code() + ", Message: " + response.message());
+                return false;
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public static Boolean operation2(Long orderId, int waveId, String operator, int operation) {
+        final String SERVICE_URL = "http://localhost:5000/wave/operation";
+        OkHttpClient client = new OkHttpClient();
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("order_id", orderId);
+        requestMap.put("wave_id", waveId);
+        requestMap.put("operator", operator);
+        requestMap.put("operation", operation);
+        requestMap.put("wave_create_time", System.currentTimeMillis());
+
+        String jsonRequestBody = JSON.toJSONString(requestMap);
+        RequestBody body = RequestBody.create(jsonRequestBody, JSON_TYPE);
+
+        Request request = new Request.Builder()
+                .url(SERVICE_URL)
+                .post(body)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful() && response.body() != null) {
+                String responseBody = response.body().string();
+                System.out.println("Response JSON: " + responseBody);
+
+                // 直接解析整个结构，注意这里的路径“waves”需要根据实际的JSON结构进行调整
+                JSONObject jsonResponse = JSON.parseObject(responseBody);
+                System.out.println(jsonResponse);
+
+                return true;
+            } else {
+                System.err.println("Error: " + response.code() + ", Message: " + response.message());
+                return false;
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+
 }

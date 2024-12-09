@@ -422,6 +422,8 @@ async function saveAndPrint() {
       orderPrint(create_time, order_id, qr_code);
       message.info(`打印成功: ${order_id}`)
       console.log(`打印成功: ${order_id}`)
+      // 刷新上一次地址订单
+      onAddressSelect(formData.address)
     } else {
       // This block will execute for any status code other than 201
       const {error} = response.data;
