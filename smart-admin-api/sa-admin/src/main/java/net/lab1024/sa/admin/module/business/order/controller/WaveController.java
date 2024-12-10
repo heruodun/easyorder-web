@@ -63,8 +63,8 @@ public class WaveController {
 
     @Operation(summary = "修改送货单数量 @author dahang")
     @PostMapping("/mobile/order/wave/shipCount/update")
-    public ResponseDTO<Boolean> updateShipCount(@RequestBody @Valid WaveInfoShipForm shipForm) {
-        return waveInfoService.ship(shipForm);
+    public ResponseDTO<Boolean> updateShipCount(@RequestBody @Valid WaveInfoShipCountForm shipForm) {
+        return waveInfoService.updateShipCount(shipForm);
     }
 
     @Operation(summary = "添加/删除配货单 @author dahang")

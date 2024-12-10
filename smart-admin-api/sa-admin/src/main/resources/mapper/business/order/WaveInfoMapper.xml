@@ -18,13 +18,19 @@
 
     <update id="updateWaveInfo">
         UPDATE t_wave_info
-        SET status = #{status}, ship_time = #{shipTime}
+        SET status = #{status}, ship_time = #{shipTime}, ship_man = #{shipMan}
         WHERE wave_id = #{waveId}
     </update>
 
     <update id="updateWaveShip">
         UPDATE t_wave_info
         SET ship_ids = #{shipIds}
+        WHERE wave_id = #{waveId}
+    </update>
+
+    <update id="updateWaveShipCount">
+        UPDATE t_wave_info
+        SET ship_count = #{shipCount}
         WHERE wave_id = #{waveId}
     </update>
 

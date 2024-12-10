@@ -35,7 +35,7 @@ public class OrderController {
         boolean result =  WaveHttpService.operation(orderScanForm.getOrderId(),
                 orderScanForm.getOperator(), orderScanForm.getOperation());
         if (result) {
-            return ResponseDTO.ok(result);
+            return ResponseDTO.ok(true);
         }
         return ResponseDTO.error(OrderErrorCode.PARAM_ERROR);
     }

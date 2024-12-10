@@ -53,4 +53,16 @@ public class WaveInfoVO {
     @Schema(description = "送货单id列表")
     private String shipIds;
 
+    /**
+     * 送货单数量
+     */
+    @Schema(description = "送货单数量")
+    private int shipCount;
+
+    /**
+     * 送货人
+     */
+    @Schema(description = "送货人")
+    private String shipMan;
+
 }

@@ -71,4 +71,14 @@ public class WaveInfoEntity {
      */
     private String shipIds;
 
+    /**
+     * 送货单数量
+     */
+    private int shipCount;
+
+    /**
+     * 送货人
+     */
+    private String shipMan;
+
 }

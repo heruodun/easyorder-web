@@ -8,10 +8,7 @@ import java.util.*;
 import com.alibaba.fastjson2.JSONObject;
 import net.lab1024.sa.admin.module.business.order.dao.WaveInfoDao;
 import net.lab1024.sa.admin.module.business.order.domain.entity.WaveInfoEntity;
-import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoAddForm;
-import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoAddDelShipForm;
-import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoShipForm;
-import net.lab1024.sa.admin.module.business.order.domain.form.WaveInfoUpdateForm;
+import net.lab1024.sa.admin.module.business.order.domain.form.*;
 import net.lab1024.sa.admin.module.business.order.domain.vo.WaveInfoVO;
 import net.lab1024.sa.base.common.code.OrderErrorCode;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
@@ -236,7 +233,7 @@ public class WaveInfoService {
         }
         LocalDateTime now = LocalDateTime.now();
         String nowStr = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(now);
-        int ok = waveInfoDao.updateWaveInfo(shipForm.getWaveId(), 1, nowStr);
+        int ok = waveInfoDao.updateWaveInfo(shipForm.getWaveId(), 1, nowStr, shipForm.getOperator());
 
         if(ok > 0){
             //update remote
@@ -253,6 +250,21 @@ public class WaveInfoService {
         // 返回带有新插入波次信息的ResponseDTO
         return ResponseDTO.error(OrderErrorCode.FORM_SUBMIT_FAIL);
     }
+
+    /**
+     * 更新送货单数量
+     *
+     * @param shipCountForm
+     * @return
+     */
+    public ResponseDTO<Boolean> updateShipCount(WaveInfoShipCountForm shipCountForm) {
+        int ok = waveInfoDao.updateWaveShipCount(shipCountForm.getWaveId(), shipCountForm.getShipCount());
+        if(ok > 0) {
+            return ResponseDTO.ok(Boolean.TRUE);
+        }
+        return ResponseDTO.error(OrderErrorCode.FORM_SUBMIT_FAIL);
+    }
+
 
     /**
 
