@@ -41,7 +41,10 @@ public class LoginResultVO extends RequestEmployee {
     private LocalDateTime lastLoginTime;
 
     @Schema(description = "用户角色信息")
-    private List<RoleVO> roleList;
+    private List<String> roleList;
+
+    @Schema(description = "用户角色信息")
+    private List<RoleVO> roleInfoList;
 
     @Schema(description = "扫码规则信息，^\\d+\\$xiaowangniujin$")
     private List<String> scanRuleList;
