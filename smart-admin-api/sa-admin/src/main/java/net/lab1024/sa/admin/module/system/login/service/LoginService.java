@@ -242,7 +242,21 @@ public class LoginService implements StpInterface {
         // 设置 token
         loginResultVO.setToken(StpUtil.getTokenValue());
 
-        loginResultVO.setScanRuleList(configService.getConfigValue2Obj(ConfigKeyEnum.SCAN_RULES, List.class));
+        String scanRules = configService.getConfigValue(ConfigKeyEnum.SCAN_RULES);
+
+        List<String> scanRulesList = new ArrayList<>();
+
+        // 检查scanRules是否为空
+        if (scanRules != null && !scanRules.isEmpty()) {
+            // 按照逗号分割并填入list中
+            String[] rulesArray = scanRules.split(",");
+            for (String rule : rulesArray) {
+                // 去除可能的空格并添加到列表中
+                scanRulesList.add(rule.trim());
+            }
+        }
+
+        loginResultVO.setScanRuleList(scanRulesList);
 
         // 清除权限缓存
         permissionCache.remove(employeeEntity.getEmployeeId());
