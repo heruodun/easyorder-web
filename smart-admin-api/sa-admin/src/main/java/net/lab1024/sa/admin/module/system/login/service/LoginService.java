@@ -242,6 +242,8 @@ public class LoginService implements StpInterface {
         // 设置 token
         loginResultVO.setToken(StpUtil.getTokenValue());
 
+        loginResultVO.setScanRuleList(configService.getConfigValue2Obj(ConfigKeyEnum.SCAN_RULES, List.class));
+
         // 清除权限缓存
         permissionCache.remove(employeeEntity.getEmployeeId());
 
@@ -273,7 +275,7 @@ public class LoginService implements StpInterface {
             loginResultVO.setLastLoginIpRegion(loginLogVO.getLoginIpRegion());
             loginResultVO.setLastLoginTime(loginLogVO.getCreateTime());
             loginResultVO.setLastLoginUserAgent(loginLogVO.getUserAgent());
-            loginResultVO.setRoleList(userPermission.getRoleList());
+            loginResultVO.setRoleList(roleList);
         }
 
         return loginResultVO;

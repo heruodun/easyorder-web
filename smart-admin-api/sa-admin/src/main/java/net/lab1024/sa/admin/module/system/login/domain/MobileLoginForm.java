@@ -26,6 +26,6 @@ public class MobileLoginForm {
     private String password;
 
     @SchemaEnum(desc = "登录终端", value = LoginDeviceEnum.class)
-    @CheckEnum(value = LoginDeviceEnum.class, required = true, message = "此终端不允许登录")
+//    @CheckEnum(value = LoginDeviceEnum.class, required = true, message = "此终端不允许登录")
     private Integer loginDevice;
 }

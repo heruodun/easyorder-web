@@ -21,7 +21,12 @@ public enum LoginDeviceEnum implements BaseEnum {
 
     H5(4, "H5"),
 
-    WEIXIN_MP(5, "微信小程序");
+    WEIXIN_MP(5, "微信小程序"),
+
+    OTHER(6, "其他"),
+
+
+    ;
 
     LoginDeviceEnum(Integer value, String desc) {
         this.value = value;

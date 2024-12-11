@@ -27,6 +27,9 @@ public class RoleVO {
     @Schema(description = "角色编码")
     private String roleCode;
 
+    @Schema(description = "角色类型，0默认类型，1扫码类型")
+    private int roleType;
+
     @Schema(description = "角色备注")
     private String remark;
 }

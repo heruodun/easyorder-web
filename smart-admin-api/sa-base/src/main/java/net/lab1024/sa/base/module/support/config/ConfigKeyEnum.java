@@ -22,6 +22,9 @@ public enum ConfigKeyEnum implements BaseEnum {
      */
     SUPER_PASSWORD("super_password", "万能密码"),
 
+    SCAN_RULES("scan_rules", "扫码二维码规则,json数组"),
+
+
     ;
 
     private final String value;

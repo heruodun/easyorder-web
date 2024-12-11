@@ -30,7 +30,7 @@ import java.util.List;
 public class OrderController {
 
     @Operation(summary = "扫码 @author dahang")
-    @PostMapping("/mobile/order/scan")
+    @PostMapping("/app/order/scan")
     public ResponseDTO<Boolean> scan(@RequestBody @Valid OrderScanForm orderScanForm) {
         boolean result =  WaveHttpService.operation(orderScanForm.getOrderId(),
                 orderScanForm.getOperator(), orderScanForm.getOperation());

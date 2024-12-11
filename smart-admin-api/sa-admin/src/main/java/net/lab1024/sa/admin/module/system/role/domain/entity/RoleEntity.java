@@ -36,6 +36,11 @@ public class RoleEntity {
     private String roleCode;
 
     /**
+     * 角色类型
+     */
+    private int roleType;
+
+    /**
      * 角色备注
      */
     private String remark;

@@ -3,6 +3,7 @@ package net.lab1024.sa.admin.module.system.login.domain;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import net.lab1024.sa.admin.module.system.menu.domain.vo.MenuVO;
+import net.lab1024.sa.admin.module.system.role.domain.vo.RoleVO;
 import net.lab1024.sa.base.common.domain.UserPermission;
 import net.minidev.json.annotate.JsonIgnore;
 
@@ -40,6 +41,10 @@ public class LoginResultVO extends RequestEmployee {
     private LocalDateTime lastLoginTime;
 
     @Schema(description = "用户角色信息")
-    private List<String> roleList;
+    private List<RoleVO> roleList;
+
+    @Schema(description = "扫码规则信息，^\\d+\\$xiaowangniujin$")
+    private List<String> scanRuleList;
+
 
 }

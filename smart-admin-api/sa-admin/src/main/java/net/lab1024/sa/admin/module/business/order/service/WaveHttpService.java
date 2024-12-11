@@ -5,6 +5,8 @@ package net.lab1024.sa.admin.module.business.order.service;
 import com.alibaba.fastjson2.*;
 import com.mysql.cj.xdevapi.JsonArray;
 import lombok.extern.slf4j.Slf4j;
+import net.lab1024.sa.base.common.domain.RequestUser;
+import net.lab1024.sa.base.common.util.SmartRequestUtil;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -162,12 +164,22 @@ public class WaveHttpService {
         }
     }
 
-    public static Boolean operation(Long orderId, String operator, int type) {
+    public static Boolean operation(Long orderId, String operator, String operation) {
+        RequestUser requestUser = SmartRequestUtil.getRequestUser();
         final String SERVICE_URL = "http://localhost:5000/order/operation2";
         OkHttpClient client = new OkHttpClient();
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("order_id", orderId);
-        requestMap.put("operator", operator);
+        requestMap.put("operator", requestUser.getUserName());
+        int type = 0;
+        if("peihuo".equals(operation)){
+            type = 100;
+        }
+
+        if("duijie".equals(operation)){
+            type = 200;
+        }
+
         requestMap.put("type", type);
         String jsonRequestBody = JSON.toJSONString(requestMap);
         RequestBody body = RequestBody.create(jsonRequestBody, JSON_TYPE);
