@@ -27,7 +27,9 @@ public enum OrderErrorCode implements ErrorCode {
 
     FORM_REPEAT_SUBMIT(30009, "请勿重复提交"),
 
-    FORM_SUBMIT_FAIL(30010, "提交失败，请重试");
+    FORM_SUBMIT_FAIL(30010, "提交失败，请重试"),
+    ILLEGAL_ORDER_ID(30011, "非法订单号"),
+    ;
 
 
     private final int code;

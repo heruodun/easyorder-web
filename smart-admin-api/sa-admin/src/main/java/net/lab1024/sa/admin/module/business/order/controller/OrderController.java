@@ -1,4 +1,3 @@
-
 package net.lab1024.sa.admin.module.business.order.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,12 +31,10 @@ public class OrderController {
     @Operation(summary = "扫码 @author dahang")
     @PostMapping("/app/order/scan")
     public ResponseDTO<Boolean> scan(@RequestBody @Valid OrderScanForm orderScanForm) {
-        boolean result =  WaveHttpService.operation(orderScanForm.getOrderId(),
+        return   WaveHttpService.operation(orderScanForm.getOrderIdQr(),
                 orderScanForm.getOperator(), orderScanForm.getOperation());
-        if (result) {
-            return ResponseDTO.ok(true);
-        }
-        return ResponseDTO.error(OrderErrorCode.PARAM_ERROR);
     }
 
 }
+
+

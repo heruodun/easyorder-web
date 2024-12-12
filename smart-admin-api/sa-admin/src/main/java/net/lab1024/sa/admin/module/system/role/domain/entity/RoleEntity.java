@@ -41,6 +41,11 @@ public class RoleEntity {
     private int roleType;
 
     /**
+     * app 菜单图标
+     */
+    private String menuIcon;
+
+    /**
      * 角色备注
      */
     private String remark;

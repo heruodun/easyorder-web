@@ -5,7 +5,10 @@ package net.lab1024.sa.admin.module.business.order.service;
 import com.alibaba.fastjson2.*;
 import com.mysql.cj.xdevapi.JsonArray;
 import lombok.extern.slf4j.Slf4j;
+import net.lab1024.sa.admin.module.business.order.constant.OrderUtil;
+import net.lab1024.sa.base.common.code.OrderErrorCode;
 import net.lab1024.sa.base.common.domain.RequestUser;
+import net.lab1024.sa.base.common.domain.ResponseDTO;
 import net.lab1024.sa.base.common.util.SmartRequestUtil;
 import okhttp3.*;
 
@@ -164,7 +167,11 @@ public class WaveHttpService {
         }
     }
 
-    public static Boolean operation(Long orderId, String operator, String operation) {
+    public static ResponseDTO<Boolean> operation(String orderIdQr, String operator, String operation) {
+        Long orderId = OrderUtil.getOrderId(orderIdQr);
+        if(orderId == null){
+            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
+        }
         RequestUser requestUser = SmartRequestUtil.getRequestUser();
         final String SERVICE_URL = "http://localhost:5000/order/operation2";
         OkHttpClient client = new OkHttpClient();
@@ -198,17 +205,16 @@ public class WaveHttpService {
                 JSONObject jsonResponse = JSON.parseObject(responseBody);
                 System.out.println(jsonResponse);
 
-                return true;
+                return ResponseDTO.ok();
             } else {
                 System.err.println("Error: " + response.code() + ", Message: " + response.message());
-                return false;
+                return ResponseDTO.error(OrderErrorCode.FORM_REPEAT_SUBMIT, "扫码失败，请重试");
             }
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            return false;
+            return ResponseDTO.error(OrderErrorCode.FORM_REPEAT_SUBMIT, "扫码服务异常，请重试");
         }
     }
-
     public static Boolean operation2(Long orderId, int waveId, String operator, int operation) {
         final String SERVICE_URL = "http://localhost:5000/wave/operation";
         OkHttpClient client = new OkHttpClient();

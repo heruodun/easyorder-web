@@ -15,8 +15,8 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class OrderScanForm {
 
-    @Schema(description = "订单编号")
-    private Long orderId;
+    @Schema(description = "订单编号二维码")
+    private String orderIdQr;
 
     @Schema(description = "操作，查询:chaxuan，配货:peihuo")
     private String operation;

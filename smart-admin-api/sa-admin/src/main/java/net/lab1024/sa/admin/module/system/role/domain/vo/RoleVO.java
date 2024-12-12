@@ -30,6 +30,9 @@ public class RoleVO {
     @Schema(description = "角色类型，0默认类型，1扫码类型")
     private int roleType;
 
+    @Schema(description = "app菜单图标")
+    private String menuIcon = "camera";
+
     @Schema(description = "角色备注")
     private String remark;
 }
