@@ -242,8 +242,12 @@ public class LoginService implements StpInterface {
         // 设置 token
         loginResultVO.setToken(StpUtil.getTokenValue());
 
-        String scanRules = configService.getConfigValue(ConfigKeyEnum.SCAN_RULES);
-
+        String scanRules = null;
+        try {
+            scanRules = configService.getConfigValue(ConfigKeyEnum.SCAN_RULES);
+        }catch (Exception e){
+            log.error("", e);
+        }
         List<String> scanRulesList = new ArrayList<>();
 
         // 检查scanRules是否为空

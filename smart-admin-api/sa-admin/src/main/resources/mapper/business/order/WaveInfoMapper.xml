@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="net.lab1024.sa.admin.module.business.order.dao.WaveInfoDao">
-    <select id="queryByTime" resultType="net.lab1024.sa.admin.module.business.order.domain.entity.WaveInfoEntity">
+<mapper namespace="net.lab1024.sa.admin.module.business.order.sales.dao.WaveInfoDao">
+    <select id="queryByTime" resultType="net.lab1024.sa.admin.module.business.order.sales.domain.entity.WaveInfoEntity">
         SELECT * FROM t_wave_info
         WHERE create_time &gt;= #{startTime} AND  create_time  &lt; #{endTime} order by create_time desc
     </select>
 
-    <select id="queryById" resultType="net.lab1024.sa.admin.module.business.order.domain.entity.WaveInfoEntity">
+    <select id="queryById" resultType="net.lab1024.sa.admin.module.business.order.sales.domain.entity.WaveInfoEntity">
         SELECT * FROM t_wave_info
         WHERE wave_id = #{waveId}
     </select>
 
-    <insert id="insertWaveInfo" parameterType="net.lab1024.sa.admin.module.business.order.domain.entity.WaveInfoEntity" useGeneratedKeys="true" keyProperty="waveId">
+    <insert id="insertWaveInfo" parameterType="net.lab1024.sa.admin.module.business.order.sales.domain.entity.WaveInfoEntity" useGeneratedKeys="true" keyProperty="waveId">
         INSERT INTO t_wave_info (wave_alias, create_man)
         VALUES (#{waveAlias}, #{createMan})
     </insert>
