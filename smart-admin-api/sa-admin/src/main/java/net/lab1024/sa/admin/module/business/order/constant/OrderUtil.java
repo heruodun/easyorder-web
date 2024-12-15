@@ -30,13 +30,14 @@ public class OrderUtil {
 
             // 提取$前面的子字符串
             String numberStr = str.substring(0, index);
-            String qrVersion = str.substring(index);
+            String qrVersion = str.substring(index + 1);
 
-            if("xiaowangniujin".equals(qrVersion)){
+            if(QrTypeEnum.V0.getVersion().equals(qrVersion)){
                 // 将字符串转为数字（订单 ID）
                 Long orderId = Long.parseLong(numberStr);
                 orderTypeAndIdVO.setOrderId(orderId);
                 orderTypeAndIdVO.setOrderType(OrderTypeEnum.FACTORY_ONE_SALES);
+                orderTypeAndIdVO.setQrType(QrTypeEnum.V0);
             }
             else {
 
@@ -47,6 +48,7 @@ public class OrderUtil {
                 // 解析订单类型
                 OrderTypeEnum orderType = getOrderType(numberStr);
                 orderTypeAndIdVO.setOrderType(orderType);
+                orderTypeAndIdVO.setQrType(QrTypeEnum.V1);
             }
 
             return orderTypeAndIdVO;

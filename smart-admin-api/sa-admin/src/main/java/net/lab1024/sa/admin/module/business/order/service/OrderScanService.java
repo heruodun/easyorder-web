@@ -2,6 +2,7 @@ package net.lab1024.sa.admin.module.business.order.service;
 
 import net.lab1024.sa.admin.module.business.order.constant.OrderTypeEnum;
 import net.lab1024.sa.admin.module.business.order.constant.OrderUtil;
+import net.lab1024.sa.admin.module.business.order.constant.QrTypeEnum;
 import net.lab1024.sa.admin.module.business.order.domain.form.OrderScanForm;
 import net.lab1024.sa.admin.module.business.order.domain.vo.OrderTypeAndIdVO;
 import net.lab1024.sa.admin.module.business.order.sales.service.OrderSalesService;
@@ -37,19 +38,27 @@ public class OrderScanService {
             return ResponseDTO.error(OrderErrorCode.NO_PERMISSION);
         }
 
-        //分流处理，不同的订单类型到不同的服务
-        if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_SALES)){
-            return orderSalesService.scanOrder(orderScanForm, orderInfo);
-        }else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BUCKET)){
+        //二维码分流处理
+        if(orderInfo.getQrType() == QrTypeEnum.V0){
+            return WaveHttpService.operation(orderScanForm.getOrderIdQr(), orderScanForm.getOperation());
+        }
 
-        }else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BOX)){
+        else {
 
-        }else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BAG)){
+            //分流处理，不同的订单类型到不同的服务
+            if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_SALES)) {
+                return orderSalesService.scanOrder(orderScanForm, orderInfo);
+            } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BUCKET)) {
 
-        }else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_DISK)){
+            } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BOX)) {
 
-        }else {
-            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "二厂订单号暂不支持~");
+            } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BAG)) {
+
+            } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_DISK)) {
+
+            } else {
+                return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "二厂订单号暂不支持~");
+            }
         }
         return ResponseDTO.ok();
     }

@@ -1,8 +1,9 @@
 package net.lab1024.sa.admin.module.business.order.sales.domain.form;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.validation.constraints.NotBlank;
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
 
 /**
  * 波次 新建表单
@@ -13,15 +14,8 @@ import lombok.Data;
  */
 
 @Data
-public class WaveInfoAddForm {
-
-    @Schema(description = "波次编号")
-    private Integer waveId;
+public class WaveAddForm {
 
     @Schema(description = "波次别名")
     private String waveAlias;
-
-    @Schema(description = "创建者", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String createMan;
-
 }

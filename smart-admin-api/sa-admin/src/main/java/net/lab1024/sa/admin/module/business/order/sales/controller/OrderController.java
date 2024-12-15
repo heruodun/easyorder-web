@@ -25,7 +25,7 @@ public class OrderController {
     @Resource
     private OrderScanService orderScanService;
 
-    @NoNeedLogin
+
     @Operation(summary = "扫码 @author dahang")
     @PostMapping("/app/order/scan")
     public ResponseDTO<Boolean> scan(@RequestBody @Valid OrderScanForm orderScanForm) {

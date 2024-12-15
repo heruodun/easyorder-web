@@ -11,7 +11,9 @@ import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveVO;
 import net.lab1024.sa.admin.module.business.order.service.WaveHttpService;
 import net.lab1024.sa.admin.module.business.order.service.WaveInfoService;
 import net.lab1024.sa.base.common.code.OrderErrorCode;
+import net.lab1024.sa.base.common.domain.RequestUser;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
+import net.lab1024.sa.base.common.util.SmartRequestUtil;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -54,6 +56,8 @@ public class WaveController {
     @Operation(summary = "添加 @author dahang")
     @PostMapping("/app/order/wave/create")
     public ResponseDTO<WaveInfoVO> create(@RequestBody @Valid WaveInfoAddForm addForm) {
+        RequestUser requestUser = SmartRequestUtil.getRequestUser();
+        addForm.setCreateMan(requestUser.getUserName());
         return waveInfoService.add(addForm);
     }
 
@@ -72,8 +76,9 @@ public class WaveController {
     @Operation(summary = "添加/删除配货单 @author dahang")
     @PostMapping("/app/order/wave/order/addOrDel")
     public ResponseDTO<Boolean> addOrDelWaveOrder(@RequestBody @Valid WaveOrderAddDelForm waveInfoAddShipForm) {
+        RequestUser requestUser = SmartRequestUtil.getRequestUser();
         boolean isOk = WaveHttpService.operation2(waveInfoAddShipForm.getOrderId(), waveInfoAddShipForm.getWaveId(),
-                waveInfoAddShipForm.getOperator(), waveInfoAddShipForm.getOperation());
+                requestUser.getUserName(), waveInfoAddShipForm.getOperation());
         if(isOk){
             return ResponseDTO.ok(true);
         }else {

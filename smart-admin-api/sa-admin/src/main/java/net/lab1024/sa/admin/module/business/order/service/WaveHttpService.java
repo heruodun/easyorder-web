@@ -253,7 +253,7 @@ public class WaveHttpService {
         }
     }
 
-    public static ResponseDTO<Boolean> operation(String orderIdQr, String operator, String operation) {
+    public static ResponseDTO<Boolean> operation(String orderIdQr, String operation) {
         Long orderId = OrderUtil.parseOrderInfo(orderIdQr).getOrderId();
         if(orderId == null){
             return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");

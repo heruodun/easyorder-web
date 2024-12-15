@@ -109,7 +109,11 @@ public class ConfigService {
      *
      */
     public String getConfigValue(ConfigKeyEnum configKey) {
-        return this.getConfig(configKey).getConfigValue();
+        ConfigVO configVO = this.getConfig(configKey);
+        if(configVO != null) {
+            return this.getConfig(configKey).getConfigValue();
+        }
+        return null;
     }
 
     /**

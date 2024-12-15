@@ -8,6 +8,7 @@ import java.util.*;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import net.lab1024.sa.admin.module.business.order.constant.OrderUtil;
+import net.lab1024.sa.admin.module.business.order.constant.QrTypeEnum;
 import net.lab1024.sa.admin.module.business.order.domain.vo.OrderTypeAndIdVO;
 import net.lab1024.sa.admin.module.business.order.sales.dao.WaveInfoDao;
 import net.lab1024.sa.admin.module.business.order.sales.domain.entity.OrderSalesEntity;
@@ -18,9 +19,12 @@ import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveInfoVO;
 import net.lab1024.sa.admin.module.business.order.sales.domain.form.*;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveVO;
 import net.lab1024.sa.admin.module.business.order.sales.service.OrderSalesService;
+import net.lab1024.sa.base.common.code.ErrorCode;
 import net.lab1024.sa.base.common.code.OrderErrorCode;
+import net.lab1024.sa.base.common.domain.RequestUser;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
+import net.lab1024.sa.base.common.util.SmartRequestUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -176,12 +180,27 @@ public class WaveInfoService {
 
         Long orderId = orderTypeAndIdVO.getOrderId();
 
-        //通过订单号查询波次id
-        OrderSalesEntity orderSalesEntity = orderSalesService.getByOrderId(orderId);
-        if(orderSalesEntity == null || orderSalesEntity.getWaveId() == null || orderSalesEntity.getWaveId() <= 0){
-            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
+        Integer waveId = null;
+
+        if(QrTypeEnum.V0 == orderTypeAndIdVO.getQrType()){
+            JSONObject jsonObject = WaveHttpService.getOrder(orderId);
+            if(jsonObject == null){
+                return ResponseDTO.ok(new WaveVO());
+            }
+            waveId = jsonObject.getInteger("wave_id");
+
         }
-        Integer waveId = orderSalesEntity.getWaveId();
+        else {
+            //通过订单号查询波次id
+            OrderSalesEntity orderSalesEntity = orderSalesService.getByOrderId(orderId);
+            if (orderSalesEntity == null || orderSalesEntity.getWaveId() == null || orderSalesEntity.getWaveId() <= 0) {
+                return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
+            }
+            waveId = orderSalesEntity.getWaveId();
+        }
+        if(waveId == null || waveId <= 0){
+            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "还未拣货");
+        }
 
         return queryByWaveId(waveId);
     }
@@ -313,19 +332,30 @@ public class WaveInfoService {
     }
 
     public ResponseDTO<Boolean> shipWave(WaveInfoShipForm shipForm) {
+        //需要区分出来 是哪个版本的wave
         WaveInfoEntity waveInfoEntity = waveInfoDao.selectById(shipForm.getWaveId());
         if(waveInfoEntity == null){
             return ResponseDTO.error(OrderErrorCode.DATA_NOT_EXIST);
         }
         LocalDateTime now = LocalDateTime.now();
         String nowStr = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(now);
-        int ok = waveInfoDao.updateWaveInfo(shipForm.getWaveId(), 1, nowStr, shipForm.getOperator());
+        RequestUser requestUser = SmartRequestUtil.getRequestUser();
+        int ok = waveInfoDao.updateWaveInfo(shipForm.getWaveId(), 1, nowStr, requestUser.getUserName());
 
         if(ok > 0){
             //update remote
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
+
+                    //不管是哪个二维码版本都走一遍
+
+                    try {
+                        WaveHttpService.ship(shipForm.getWaveId(), requestUser.getUserName());
+                    }catch (Exception e){
+                        log.error("update ship error", e);
+                    }
+
                     List<OrderSalesVO> list = orderSalesService.queryByWaveId(shipForm.getWaveId());
                     for (OrderSalesVO orderSalesVO : list){
 

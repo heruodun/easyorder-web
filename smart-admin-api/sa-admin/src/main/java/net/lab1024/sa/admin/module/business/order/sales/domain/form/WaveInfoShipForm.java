@@ -23,7 +23,6 @@ public class WaveInfoShipForm {
     private String waveAlias;
 
     @Schema(description = "操作者", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "操作者 不能为空")
     private String operator;
 
 }
