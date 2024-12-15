@@ -7,6 +7,7 @@ import net.lab1024.sa.admin.module.business.order.sales.domain.form.WaveInfoAddF
 import net.lab1024.sa.admin.module.business.order.sales.domain.form.WaveInfoShipCountForm;
 import net.lab1024.sa.admin.module.business.order.sales.domain.form.WaveInfoShipForm;
 import net.lab1024.sa.admin.module.business.order.sales.domain.form.WaveOrderAddDelForm;
+import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveVO;
 import net.lab1024.sa.admin.module.business.order.service.WaveHttpService;
 import net.lab1024.sa.admin.module.business.order.service.WaveInfoService;
 import net.lab1024.sa.base.common.code.OrderErrorCode;
@@ -33,20 +34,20 @@ public class WaveController {
 
     @Operation(summary = "查询列表 @author dahang")
     @GetMapping("/app/order/wave/list")
-    public ResponseDTO<List<WaveInfoVO>> queryPage(@RequestParam @Valid String date) {
-        return ResponseDTO.ok(waveInfoService.queryPage(date));
+    public ResponseDTO<List<WaveVO>> queryPage(@RequestParam @Valid String date) {
+        return waveInfoService.queryPageWave(date);
     }
 
     @Operation(summary = "查询单个 @author dahang")
     @GetMapping("/app/order/wave/get/{waveId}")
-    public ResponseDTO<WaveInfoVO> queryById(@PathVariable @Valid Integer waveId) {
-        return ResponseDTO.ok(waveInfoService.queryById(waveId));
+    public ResponseDTO<WaveVO> queryById(@PathVariable @Valid Integer waveId) {
+        return waveInfoService.queryByWaveId(waveId);
     }
 
     @Operation(summary = "查询 @author dahang")
-    @GetMapping("/app/order/wave/queryByOrder/{orderId}")
-    public ResponseDTO<WaveInfoVO> queryByOrderId(@PathVariable @Valid Long orderId) {
-        return ResponseDTO.ok(waveInfoService.queryByOrderId(orderId));
+    @GetMapping("/app/order/wave/queryByOrder/{orderIdQr}")
+    public ResponseDTO<WaveVO> queryByOrderIdQr(@PathVariable @Valid String orderIdQr) {
+        return waveInfoService.queryByOrderIdQr(orderIdQr);
     }
 
 
@@ -59,7 +60,7 @@ public class WaveController {
     @Operation(summary = "开始送货 @author dahang")
     @PostMapping("/app/order/wave/ship")
     public ResponseDTO<Boolean> ship(@RequestBody @Valid WaveInfoShipForm shipForm) {
-        return waveInfoService.ship(shipForm);
+        return waveInfoService.shipWave(shipForm);
     }
 
     @Operation(summary = "修改送货单数量 @author dahang")

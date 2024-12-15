@@ -3,9 +3,11 @@ package net.lab1024.sa.admin.module.business.order.service;
 
 
 import com.alibaba.fastjson2.*;
-import com.mysql.cj.xdevapi.JsonArray;
 import lombok.extern.slf4j.Slf4j;
 import net.lab1024.sa.admin.module.business.order.constant.OrderUtil;
+import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveAddressVO;
+import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesVO;
+import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveDetailVO;
 import net.lab1024.sa.base.common.code.OrderErrorCode;
 import net.lab1024.sa.base.common.domain.RequestUser;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
@@ -13,7 +15,11 @@ import net.lab1024.sa.base.common.util.SmartRequestUtil;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -48,6 +54,86 @@ public class WaveHttpService {
                     resultMap.put(Integer.parseInt(waveId), waveDetails);
                 }
 
+                return resultMap;
+            } else {
+                System.err.println("Error: " + response.code() + ", Message: " + response.message());
+                return null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Map<Integer, WaveDetailVO> get4New(int[] waveIds) {
+        final String SERVICE_URL1 = "http://localhost:5000/wave/orders";
+        OkHttpClient client = new OkHttpClient();
+        String jsonRequestBody = JSON.toJSONString(waveIds);
+        RequestBody body = RequestBody.create(jsonRequestBody, JSON_TYPE);
+
+        Request request = new Request.Builder()
+                .url(SERVICE_URL1)
+                .post(body)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful() && response.body() != null) {
+                String responseBody = response.body().string();
+                System.out.println("Response JSON: " + responseBody);
+
+                // 直接解析整个结构，注意这里的路径“waves”需要根据实际的JSON结构进行调整
+                JSONObject jsonResponse = JSON.parseObject(responseBody);
+                JSONObject waves = jsonResponse.getJSONObject("waves");
+
+                Map<Integer, WaveDetailVO> resultMap = new HashMap<>();
+
+                for (String waveId : waves.keySet()) {
+                    WaveDetailVO waveDetailVO = new WaveDetailVO();
+                    JSONObject waveDetails = waves.getJSONObject(waveId);
+                    int addressCount = waveDetails.getIntValue("addressCount");
+                    int totalCount = waveDetails.getIntValue("totalCount");
+                    waveDetailVO.setAddressCount(addressCount);
+                    waveDetailVO.setTotalCount(totalCount);
+                    JSONArray addressesArray = waveDetails.getJSONArray("addresses");
+                    List<WaveAddressVO> addressList = new ArrayList<>();
+                    for (int i = 0; i < addressesArray.size(); i++) {
+                        JSONObject addressJson = addressesArray.getJSONObject(i);
+                        WaveAddressVO orderAddressedVO = new WaveAddressVO();
+                        orderAddressedVO.setAddress(addressJson.getString("address"));  // Change Integer to String due to structure
+                        orderAddressedVO.setOrderCount(addressJson.getIntValue("orderCount"));
+
+                        // Step 4: Extract orders array
+                        JSONArray ordersArray = addressJson.getJSONArray("orders");
+                        List<OrderSalesVO> orderList = new ArrayList<>();
+                        for (int j = 0; j < ordersArray.size(); j++) {
+                            JSONObject orderJson = ordersArray.getJSONObject(j);
+                            OrderSalesVO orderSalesVO = new OrderSalesVO();
+                            orderSalesVO.setId(orderJson.getLong("id"));
+                            orderSalesVO.setOrderId(orderJson.getLong("order_id"));
+                            orderSalesVO.setAddress(orderJson.getString("address"));
+                            orderSalesVO.setCurStatus(orderJson.getString("cur_status"));
+                            orderSalesVO.setCurTime(LocalDateTime.ofEpochSecond(orderJson.getLong("cur_time") / 1000, 0, java.time.ZoneOffset.UTC));
+                            orderSalesVO.setCreator(orderJson.getString("printer"));
+                            orderSalesVO.setWaveId(orderJson.getInteger("wave_id"));
+                            orderSalesVO.setDetail(orderJson.getString("content"));
+                            orderSalesVO.setCurOperator(orderJson.getString("cur_man"));
+                            orderSalesVO.setTrace(new ArrayList<>());
+                            orderSalesVO.setCreateTime(LocalDateTime.ofEpochSecond(orderJson.getLong("print_time") / 1000, 0, java.time.ZoneOffset.UTC));
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                            orderSalesVO.setUpdateTime(LocalDateTime.parse(orderJson.getString("update_time"), formatter));
+
+                            // Add the orderSalesVO to the list
+                            orderList.add(orderSalesVO);
+                        }
+
+                        // Set orders in OrderAddressedVO
+                        orderAddressedVO.setOrders(orderList);
+                        // Add to address list
+                        addressList.add(orderAddressedVO);
+                        waveDetailVO.setOrders(addressList);
+                    }
+                    resultMap.put(Integer.parseInt(waveId), waveDetailVO);
+                }
                 return resultMap;
             } else {
                 System.err.println("Error: " + response.code() + ", Message: " + response.message());
@@ -168,7 +254,7 @@ public class WaveHttpService {
     }
 
     public static ResponseDTO<Boolean> operation(String orderIdQr, String operator, String operation) {
-        Long orderId = OrderUtil.getOrderId(orderIdQr);
+        Long orderId = OrderUtil.parseOrderInfo(orderIdQr).getOrderId();
         if(orderId == null){
             return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
         }

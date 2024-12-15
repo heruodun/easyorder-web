@@ -6,10 +6,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import com.alibaba.fastjson2.JSONObject;
+import lombok.extern.slf4j.Slf4j;
+import net.lab1024.sa.admin.module.business.order.constant.OrderUtil;
+import net.lab1024.sa.admin.module.business.order.domain.vo.OrderTypeAndIdVO;
 import net.lab1024.sa.admin.module.business.order.sales.dao.WaveInfoDao;
+import net.lab1024.sa.admin.module.business.order.sales.domain.entity.OrderSalesEntity;
 import net.lab1024.sa.admin.module.business.order.sales.domain.entity.WaveInfoEntity;
+import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesVO;
+import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveDetailVO;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveInfoVO;
 import net.lab1024.sa.admin.module.business.order.sales.domain.form.*;
+import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveVO;
+import net.lab1024.sa.admin.module.business.order.sales.service.OrderSalesService;
 import net.lab1024.sa.base.common.code.OrderErrorCode;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
@@ -27,11 +35,14 @@ import javax.annotation.Resource;
  * @Copyright dahang
  */
 
+@Slf4j
 @Service
 public class WaveInfoService {
 
     @Resource
     private WaveInfoDao waveInfoDao;
+    @Resource
+    private OrderSalesService orderSalesService;
 
     /**
      *
@@ -66,6 +77,51 @@ public class WaveInfoService {
         return resultList;
     }
 
+    public ResponseDTO<List<WaveVO>> queryPageWave(String curDate) {
+
+        List<WaveVO> resultList = new ArrayList<>();
+//        / 解析日期字符串
+        LocalDate date = LocalDate.parse(curDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        // 计算当日0点
+        LocalDateTime startOfDay = date.atStartOfDay();
+        // 计算次日0点
+        LocalDateTime startOfNextDay = date.plusDays(1).atStartOfDay();
+
+        // 转换为SQL可用的字符串格式（这里例子假设数据库使用的是DateTime格式）
+        String startOfDayStr = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(startOfDay);
+        String startOfNextDayStr = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(startOfNextDay);
+        List<WaveInfoEntity> list = waveInfoDao.queryByTime(startOfDayStr, startOfNextDayStr);
+        int[] waveIds = new int[list.size()];
+        int i = 0;
+        for(WaveInfoEntity waveInfoVO : list){
+            waveIds[i++] = waveInfoVO.getWaveId();
+        }
+
+        Map<Integer, WaveDetailVO>  map = WaveHttpService.get4New(waveIds);
+        for (WaveInfoEntity waveInfoEntity : list) {
+            resultList.add(getWaveVO(waveInfoEntity, map.get(waveInfoEntity.getWaveId())));
+        }
+        return ResponseDTO.ok(resultList);
+
+    }
+
+    private WaveVO getWaveVO(WaveInfoEntity waveInfoEntity, WaveDetailVO waveDetail){
+        WaveVO waveVO = SmartBeanUtil.copy(waveInfoEntity, WaveVO.class);
+        if(waveDetail == null ){
+            waveVO.setAddressCount(0);
+            waveVO.setOrderCount(0);
+            waveVO.setAddressOrders(new ArrayList<>());
+        }
+        else {
+            waveVO.setAddressCount(waveDetail.getAddressCount());
+            waveVO.setOrderCount(waveDetail.getTotalCount());
+            waveVO.setAddressOrders(waveDetail.getOrders());
+        }
+        return waveVO;
+    }
+
+
     private WaveInfoVO getWaveInfoVO(WaveInfoEntity waveInfoEntity, Map<Integer, Object> map){
         WaveInfoVO waveInfoVO = SmartBeanUtil.copy(waveInfoEntity, WaveInfoVO.class);
 
@@ -95,6 +151,39 @@ public class WaveInfoService {
         Map<Integer, Object> map = WaveHttpService.get(waveIds);
 
         return getWaveInfoVO(waveInfoEntity, map);
+    }
+
+    public ResponseDTO<WaveVO> queryByWaveId(Integer waveId) {
+
+        WaveInfoEntity waveInfoEntity = waveInfoDao.queryById(waveId);
+        if(waveInfoEntity == null){
+            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
+        }
+
+//        List<OrderSalesVO> list = orderSalesService.queryByWaveId(waveId);
+
+        //兼容逻辑
+        int[] waveIds = new int[]{waveInfoEntity.getWaveId()};
+
+        Map<Integer, WaveDetailVO> map = WaveHttpService.get4New(waveIds);
+
+        WaveVO waveVO = getWaveVO(waveInfoEntity, map.get(waveInfoEntity.getWaveId()));
+        return ResponseDTO.ok(waveVO);
+    }
+
+    public ResponseDTO<WaveVO> queryByOrderIdQr(String orderIdQr) {
+        OrderTypeAndIdVO orderTypeAndIdVO = OrderUtil.parseOrderInfo(orderIdQr);
+
+        Long orderId = orderTypeAndIdVO.getOrderId();
+
+        //通过订单号查询波次id
+        OrderSalesEntity orderSalesEntity = orderSalesService.getByOrderId(orderId);
+        if(orderSalesEntity == null || orderSalesEntity.getWaveId() == null || orderSalesEntity.getWaveId() <= 0){
+            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
+        }
+        Integer waveId = orderSalesEntity.getWaveId();
+
+        return queryByWaveId(waveId);
     }
 
     public WaveInfoVO queryByOrderId(Long orderId) {
@@ -223,6 +312,34 @@ public class WaveInfoService {
         return uniqueShipIds;
     }
 
+    public ResponseDTO<Boolean> shipWave(WaveInfoShipForm shipForm) {
+        WaveInfoEntity waveInfoEntity = waveInfoDao.selectById(shipForm.getWaveId());
+        if(waveInfoEntity == null){
+            return ResponseDTO.error(OrderErrorCode.DATA_NOT_EXIST);
+        }
+        LocalDateTime now = LocalDateTime.now();
+        String nowStr = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(now);
+        int ok = waveInfoDao.updateWaveInfo(shipForm.getWaveId(), 1, nowStr, shipForm.getOperator());
+
+        if(ok > 0){
+            //update remote
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    List<OrderSalesVO> list = orderSalesService.queryByWaveId(shipForm.getWaveId());
+                    for (OrderSalesVO orderSalesVO : list){
+
+                    }
+                }
+            });
+            thread.start();
+            return ResponseDTO.ok(Boolean.TRUE);
+        }
+
+        // 返回带有新插入波次信息的ResponseDTO
+        return ResponseDTO.error(OrderErrorCode.FORM_SUBMIT_FAIL);
+    }
+
     /**
      * 送货
      */
@@ -240,7 +357,11 @@ public class WaveInfoService {
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    WaveHttpService.ship(shipForm.getWaveId(), shipForm.getOperator());
+                    try {
+                        WaveHttpService.ship(shipForm.getWaveId(), shipForm.getOperator());
+                    }catch (Exception e){
+                        log.error("update ship error", e);
+                    }
                 }
             });
             thread.start();

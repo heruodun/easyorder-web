@@ -1,3 +1,4 @@
+
 package net.lab1024.sa.admin.module.system.role.service;
 
 import net.lab1024.sa.admin.module.system.role.dao.RoleDao;
@@ -10,23 +11,21 @@ import net.lab1024.sa.admin.module.system.role.domain.vo.RoleVO;
 import net.lab1024.sa.base.common.code.UserErrorCode;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 角色
- *
- * @Author 1024创新实验室: 胡克
- * @Date 2021-08-16 20:19:22
- * @Wechat zhuoda1024
- * @Email lab1024@163.com
- * @Copyright <a href="https://1024lab.net">1024创新实验室</a>
  */
 @Service
-public class RoleService {
+public class RoleService implements InitializingBean {
 
     @Resource
     private RoleDao roleDao;
@@ -36,6 +35,8 @@ public class RoleService {
 
     @Resource
     private RoleEmployeeDao roleEmployeeDao;
+
+    private Map<String, RoleEntity> roleMap = new ConcurrentHashMap();
 
     /**
      * 新增添加角色
@@ -53,6 +54,7 @@ public class RoleService {
 
         RoleEntity roleEntity = SmartBeanUtil.copy(roleAddForm, RoleEntity.class);
         roleDao.insert(roleEntity);
+        roleMap.put(roleEntity.getRoleCode(), roleEntity);
         return ResponseDTO.ok();
     }
 
@@ -68,6 +70,7 @@ public class RoleService {
         roleDao.deleteById(roleId);
         roleMenuDao.deleteByRoleId(roleId);
         roleEmployeeDao.deleteByRoleId(roleId);
+        roleMap.remove(roleEntity.getRoleCode());
         return ResponseDTO.ok();
     }
 
@@ -92,6 +95,7 @@ public class RoleService {
 
         RoleEntity roleEntity = SmartBeanUtil.copy(roleUpdateForm, RoleEntity.class);
         roleDao.updateById(roleEntity);
+        roleMap.put(roleEntity.getRoleCode(), roleEntity);
         return ResponseDTO.ok();
     }
 
@@ -108,11 +112,29 @@ public class RoleService {
     }
 
     /**
+     * 根据角色code获取角色数据
+     */
+    public RoleEntity getRoleByRoleCode(String roleCode) {
+        return  roleMap.get(roleCode);
+    }
+
+
+    /**
      * 获取所有角色列表
      */
     public ResponseDTO<List<RoleVO>> getAllRole() {
         List<RoleEntity> roleEntityList = roleDao.selectList(null);
         List<RoleVO> roleList = SmartBeanUtil.copyList(roleEntityList, RoleVO.class);
         return ResponseDTO.ok(roleList);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        List<RoleEntity> list = roleDao.selectByMap(new HashMap<>());
+        for(RoleEntity entity:list){
+            if(entity.getRoleCode() != null) {
+                roleMap.put(entity.getRoleCode(), entity);
+            }
+        }
     }
 }

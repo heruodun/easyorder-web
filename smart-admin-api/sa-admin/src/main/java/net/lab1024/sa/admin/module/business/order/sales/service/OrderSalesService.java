@@ -1,19 +1,37 @@
 package net.lab1024.sa.admin.module.business.order.sales.service;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
-import net.lab1024.sa.admin.module.business.order.domain.entity.OrderSalesEntity;
-import net.lab1024.sa.admin.module.business.order.domain.form.OrderSalesAddForm;
-import net.lab1024.sa.admin.module.business.order.domain.form.OrderSalesUpdateForm;
-import net.lab1024.sa.admin.module.business.order.domain.vo.OrderSalesVO;
+import java.util.Map;
+
+import net.lab1024.sa.admin.module.business.inventory.dao.InventoryDao;
+import net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity;
+import net.lab1024.sa.admin.module.business.order.domain.entity.TraceElementEntity;
+import net.lab1024.sa.admin.module.business.order.domain.form.OrderScanForm;
+import net.lab1024.sa.admin.module.business.order.domain.vo.OrderTypeAndIdVO;
 import net.lab1024.sa.admin.module.business.order.sales.dao.OrderSalesDao;
+import net.lab1024.sa.admin.module.business.order.sales.domain.entity.OrderSalesEntity;
+import net.lab1024.sa.admin.module.business.order.sales.domain.form.OrderSalesAddForm;
 import net.lab1024.sa.admin.module.business.order.sales.domain.form.OrderSalesQueryForm;
+import net.lab1024.sa.admin.module.business.order.sales.domain.form.OrderSalesUpdateForm;
+import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesVO;
+import net.lab1024.sa.admin.module.business.user.dao.UserOperationDao;
+import net.lab1024.sa.admin.module.business.user.domain.entity.UserOperationEntity;
+import net.lab1024.sa.admin.module.system.role.domain.entity.RoleEntity;
+import net.lab1024.sa.admin.module.system.role.domain.vo.RoleVO;
+import net.lab1024.sa.admin.module.system.role.service.RoleService;
+import net.lab1024.sa.base.common.code.OrderErrorCode;
+import net.lab1024.sa.base.common.domain.RequestUser;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import net.lab1024.sa.base.common.util.SmartPageUtil;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
 import net.lab1024.sa.base.common.domain.PageResult;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import net.lab1024.sa.base.common.util.SmartRequestUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
@@ -30,6 +48,95 @@ public class OrderSalesService {
 
     @Resource
     private OrderSalesDao orderSalesDao;
+    @Resource
+    private UserOperationDao userOperationDao;
+    @Resource
+    private InventoryDao inventoryDao;
+    @Resource
+    private RoleService roleService;
+
+
+    public OrderSalesEntity getByOrderId(Long orderId) {
+        OrderSalesEntity orderSalesEntity = new OrderSalesEntity();
+        orderSalesEntity.setOrderId(orderId);
+        return orderSalesDao.selectOne(orderSalesEntity);
+    }
+
+    @Transactional
+    public ResponseDTO<Boolean> scanOrder(OrderScanForm orderScanForm, OrderTypeAndIdVO orderInfo){
+        RequestUser requestUser = SmartRequestUtil.getRequestUser();
+        RequestUser operator = requestUser;
+        Long orderId = orderInfo.getOrderId();
+        OrderSalesEntity orderSalesEntity = getByOrderId(orderId);
+        if(orderSalesEntity == null){
+            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
+        }
+
+        RoleEntity curRole = roleService.getRoleByRoleCode(orderScanForm.getOperation());
+        LocalDateTime now = LocalDateTime.now();
+        String userName = operator == null || operator.getUserName() == null ? "管理人" : operator.getUserName();
+        Long userId = operator == null || operator.getUserId() == null ? 1L : operator.getUserId();
+        Long id = orderSalesEntity.getId();
+
+        String roleName = curRole.getRoleName();
+
+        TraceElementEntity traceElementEntity = new TraceElementEntity();
+        traceElementEntity.setOperation(orderScanForm.getOperation());
+        traceElementEntity.setTime(now);
+        traceElementEntity.setOperator(userName);
+
+        orderSalesEntity.getTrace().add(traceElementEntity);
+
+        int updateCount = orderSalesDao.updateScanInfo(roleName, userName,
+                userId, now, orderSalesEntity.getTrace(), id);
+
+        Map map = new HashMap<String, Object>();
+        map.put("order_id", orderId);
+        map.put("operator_id", userId);
+        map.put("operation", roleName);
+
+        List<UserOperationEntity> list = userOperationDao.selectByMap(map);
+        if(list == null || list.size() == 0) {
+            UserOperationEntity userOperationEntity = new UserOperationEntity();
+            userOperationEntity.setOperation(roleName);
+            userOperationEntity.setCreateTime(now);
+            userOperationEntity.setOrderId(orderId);
+            userOperationEntity.setCount(orderSalesEntity.getCount());
+            userOperationEntity.setGuige(orderSalesEntity.getGuige());
+            userOperationEntity.setDanwei(orderSalesEntity.getDanwei());
+            userOperationEntity.setDetail(orderSalesEntity.getDetail());
+            userOperationEntity.setOperator(userName);
+            userOperationEntity.setOperatorId(userId);
+            int insertCount = userOperationDao.insert(userOperationEntity);
+        }
+
+        //todo 异步入库出库
+
+        InventoryEntity inventory = new InventoryEntity();
+        inventory.setCount(orderSalesEntity.getCount());
+        inventory.setGuige(orderSalesEntity.getGuige());
+        inventory.setDanwei(orderSalesEntity.getDanwei());
+        inventory.setDetail(orderSalesEntity.getDetail());
+        inventory.setOrderId(orderId);
+        inventory.setType(1);
+        inventory.setOperator(userName);
+        inventory.setOperatorId(userId);
+
+        inventoryDao.insertOrUpdate(inventory);
+
+        if(updateCount <= 0){
+            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "扫码失败，请重试~");
+        }
+        return ResponseDTO.ok();
+    }
+
+    //不同操作码，对应不同的逻辑
+
+
+    public List<OrderSalesVO> queryByWaveId(Integer waveId) {
+        List<OrderSalesVO> list = orderSalesDao.queryByWaveId(waveId);
+        return list;
+    }
 
     /**
      * 分页查询

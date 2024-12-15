@@ -1,8 +1,11 @@
-package net.lab1024.sa.admin.module.business.order.domain.vo;
+package net.lab1024.sa.admin.module.business.order.sales.domain.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import java.util.List;
+
 import lombok.Data;
+import net.lab1024.sa.admin.module.business.order.domain.entity.TraceElementEntity;
 
 /**
  * 销售订单 列表VO
@@ -25,6 +28,9 @@ public class OrderSalesVO {
     @Schema(description = "地址")
     private String address;
 
+    @Schema(description = "地址id")
+    private Integer addressId;
+
     @Schema(description = "规格")
     private String guige;
 
@@ -38,7 +44,7 @@ public class OrderSalesVO {
     private String detail;
 
     @Schema(description = "轨迹")
-    private String trace;
+    private List<TraceElementEntity> trace;
 
     @Schema(description = "当前状态")
     private String curStatus;
@@ -47,10 +53,16 @@ public class OrderSalesVO {
     private LocalDateTime curTime;
 
     @Schema(description = "当前处理人")
-    private String curMan;
+    private String curOperator;
+
+    @Schema(description = "当前处理人id")
+    private String curOperatorId;
 
     @Schema(description = "创建人")
-    private String createMan;
+    private String creator;
+
+    @Schema(description = "创建人id")
+    private Long creatorId;
 
     @Schema(description = "波次编号")
     private Integer waveId;

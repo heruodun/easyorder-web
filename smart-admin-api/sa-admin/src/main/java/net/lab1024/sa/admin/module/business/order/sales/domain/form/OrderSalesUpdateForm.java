@@ -1,8 +1,11 @@
-package net.lab1024.sa.admin.module.business.order.domain.form;
+package net.lab1024.sa.admin.module.business.order.sales.domain.form;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
+import net.lab1024.sa.admin.module.business.order.domain.entity.TraceElementEntity;
+
+import java.util.List;
 
 /**
  * 销售订单 更新表单

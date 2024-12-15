@@ -45,44 +45,24 @@ public class InventoryEntity {
     private String detail;
 
     /**
-     * 当前状态
+     * 入库1，出库-1
      */
-    private Integer curStatus;
+    private Integer type;
 
     /**
-     * 当前处理时间
+     * 处理人
      */
-    private LocalDateTime curTime;
+    private String operator;
 
     /**
-     * 当前处理人
+     * 处理人id
      */
-    private String curMan;
-
-    /**
-     * 入库时间
-     */
-    private LocalDateTime inTime;
-
-    /**
-     * 出库人
-     */
-    private String outMan;
-
-    /**
-     * 出库时间
-     */
-    private LocalDateTime outTime;
+    private Long operatorId;
 
     /**
      * 订单号
      */
-    private Long salesOrderId;
-
-    /**
-     * 订单号
-     */
-    private Long productionOrderId;
+    private Long orderId;
 
     /**
      * 创建时间
@@ -93,5 +73,10 @@ public class InventoryEntity {
      * 更新时间
      */
     private LocalDateTime updateTime;
+
+    /**
+     * 删除标记
+     */
+    private Boolean deletedFlag;
 
 }

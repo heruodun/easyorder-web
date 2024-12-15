@@ -1,4 +1,4 @@
-package net.lab1024.sa.admin.module.business.order.domain.form;
+package net.lab1024.sa.admin.module.business.order.sales.domain.form;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;

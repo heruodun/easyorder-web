@@ -47,7 +47,7 @@ public class LoginController {
     }
 
     @NoNeedLogin
-    @PostMapping("/mobile/login")
+    @PostMapping({"/mobile/login","/app/login"})
     @Operation(summary = "移动端登录 @author 大航")
     public ResponseDTO<LoginResultVO> mobileLogin(@Valid @RequestBody MobileLoginForm loginForm, HttpServletRequest request) {
         String ip = ServletUtil.getClientIP(request);

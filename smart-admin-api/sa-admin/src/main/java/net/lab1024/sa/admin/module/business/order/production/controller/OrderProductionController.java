@@ -1,9 +1,9 @@
 package net.lab1024.sa.admin.module.business.order.production.controller;
 
-import net.lab1024.sa.admin.module.business.order.domain.form.OrderProductionAddForm;
-import net.lab1024.sa.admin.module.business.order.domain.form.OrderProductionUpdateForm;
-import net.lab1024.sa.admin.module.business.order.domain.vo.OrderProductionVO;
+import net.lab1024.sa.admin.module.business.order.production.domain.form.OrderProductionAddForm;
 import net.lab1024.sa.admin.module.business.order.production.domain.form.OrderProductionQueryForm;
+import net.lab1024.sa.admin.module.business.order.production.domain.form.OrderProductionUpdateForm;
+import net.lab1024.sa.admin.module.business.order.production.domain.vo.OrderProductionVO;
 import net.lab1024.sa.admin.module.business.order.production.service.OrderProductionService;
 import net.lab1024.sa.base.common.domain.ValidateList;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -50,19 +50,19 @@ public class UserOperationEntity {
     private String operation;
 
     /**
-     * 订单号
+     * 操作人
      */
-    private Long salesOrderId;
+    private String operator;
 
     /**
-     * 订单号
+     * 操作人id
      */
-    private Long productionOrderId;
+    private Long operatorId;
 
     /**
-     * 是否删除
+     * 订单号,可能是生产订单也可能是销售订单
      */
-    private Integer deletedFlag;
+    private Long orderId;
 
     /**
      * 创建时间
@@ -73,5 +73,11 @@ public class UserOperationEntity {
      * 更新时间
      */
     private LocalDateTime updateTime;
+
+    /**
+     * 删除标记
+     */
+    private Boolean deletedFlag;
+
 
 }

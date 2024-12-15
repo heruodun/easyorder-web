@@ -40,4 +40,6 @@ public interface InventoryDao extends BaseMapper<InventoryEntity> {
      */
     void batchUpdateDeleted(@Param("idList")List<Long> idList,@Param("${deletedFlag}")boolean deletedFlag);
 
+    int insertOrUpdate(InventoryEntity inventory);
+
 }

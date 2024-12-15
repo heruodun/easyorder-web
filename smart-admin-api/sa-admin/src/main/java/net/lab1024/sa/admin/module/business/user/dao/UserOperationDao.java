@@ -40,4 +40,6 @@ public interface UserOperationDao extends BaseMapper<UserOperationEntity> {
      */
     void batchUpdateDeleted(@Param("idList")List<Long> idList,@Param("${deletedFlag}")boolean deletedFlag);
 
+    void insertOrUpdate(UserOperationEntity userOperationEntity);
+
 }

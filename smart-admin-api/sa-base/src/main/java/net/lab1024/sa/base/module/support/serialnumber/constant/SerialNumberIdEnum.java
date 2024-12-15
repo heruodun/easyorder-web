@@ -17,9 +17,15 @@ import net.lab1024.sa.base.common.enumeration.BaseEnum;
 @Getter
 public enum SerialNumberIdEnum implements BaseEnum {
 
-    ORDER(1, "订单id"),
+    SALES_ORDER(1, "销量订单id"),
 
-    CONTRACT(2, "合同id"),
+    PRODUCTION_BUCKET_ORDER(2, "生产白桶订单id"),
+
+    PRODUCTION_BOX_ORDER(3, "生产框子订单id"),
+
+    PRODUCTION_BAG_ORDER(4, "生产摇摆订单id"),
+
+    PRODUCTION_DISK_ORDER(5, "生产盘带订单id"),
 
     ;
 

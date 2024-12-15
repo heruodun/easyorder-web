@@ -2,6 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="net.lab1024.sa.admin.module.business.inventory.dao.InventoryDao">
 
+    <insert id="insertOrUpdate" parameterType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
+        INSERT INTO t_inventory
+            (guige, count, danwei, detail, type, operator, operator_id, order_id)
+        VALUES
+            (#{guige}, #{count}, #{danwei}, #{detail}, #{type}, #{operator}, #{operatorId}, #{orderId})
+            ON DUPLICATE KEY UPDATE
+                                 operator = VALUES(operator),
+                                 operator_id = VALUES(operator_id);
+    </insert>
+
     <!-- 分页查询 -->
     <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.inventory.domain.vo.InventoryVO">
         SELECT

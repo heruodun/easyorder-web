@@ -46,7 +46,7 @@ public class LoginResultVO extends RequestEmployee {
     @Schema(description = "用户角色信息")
     private List<RoleVO> roleInfoList;
 
-    @Schema(description = "扫码规则信息，^\\d+\\$xiaowangniujin$")
+    @Schema(description = "扫码后缀规则信息，$xiaowangniujin")
     private List<String> scanRuleList;
 
 

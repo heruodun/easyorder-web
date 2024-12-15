@@ -1,9 +1,9 @@
 package net.lab1024.sa.admin.module.business.order.sales.controller;
 
-import net.lab1024.sa.admin.module.business.order.domain.form.OrderSalesAddForm;
-import net.lab1024.sa.admin.module.business.order.domain.form.OrderSalesUpdateForm;
-import net.lab1024.sa.admin.module.business.order.domain.vo.OrderSalesVO;
+import net.lab1024.sa.admin.module.business.order.sales.domain.form.OrderSalesAddForm;
 import net.lab1024.sa.admin.module.business.order.sales.domain.form.OrderSalesQueryForm;
+import net.lab1024.sa.admin.module.business.order.sales.domain.form.OrderSalesUpdateForm;
+import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesVO;
 import net.lab1024.sa.admin.module.business.order.sales.service.OrderSalesService;
 import net.lab1024.sa.base.common.domain.ValidateList;
 import org.springframework.web.bind.annotation.GetMapping;

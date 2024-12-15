@@ -1,4 +1,4 @@
-package net.lab1024.sa.admin.module.business.order.domain.vo;
+package net.lab1024.sa.admin.module.business.order.production.domain.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;

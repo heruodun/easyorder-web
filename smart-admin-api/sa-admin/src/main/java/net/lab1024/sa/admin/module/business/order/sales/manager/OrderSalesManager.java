@@ -1,8 +1,8 @@
-
-import net.lab1024.sa.admin.module.business.order.domain.entity.OrderSalesEntity;
+package net.lab1024.sa.admin.module.business.order.sales.manager;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import net.lab1024.sa.admin.module.business.order.sales.dao.OrderSalesDao;
+import net.lab1024.sa.admin.module.business.order.sales.domain.entity.OrderSalesEntity;
 import org.springframework.stereotype.Service;
 
 /**
