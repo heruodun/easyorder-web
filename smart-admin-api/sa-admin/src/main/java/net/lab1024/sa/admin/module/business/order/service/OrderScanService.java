@@ -10,6 +10,8 @@ import net.lab1024.sa.base.common.code.OrderErrorCode;
 import net.lab1024.sa.base.common.domain.RequestUser;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
 import net.lab1024.sa.base.common.util.SmartRequestUtil;
+import net.lab1024.sa.base.module.support.config.ConfigService;
+import net.lab1024.sa.base.module.support.config.domain.ConfigVO;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -24,6 +26,8 @@ public class OrderScanService {
 
     @Resource
     private OrderSalesService orderSalesService;
+    @Resource
+    private ConfigService configService;
 
 
     public ResponseDTO<Boolean> scan(OrderScanForm orderScanForm) {
@@ -38,11 +42,15 @@ public class OrderScanService {
             return ResponseDTO.error(OrderErrorCode.NO_PERMISSION);
         }
 
-        //二维码分流处理
-        if(orderInfo.getQrType() == QrTypeEnum.V0){
+
+
+        ConfigVO configVO = configService.getConfig(OrderUtil.QIANYI_DATE_KEY);
+        //默认走老逻辑，老的服务
+        if(configVO == null){
             return WaveHttpService.operation(orderScanForm.getOrderIdQr(), orderScanForm.getOperation());
         }
 
+        //v1版本
         else {
 
             //分流处理，不同的订单类型到不同的服务

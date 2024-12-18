@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.Data;
+import net.lab1024.sa.admin.module.business.order.domain.entity.OrderGuigeEntity;
 import net.lab1024.sa.admin.module.business.order.domain.entity.TraceElementEntity;
 
 /**
@@ -32,14 +33,12 @@ public class OrderSalesVO {
     private Integer addressId;
 
     @Schema(description = "规格")
-    private String guige;
+    private List<OrderGuigeEntity> guiges;
 
-    @Schema(description = "数量")
-    private Integer count;
+    @Schema(description = "备注")
+    private String remark;
 
-    @Schema(description = "单位")
-    private String danwei;
-
+    //兼容旧数据
     @Schema(description = "明细")
     private String detail;
 

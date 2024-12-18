@@ -76,14 +76,7 @@ public class WaveController {
     @Operation(summary = "添加/删除配货单 @author dahang")
     @PostMapping("/app/order/wave/order/addOrDel")
     public ResponseDTO<Boolean> addOrDelWaveOrder(@RequestBody @Valid WaveOrderAddDelForm waveInfoAddShipForm) {
-        RequestUser requestUser = SmartRequestUtil.getRequestUser();
-        boolean isOk = WaveHttpService.operation2(waveInfoAddShipForm.getOrderId(), waveInfoAddShipForm.getWaveId(),
-                requestUser.getUserName(), waveInfoAddShipForm.getOperation());
-        if(isOk){
-            return ResponseDTO.ok(true);
-        }else {
-            return ResponseDTO.error(OrderErrorCode.PARAM_ERROR);
-        }
+        return waveInfoService.addOrDelWaveOrder(waveInfoAddShipForm);
     }
 
 }

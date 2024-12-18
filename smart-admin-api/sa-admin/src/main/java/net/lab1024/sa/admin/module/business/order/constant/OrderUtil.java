@@ -6,6 +6,11 @@ import org.aspectj.weaver.ast.Or;
 
 @Slf4j
 public class OrderUtil {
+
+    /**
+     * 迁移平台日期
+     */
+    public static String QIANYI_DATE_KEY = "qianyi";
     /**
      * 从给定字符串中提取订单 ID 和订单类型
      * @param str 例如：20241210000010101$xiaowangniujin

@@ -13,7 +13,7 @@ import net.lab1024.sa.admin.module.business.order.domain.entity.OrderEntity;
  */
 
 @Data
-@TableName("t_order_sales")
+@TableName(value = "t_order_sales", autoResultMap = true)
 public class OrderSalesEntity extends OrderEntity {
 
     /**

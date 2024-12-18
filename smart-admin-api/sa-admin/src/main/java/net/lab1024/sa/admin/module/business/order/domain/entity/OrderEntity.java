@@ -1,9 +1,13 @@
 package net.lab1024.sa.admin.module.business.order.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import net.lab1024.sa.admin.module.business.order.dao.OrderGuigeTypeHandler;
+import net.lab1024.sa.admin.module.business.order.dao.TraceTypeHandler;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -30,28 +34,20 @@ public class OrderEntity {
     private Long orderId;
 
     /**
-     * 规格
+     * 规格情况
      */
-    private String guige;
+    @TableField(typeHandler = OrderGuigeTypeHandler.class)
+   private List<OrderGuigeEntity> guiges;
 
-    /**
-     * 数量
+   /**
+     * 备注
      */
-    private Integer count;
-
-    /**
-     * 单位
-     */
-    private String danwei;
-
-    /**
-     * 明细
-     */
-    private String detail;
+   private String remark;
 
     /**
      * 轨迹
      */
+    @TableField(typeHandler = TraceTypeHandler.class)
     private List<TraceElementEntity> trace;
 
     /**

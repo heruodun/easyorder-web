@@ -179,6 +179,39 @@ public class WaveHttpService {
         }
     }
 
+    public static JSONObject getOrderById(Long id) {
+
+        final String SERVICE_URL2 =  "http://localhost:5000/order/id?id=" + id;
+
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(SERVICE_URL2)
+                .build(); // 构建请求
+
+        try {
+            Response response = client.newCall(request).execute(); // 同步调用, 获取响应
+
+            // 确保HTTP请求成功
+            if (response.isSuccessful() && response.body() != null) {
+                ResponseBody responseBody = response.body();
+                String responseBodyStr = responseBody.string(); // 获取响应体的字符串
+                // 打印或者根据需要处理响应体的内容
+                System.out.println("Response Body: " + responseBodyStr);
+                responseBody.close(); // 关闭响应体，释放资源
+
+                // 此处简单地返回响应体的字符串作为示例
+                // 实际应用中应根据需要对该字符串进行解析（例如转换为JSON对象）
+                JSONObject jsonResponse = JSON.parseObject(responseBodyStr);
+                return jsonResponse;
+            }
+
+        } catch (IOException e) { // 处理网络或其他IO错误
+            e.printStackTrace();
+        }
+        return null; // 出错或响应码非成功时返回null
+    }
+
 
     public static JSONObject getOrder(Long orderId) {
 

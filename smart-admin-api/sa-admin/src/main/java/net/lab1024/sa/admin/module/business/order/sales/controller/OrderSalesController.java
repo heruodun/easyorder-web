@@ -1,11 +1,15 @@
 package net.lab1024.sa.admin.module.business.order.sales.controller;
 
+import net.lab1024.sa.admin.module.business.order.sales.domain.entity.OrderSalesEntity;
 import net.lab1024.sa.admin.module.business.order.sales.domain.form.OrderSalesAddForm;
 import net.lab1024.sa.admin.module.business.order.sales.domain.form.OrderSalesQueryForm;
 import net.lab1024.sa.admin.module.business.order.sales.domain.form.OrderSalesUpdateForm;
+import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesAddVO;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesVO;
 import net.lab1024.sa.admin.module.business.order.sales.service.OrderSalesService;
+import net.lab1024.sa.base.common.code.OrderErrorCode;
 import net.lab1024.sa.base.common.domain.ValidateList;
+import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
@@ -40,9 +44,20 @@ public class OrderSalesController {
         return ResponseDTO.ok(orderSalesService.queryPage(queryForm));
     }
 
+    @Operation(summary = "查询订单详情 @author dahang")
+    @GetMapping("/orderSales/queryById/{id}")
+    public ResponseDTO<OrderSalesVO> queryById(@PathVariable Long id) {
+
+        OrderSalesEntity orderSalesEntity = orderSalesService.getById(id);
+        if(orderSalesEntity == null){
+            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
+        }
+        return  ResponseDTO.ok(SmartBeanUtil.copy(orderSalesEntity, OrderSalesVO.class));
+    }
+
     @Operation(summary = "添加 @author dahang")
     @PostMapping("/orderSales/add")
-    public ResponseDTO<String> add(@RequestBody @Valid OrderSalesAddForm addForm) {
+    public ResponseDTO<OrderSalesAddVO> add(@RequestBody @Valid OrderSalesAddForm addForm) {
         return orderSalesService.add(addForm);
     }
 

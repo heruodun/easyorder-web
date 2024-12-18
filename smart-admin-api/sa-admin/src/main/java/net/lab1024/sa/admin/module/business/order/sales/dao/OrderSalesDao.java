@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import net.lab1024.sa.admin.module.business.order.sales.domain.entity.OrderSalesEntity;
 import net.lab1024.sa.admin.module.business.order.sales.domain.form.OrderSalesQueryForm;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesVO;
+import net.lab1024.sa.base.common.domain.PageResult;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
@@ -28,11 +29,13 @@ public interface OrderSalesDao extends BaseMapper<OrderSalesEntity> {
     /**
      * 分页 查询
      *
-     * @param page
      * @param queryForm
      * @return
      */
-    List<OrderSalesVO> queryPage(Page page, @Param("queryForm") OrderSalesQueryForm queryForm);
+    List<OrderSalesEntity> queryPage(@Param("queryForm") OrderSalesQueryForm queryForm,
+                                       @Param("limit") int limit, @Param("offset") int offset);
+
+    int querySize(@Param("queryForm") OrderSalesQueryForm queryForm);
 
     /**
      * 更新删除状态
@@ -53,9 +56,14 @@ public interface OrderSalesDao extends BaseMapper<OrderSalesEntity> {
                        @Param("curOperatorId") Long curOperatorId,
                        @Param("curTime") LocalDateTime curTime,
                        @Param("trace") List<TraceElementEntity> trace,
+                       @Param("waveId") Integer waveId,
                        @Param("id") Long id);
 
-    List<OrderSalesVO> queryByWaveId(@Param("waveId") Integer waveId);
+    int updateWaveId(@Param("waveId") Integer waveId, @Param("id") Long id);
+
+    List<OrderSalesEntity> queryByWaveId(@Param("waveId") Integer waveId);
+
+    List<OrderSalesEntity> queryByWaveIds(@Param("waveIds") int[] waveIds);
 
 
 }

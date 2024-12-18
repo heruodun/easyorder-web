@@ -4,20 +4,19 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import net.lab1024.sa.admin.module.business.order.constant.OrderUtil;
 import net.lab1024.sa.admin.module.business.order.constant.QrTypeEnum;
 import net.lab1024.sa.admin.module.business.order.domain.vo.OrderTypeAndIdVO;
+import net.lab1024.sa.admin.module.business.order.sales.dao.OrderSalesDao;
 import net.lab1024.sa.admin.module.business.order.sales.dao.WaveInfoDao;
 import net.lab1024.sa.admin.module.business.order.sales.domain.entity.OrderSalesEntity;
 import net.lab1024.sa.admin.module.business.order.sales.domain.entity.WaveInfoEntity;
-import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesVO;
-import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveDetailVO;
-import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveInfoVO;
+import net.lab1024.sa.admin.module.business.order.sales.domain.vo.*;
 import net.lab1024.sa.admin.module.business.order.sales.domain.form.*;
-import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveVO;
 import net.lab1024.sa.admin.module.business.order.sales.service.OrderSalesService;
 import net.lab1024.sa.base.common.code.ErrorCode;
 import net.lab1024.sa.base.common.code.OrderErrorCode;
@@ -25,6 +24,8 @@ import net.lab1024.sa.base.common.domain.RequestUser;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
 import net.lab1024.sa.base.common.util.SmartRequestUtil;
+import net.lab1024.sa.base.module.support.config.ConfigService;
+import net.lab1024.sa.base.module.support.config.domain.ConfigVO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,11 @@ public class WaveInfoService {
     private WaveInfoDao waveInfoDao;
     @Resource
     private OrderSalesService orderSalesService;
+    @Resource
+    private ConfigService configService;
+    @Resource
+    private OrderSalesDao orderSalesDao;
+
 
     /**
      *
@@ -96,19 +102,35 @@ public class WaveInfoService {
         String startOfDayStr = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(startOfDay);
         String startOfNextDayStr = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(startOfNextDay);
         List<WaveInfoEntity> list = waveInfoDao.queryByTime(startOfDayStr, startOfNextDayStr);
+
+        if(list.isEmpty()){
+            return ResponseDTO.ok(resultList);
+        }
+
         int[] waveIds = new int[list.size()];
         int i = 0;
         for(WaveInfoEntity waveInfoVO : list){
             waveIds[i++] = waveInfoVO.getWaveId();
         }
 
-        Map<Integer, WaveDetailVO>  map = WaveHttpService.get4New(waveIds);
+        Map<Integer, WaveDetailVO> map;
+        ConfigVO configVO = configService.getConfig(OrderUtil.QIANYI_DATE_KEY);
+        //默认走老逻辑，老的服务
+        if(configVO == null){
+             map = WaveHttpService.get4New(waveIds);
+        }
+        //新服务
+        else {
+             map = orderSalesService.queryByWaveIdsOrderByAddress(waveIds);
+        }
         for (WaveInfoEntity waveInfoEntity : list) {
             resultList.add(getWaveVO(waveInfoEntity, map.get(waveInfoEntity.getWaveId())));
         }
         return ResponseDTO.ok(resultList);
 
+
     }
+
 
     private WaveVO getWaveVO(WaveInfoEntity waveInfoEntity, WaveDetailVO waveDetail){
         WaveVO waveVO = SmartBeanUtil.copy(waveInfoEntity, WaveVO.class);
@@ -164,15 +186,24 @@ public class WaveInfoService {
             return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
         }
 
-//        List<OrderSalesVO> list = orderSalesService.queryByWaveId(waveId);
+        ConfigVO configVO = configService.getConfig(OrderUtil.QIANYI_DATE_KEY);
+        //默认走老逻辑，老的服务
+        if(configVO == null){
+            //兼容逻辑
+            int[] waveIds = {waveInfoEntity.getWaveId()};
 
-        //兼容逻辑
-        int[] waveIds = new int[]{waveInfoEntity.getWaveId()};
+            Map<Integer, WaveDetailVO> map = WaveHttpService.get4New(waveIds);
 
-        Map<Integer, WaveDetailVO> map = WaveHttpService.get4New(waveIds);
+            WaveVO waveVO = getWaveVO(waveInfoEntity, map.get(waveInfoEntity.getWaveId()));
+            return ResponseDTO.ok(waveVO);
+        }
+        else {
+            int[] waveIds = {waveInfoEntity.getWaveId()};
+            Map<Integer, WaveDetailVO> map = orderSalesService.queryByWaveIdsOrderByAddress(waveIds);
+            WaveVO waveVO = getWaveVO(waveInfoEntity, map.get(waveInfoEntity.getWaveId()));
+            return ResponseDTO.ok(waveVO);
 
-        WaveVO waveVO = getWaveVO(waveInfoEntity, map.get(waveInfoEntity.getWaveId()));
-        return ResponseDTO.ok(waveVO);
+        }
     }
 
     public ResponseDTO<WaveVO> queryByOrderIdQr(String orderIdQr) {
@@ -182,7 +213,9 @@ public class WaveInfoService {
 
         Integer waveId = null;
 
-        if(QrTypeEnum.V0 == orderTypeAndIdVO.getQrType()){
+        ConfigVO configVO = configService.getConfig(OrderUtil.QIANYI_DATE_KEY);
+        //默认走老逻辑，老的服务
+        if(configVO == null){
             JSONObject jsonObject = WaveHttpService.getOrder(orderId);
             if(jsonObject == null){
                 return ResponseDTO.ok(new WaveVO());
@@ -356,8 +389,10 @@ public class WaveInfoService {
                         log.error("update ship error", e);
                     }
 
-                    List<OrderSalesVO> list = orderSalesService.queryByWaveId(shipForm.getWaveId());
-                    for (OrderSalesVO orderSalesVO : list){
+                    List<OrderSalesEntity> list = orderSalesDao.queryByWaveId(shipForm.getWaveId());
+                    for (OrderSalesEntity orderSalesEntity : list){
+                        orderSalesService.updateOrderAndUserOperation(now, requestUser, "送货", null,
+                                orderSalesEntity);
 
                     }
                 }
@@ -415,6 +450,55 @@ public class WaveInfoService {
         }
         return ResponseDTO.error(OrderErrorCode.FORM_SUBMIT_FAIL);
     }
+
+
+    public ResponseDTO<Boolean> addOrDelWaveOrder(WaveOrderAddDelForm waveOrderAddDelForm) {
+        RequestUser requestUser = SmartRequestUtil.getRequestUser();
+
+        ConfigVO configVO = configService.getConfig(OrderUtil.QIANYI_DATE_KEY);
+        Integer waveId = waveOrderAddDelForm.getWaveId();
+        if(configVO == null){
+            boolean isOk = WaveHttpService.operation2(waveOrderAddDelForm.getOrderId(), waveId,
+                    requestUser.getUserName(), waveOrderAddDelForm.getOperation());
+            if(isOk){
+                return ResponseDTO.ok(true);
+            }else {
+                return ResponseDTO.error(OrderErrorCode.PARAM_ERROR);
+            }
+        }
+        else {
+            //判断状态
+            OrderSalesEntity orderSalesEntity = orderSalesService.getByOrderId(waveOrderAddDelForm.getOrderId());
+            if(orderSalesEntity == null){
+                return ResponseDTO.error(OrderErrorCode.DATA_NOT_EXIST, "非法订单号~");
+            }
+            WaveInfoEntity waveInfoEntity = waveInfoDao.selectById(waveId);
+            if(waveInfoEntity == null){
+                return ResponseDTO.error(OrderErrorCode.DATA_NOT_EXIST, "非法波次号~");
+            }
+            if(waveInfoEntity.getStatus() == 1){
+                return ResponseDTO.error(OrderErrorCode.NO_PERMISSION, "波次已发货，请勿再添加~");
+            }
+            LocalDateTime now = LocalDateTime.now();
+            String detail = waveOrderAddDelForm.getOperation() == 1 ?
+                    "添加波次"+ waveId : "撤出波次"+ waveId;
+            waveId = waveOrderAddDelForm.getOperation() == -1 ? 0 : waveId;
+            int ok = orderSalesService.updateOrderAndUserOperationWithWave(now, requestUser,
+                    "拣货", waveId, detail, orderSalesEntity);
+            if(ok > 0){
+                return ResponseDTO.ok(true);
+            }
+            else {
+                return ResponseDTO.error(OrderErrorCode.FORM_SUBMIT_FAIL);
+            }
+        }
+
+
+    }
+
+
+
+
 
 
     /**
