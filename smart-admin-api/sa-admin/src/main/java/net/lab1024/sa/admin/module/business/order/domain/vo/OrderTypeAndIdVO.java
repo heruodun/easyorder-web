@@ -14,5 +14,5 @@ public class OrderTypeAndIdVO {
 
     private OrderTypeEnum orderType;
 
-    private QrTypeEnum qrType;
+//    private QrTypeEnum qrType;
 }

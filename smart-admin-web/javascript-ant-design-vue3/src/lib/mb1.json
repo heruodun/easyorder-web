@@ -137,10 +137,10 @@
         },
         {
           "options": {
-            "left": 192.5,
-            "top": 407.5,
+            "left": 188,
+            "top": 406,
             "height": 12,
-            "width": 87,
+            "width": 95,
             "title": "长文",
             "right": 308.7421875,
             "bottom": 331.2421875,
@@ -165,7 +165,7 @@
             "left": 82.5,
             "top": 407.5,
             "height": 9.75,
-            "width": 108,
+            "width": 100,
             "title": "文本",
             "field": "time",
             "coordinateSync": false,
@@ -234,7 +234,7 @@
             "columns": [
               [
                 {
-                  "width": 40.02493577780892,
+                  "width": 39.40439413784289,
                   "title": "序号",
                   "field": "id",
                   "checked": true,
@@ -249,7 +249,7 @@
                   "tableSummary": ""
                 },
                 {
-                  "width": 67.25481753784092,
+                  "width": 66.21210718841704,
                   "title": "长度",
                   "field": "length",
                   "checked": true,
@@ -264,7 +264,7 @@
                   "tableSummary": ""
                 },
                 {
-                  "width": 86.22024668435016,
+                  "width": 84.88349867374008,
                   "title": "条数",
                   "field": "count",
                   "checked": true,
@@ -472,9 +472,7 @@
       "paperNumberTop": 204,
       "paperNumberDisabled": true,
       "paperNumberContinue": true,
-      "watermarkOptions": {
-
-      },
+      "watermarkOptions": {},
       "panelLayoutOptions": {
         "layoutType": "column",
         "layoutRowGap": 0,

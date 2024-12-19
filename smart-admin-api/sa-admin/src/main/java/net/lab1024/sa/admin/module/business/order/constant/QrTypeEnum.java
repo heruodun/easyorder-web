@@ -19,7 +19,7 @@ public enum QrTypeEnum {
     /**
      *
      */
-    V1("dahangv1"),
+//    V1("dahangv1"),
 
    ;
     private final String version;

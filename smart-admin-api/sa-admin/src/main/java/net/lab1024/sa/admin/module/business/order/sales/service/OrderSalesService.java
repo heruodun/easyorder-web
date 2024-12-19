@@ -3,6 +3,7 @@ package net.lab1024.sa.admin.module.business.order.sales.service;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import com.alibaba.fastjson2.JSONArray;
 import net.lab1024.sa.admin.module.business.inventory.dao.InventoryDao;
 import net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity;
 import net.lab1024.sa.admin.module.business.order.constant.OrderTypeEnum;
@@ -272,6 +273,7 @@ public class OrderSalesService {
         List<OrderSalesVO> orderSalesVOList = SmartBeanUtil.copyList(list, OrderSalesVO.class);
         Map<Integer, List<OrderSalesVO>> map = new HashMap<>();
         for (OrderSalesVO orderSalesVO : orderSalesVOList) {
+            orderSalesVO.setDetail(JSONArray.toJSONString(orderSalesVO.getGuiges()));
             Integer waveId = orderSalesVO.getWaveId();
             List<OrderSalesVO> waveDetailVOList = map.get(waveId);
             if (waveDetailVOList == null) {
@@ -326,7 +328,7 @@ public class OrderSalesService {
                 }
                 int count = 0;
                 for(OrderTiaoEntity orderTiaoEntity: tiaos){
-                    Integer length = orderTiaoEntity.getLength();
+                    String length = orderTiaoEntity.getLength();
                     Integer count1 = orderTiaoEntity.getCount();
                     if(length == null || count1 == null){
                         return ResponseDTO.error(OrderErrorCode.PARAM_ERROR, "长度或数量为空");
@@ -376,7 +378,7 @@ public class OrderSalesService {
         int ok = orderSalesDao.insert(orderSalesEntity);
         if(ok > 0){
             OrderSalesAddVO orderSalesAddVO = SmartBeanUtil.copy(orderSalesEntity, OrderSalesAddVO.class);
-            orderSalesAddVO.setQrCode(orderId + "$" + QrTypeEnum.V1.getVersion());
+            orderSalesAddVO.setQrCode(orderId + "$" + QrTypeEnum.V0.getVersion());
             return ResponseDTO.ok(orderSalesAddVO);
         }else {
             return ResponseDTO.error(OrderErrorCode.FORM_SUBMIT_FAIL);

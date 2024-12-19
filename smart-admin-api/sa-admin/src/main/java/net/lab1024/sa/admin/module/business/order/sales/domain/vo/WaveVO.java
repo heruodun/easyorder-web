@@ -21,7 +21,7 @@ public class WaveVO {
     private Integer waveId;
 
     @Schema(description = "波次别名")
-    private String waveAlias;
+    private String waveAlias = "";
 
     @Schema(description = "创建者")
     private String createMan;
