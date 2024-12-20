@@ -39,6 +39,7 @@ import net.lab1024.sa.base.common.util.SmartRequestUtil;
 import net.lab1024.sa.base.module.support.serialnumber.constant.SerialNumberIdEnum;
 import net.lab1024.sa.base.module.support.serialnumber.service.SerialNumberService;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.aspectj.weaver.ast.Or;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -273,7 +274,29 @@ public class OrderSalesService {
         List<OrderSalesVO> orderSalesVOList = SmartBeanUtil.copyList(list, OrderSalesVO.class);
         Map<Integer, List<OrderSalesVO>> map = new HashMap<>();
         for (OrderSalesVO orderSalesVO : orderSalesVOList) {
-            orderSalesVO.setDetail(JSONArray.toJSONString(orderSalesVO.getGuiges()));
+            StringBuilder sb = new StringBuilder();
+            List<OrderGuigeEntity> guiges = orderSalesVO.getGuiges();
+            if(CollectionUtils.isNotEmpty(guiges)){
+
+                for(OrderGuigeEntity orderGuige : guiges){
+                    sb.append("规格：").append(orderGuige.getGuige()).append("    ");
+                    sb.append("总数：").append(orderGuige.getCount()).append(" ").append(orderGuige.getDanwei()).append("\n\n");
+                    List<OrderTiaoEntity> tiaos = orderGuige.getTiaos();
+                    if(CollectionUtils.isNotEmpty(tiaos)){
+                        for(OrderTiaoEntity orderTiaoEntity : tiaos){
+                            sb.append(orderTiaoEntity.getLength()).append(" x ").append(orderTiaoEntity.getLength())
+                                    .append("，");
+                        }
+                        sb.deleteCharAt(sb.length() - 1);
+                    }
+                }
+            }
+            if(Strings.isNotBlank(orderSalesVO.getRemark())){
+                sb.append("\n\n").append("备注：").append(orderSalesVO.getRemark());
+            }
+
+
+            orderSalesVO.setDetail(sb.toString());
             Integer waveId = orderSalesVO.getWaveId();
             List<OrderSalesVO> waveDetailVOList = map.get(waveId);
             if (waveDetailVOList == null) {
