@@ -20,6 +20,9 @@ public class OrderSalesQueryForm extends PageParam{
     @Schema(description = "地址")
     private String address;
 
+    @Schema(description = "规格")
+    private String guige;
+
     @Schema(description = "创建开始时间")
     private LocalDate createTimeBegin;
 

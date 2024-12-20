@@ -44,8 +44,13 @@
         <where>
 
             <if test="queryForm.address != null and queryForm.address != ''">
-                and address = #{queryForm.address}
+                and address like concat('%',#{queryForm.address},'%')
             </if>
+
+            <if test="queryForm.guige != null and queryForm.guige != ''">
+                and guiges like concat('%',#{queryForm.guige},'%')
+            </if>
+
 <!--            <if test="queryForm.addressId != null">-->
 <!--                and address_id = #{queryForm.addressId}-->
 <!--            </if>-->
@@ -83,8 +88,13 @@
         <where>
 
             <if test="queryForm.address != null and queryForm.address != ''">
-                and address = #{queryForm.address}
+                and address like concat('%',#{queryForm.address},'%')
             </if>
+
+            <if test="queryForm.guige != null and queryForm.guige != ''">
+                and guiges like concat('%',#{queryForm.guige},'%')
+            </if>
+
             <if test="queryForm.createTimeBegin != null">
                 AND DATE_FORMAT(create_time, '%Y-%m-%d') >= #{queryForm.createTimeBegin}
             </if>
