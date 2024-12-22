@@ -153,7 +153,10 @@ public class OrderSalesService {
             UserOperationEntity userOperationEntity = new UserOperationEntity();
             userOperationEntity.setOperation(operationStr);
             userOperationEntity.setCreateTime(now);
+            userOperationEntity.setUpdateTime(now);
             userOperationEntity.setOrderId(orderId);
+            userOperationEntity.setDanwei("单");
+            userOperationEntity.setCount(1);
 
             userOperationEntity.setOperator(userName);
             userOperationEntity.setOperatorId(userId);
@@ -284,7 +287,7 @@ public class OrderSalesService {
                     List<OrderTiaoEntity> tiaos = orderGuige.getTiaos();
                     if(CollectionUtils.isNotEmpty(tiaos)){
                         for(OrderTiaoEntity orderTiaoEntity : tiaos){
-                            sb.append(orderTiaoEntity.getLength()).append(" x ").append(orderTiaoEntity.getLength())
+                            sb.append(orderTiaoEntity.getLength()).append(" x ").append(orderTiaoEntity.getCount())
                                     .append("，");
                         }
                         sb.deleteCharAt(sb.length() - 1);
@@ -323,6 +326,11 @@ public class OrderSalesService {
         int limit = Math.toIntExact(queryForm.getPageSize());
 
         Page<?> page = SmartPageUtil.convert2PageQuery(queryForm);
+
+        //guige搜索处理成大写
+        if(queryForm.getGuige() != null) {
+            queryForm.setGuige(queryForm.getGuige().toUpperCase());
+        }
         List<OrderSalesEntity>  orderSalesEntities = orderSalesDao.queryPage(queryForm, limit, offset);
         List<OrderSalesVO> list = SmartBeanUtil.copyList(orderSalesEntities, OrderSalesVO.class);
         int count = orderSalesDao.querySize(queryForm);
@@ -334,6 +342,7 @@ public class OrderSalesService {
     /**
      * 添加
      */
+    @Transactional(rollbackFor = Exception.class)
     public ResponseDTO<OrderSalesAddVO> add(OrderSalesAddForm addForm) {
         //todo 条数校验
         List<OrderGuigeEntity> orderGuigeEntityList = addForm.getGuiges();
@@ -388,6 +397,7 @@ public class OrderSalesService {
         orderSalesEntity.setDeletedFlag(false);
         orderSalesEntity.setCurTime(now);
         orderSalesEntity.setCreateTime(now);
+        orderSalesEntity.setUpdateTime(now);
 
         orderSalesEntity.setTrace(new ArrayList<>());
         TraceElementEntity traceElementEntity = new TraceElementEntity();
