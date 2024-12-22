@@ -9,6 +9,7 @@ import net.lab1024.sa.admin.module.business.order.production.domain.entity.Order
 import net.lab1024.sa.admin.module.business.order.production.domain.form.OrderProductionQueryForm;
 import net.lab1024.sa.admin.module.business.order.production.domain.vo.OrderProductionVO;
 import net.lab1024.sa.admin.module.business.order.sales.domain.entity.OrderSalesEntity;
+import net.lab1024.sa.admin.module.business.order.sales.domain.form.OrderSalesQueryForm;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
@@ -33,11 +34,12 @@ public interface OrderProductionDao extends BaseMapper<OrderProductionEntity> {
     /**
      * 分页 查询
      *
-     * @param page
      * @param queryForm
      * @return
      */
-    List<OrderProductionVO> queryPage(Page page, @Param("queryForm") OrderProductionQueryForm queryForm);
+    List<OrderProductionEntity> queryPage(@Param("queryForm") OrderProductionQueryForm queryForm,
+                                     @Param("limit") int limit, @Param("offset") int offset);
+    int querySize(@Param("queryForm") OrderProductionQueryForm queryForm);
 
     /**
      * 更新删除状态

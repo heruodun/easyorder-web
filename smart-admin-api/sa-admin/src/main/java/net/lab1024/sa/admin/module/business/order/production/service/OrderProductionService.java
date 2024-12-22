@@ -20,6 +20,7 @@ import net.lab1024.sa.admin.module.business.order.production.domain.vo.OrderProd
 import net.lab1024.sa.admin.module.business.order.production.domain.vo.OrderProductionVO;
 import net.lab1024.sa.admin.module.business.order.sales.domain.entity.OrderSalesEntity;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesAddVO;
+import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesVO;
 import net.lab1024.sa.admin.module.business.user.service.UserOperationService;
 import net.lab1024.sa.admin.module.system.role.domain.entity.RoleEntity;
 import net.lab1024.sa.admin.module.system.role.service.RoleService;
@@ -61,6 +62,10 @@ public class OrderProductionService {
     private RoleService roleService;
 
 
+    public OrderProductionEntity getById(Long id) {
+        return orderProductionDao.selectById(id);
+    }
+
     public OrderProductionEntity getByOrderId(Long orderId) {
         OrderProductionEntity orderProductionEntity = new OrderProductionEntity();
         orderProductionEntity.setOrderId(orderId);
@@ -74,8 +79,19 @@ public class OrderProductionService {
      * @return
      */
     public PageResult<OrderProductionVO> queryPage(OrderProductionQueryForm queryForm) {
+        int offset = (int) ((queryForm.getPageNum() - 1) * queryForm.getPageSize());
+        int limit = Math.toIntExact(queryForm.getPageSize());
+
         Page<?> page = SmartPageUtil.convert2PageQuery(queryForm);
-        List<OrderProductionVO> list = orderProductionDao.queryPage(page, queryForm);
+
+        //guige搜索处理成大写
+        if(queryForm.getGuige() != null) {
+            queryForm.setGuige(queryForm.getGuige().toUpperCase().trim());
+        }
+        List<OrderProductionEntity>  orderProductionEntities = orderProductionDao.queryPage(queryForm, limit, offset);
+        List<OrderProductionVO> list = SmartBeanUtil.copyList(orderProductionEntities, OrderProductionVO.class);
+        int count = orderProductionDao.querySize(queryForm);
+        page.setTotal(count);
         PageResult<OrderProductionVO> pageResult = SmartPageUtil.convert2PageResult(page, list);
         return pageResult;
     }
@@ -94,7 +110,7 @@ public class OrderProductionService {
         }
 
         //预处理 规格改成大写
-        guige = guige.toUpperCase();
+        guige = guige.toUpperCase().trim();
         addForm.setGuige(guige);
 
         RequestUser requestUser = SmartRequestUtil.getRequestUser();

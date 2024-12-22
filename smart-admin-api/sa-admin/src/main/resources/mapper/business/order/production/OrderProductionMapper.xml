@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="net.lab1024.sa.admin.module.business.order.dao.OrderProductionDao">
+<mapper namespace="net.lab1024.sa.admin.module.business.order.production.dao.OrderProductionDao">
 
     <resultMap id="BaseResultMap" type="net.lab1024.sa.admin.module.business.order.production.domain.entity.OrderProductionEntity">
         <id column="trace" jdbcType="VARCHAR" property="trace" typeHandler="net.lab1024.sa.admin.module.business.order.dao.TraceTypeHandler"/>
@@ -8,11 +8,57 @@
     </resultMap>
 
     <!-- 分页查询 -->
-    <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.order.production.domain.vo.OrderProductionVO">
+    <select id="queryPage" resultMap="BaseResultMap">
         SELECT
         *
         FROM t_order_production
+        <where>
+
+            <if test="queryForm.guige != null and queryForm.guige != ''">
+                and guige = #{queryForm.guige}
+            </if>
+
+            <if test="queryForm.typeId != null">
+                and type = #{queryForm.typeId}
+            </if>
+
+            <if test="queryForm.createTimeBegin != null">
+                AND DATE_FORMAT(create_time, '%Y-%m-%d') >= #{queryForm.createTimeBegin}
+            </if>
+
+            <if test="queryForm.createTimeEnd != null">
+                AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;= #{queryForm.createTimeEnd}
+            </if>
+
+        </where>
+
+        ORDER BY create_time DESC
+        LIMIT #{limit} OFFSET #{offset}
     </select>
+
+    <select id="querySize" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM t_order_production
+        <where>
+
+            <if test="queryForm.typeId != null">
+                and type = #{queryForm.typeId}
+            </if>
+            <if test="queryForm.guige != null and queryForm.guige != ''">
+                and guige = #{queryForm.guige}
+            </if>
+
+            <if test="queryForm.createTimeBegin != null">
+                AND DATE_FORMAT(create_time, '%Y-%m-%d') >= #{queryForm.createTimeBegin}
+            </if>
+
+            <if test="queryForm.createTimeEnd != null">
+                AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;= #{queryForm.createTimeEnd}
+            </if>
+        </where>
+    </select>
+
+
 
     <!-- 查看订单 -->
     <select id="selectOne" resultMap="BaseResultMap">

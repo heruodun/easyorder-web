@@ -304,7 +304,7 @@ public class OrderSalesService {
 
         //guige搜索处理成大写
         if(queryForm.getGuige() != null) {
-            queryForm.setGuige(queryForm.getGuige().toUpperCase());
+            queryForm.setGuige(queryForm.getGuige().toUpperCase().trim());
         }
         List<OrderSalesEntity>  orderSalesEntities = orderSalesDao.queryPage(queryForm, limit, offset);
         List<OrderSalesVO> list = SmartBeanUtil.copyList(orderSalesEntities, OrderSalesVO.class);
@@ -352,10 +352,8 @@ public class OrderSalesService {
 
         //预处理 规格改成大写
         for(OrderGuigeEntity orderGuigeEntity: orderGuigeEntityList){
-            orderGuigeEntity.setGuige(orderGuigeEntity.getGuige().toUpperCase());
+            orderGuigeEntity.setGuige(orderGuigeEntity.getGuige().toUpperCase().trim());
         }
-
-
 
 
         RequestUser requestUser = SmartRequestUtil.getRequestUser();

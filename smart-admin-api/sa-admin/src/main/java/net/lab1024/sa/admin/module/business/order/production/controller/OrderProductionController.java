@@ -1,12 +1,17 @@
 package net.lab1024.sa.admin.module.business.order.production.controller;
 
+import net.lab1024.sa.admin.module.business.order.production.domain.entity.OrderProductionEntity;
 import net.lab1024.sa.admin.module.business.order.production.domain.form.OrderProductionAddForm;
 import net.lab1024.sa.admin.module.business.order.production.domain.form.OrderProductionQueryForm;
 import net.lab1024.sa.admin.module.business.order.production.domain.form.OrderProductionUpdateForm;
 import net.lab1024.sa.admin.module.business.order.production.domain.vo.OrderProductionAddVO;
 import net.lab1024.sa.admin.module.business.order.production.domain.vo.OrderProductionVO;
 import net.lab1024.sa.admin.module.business.order.production.service.OrderProductionService;
+import net.lab1024.sa.admin.module.business.order.sales.domain.entity.OrderSalesEntity;
+import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesVO;
+import net.lab1024.sa.base.common.code.OrderErrorCode;
 import net.lab1024.sa.base.common.domain.ValidateList;
+import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
@@ -39,6 +44,17 @@ public class OrderProductionController {
     @PostMapping("/orderProduction/queryPage")
     public ResponseDTO<PageResult<OrderProductionVO>> queryPage(@RequestBody @Valid OrderProductionQueryForm queryForm) {
         return ResponseDTO.ok(orderProductionService.queryPage(queryForm));
+    }
+
+    @Operation(summary = "查询订单详情 @author dahang")
+    @GetMapping("/orderProduction/queryById/{id}")
+    public ResponseDTO<OrderProductionVO> queryById(@PathVariable Long id) {
+
+        OrderProductionEntity orderProductionEntity = orderProductionService.getById(id);
+        if(orderProductionEntity == null){
+            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
+        }
+        return  ResponseDTO.ok(SmartBeanUtil.copy(orderProductionEntity, OrderProductionVO.class));
     }
 
     @Operation(summary = "添加 @author dahang")

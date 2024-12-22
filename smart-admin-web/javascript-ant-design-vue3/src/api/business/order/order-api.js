@@ -26,7 +26,17 @@ export const orderApi = {
   },
 
   // 销售单查询
-  queryById(id) {
+  querySalesById(id) {
     return getRequest(`/orderSales/queryById/${id}`);
+  },
+
+  //生产单查询
+  queryPageProduction: (param) => {
+    return postRequest('/orderProduction/queryPage', param);
+  },
+
+  // 生产单查询
+  queryProductionById(id) {
+    return getRequest(`/orderProduction/queryById/${id}`);
   },
 };

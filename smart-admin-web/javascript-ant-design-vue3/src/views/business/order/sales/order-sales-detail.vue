@@ -107,7 +107,7 @@
   async function queryOrderDetail() {
     try {
       SmartLoading.show();
-      const result = await orderApi.queryById(route.query.id);
+      const result = await orderApi.querySalesById(route.query.id);
       orderDetail.value = result.data;
     } catch (err) {
       smartSentry.captureError(err);
