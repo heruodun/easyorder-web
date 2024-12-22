@@ -5,6 +5,7 @@ import net.lab1024.sa.admin.module.business.order.constant.OrderUtil;
 import net.lab1024.sa.admin.module.business.order.constant.QrTypeEnum;
 import net.lab1024.sa.admin.module.business.order.domain.form.OrderScanForm;
 import net.lab1024.sa.admin.module.business.order.domain.vo.OrderTypeAndIdVO;
+import net.lab1024.sa.admin.module.business.order.production.service.OrderProductionService;
 import net.lab1024.sa.admin.module.business.order.sales.service.OrderSalesService;
 import net.lab1024.sa.base.common.code.OrderErrorCode;
 import net.lab1024.sa.base.common.domain.RequestUser;
@@ -28,6 +29,8 @@ public class OrderScanService {
     private OrderSalesService orderSalesService;
     @Resource
     private ConfigService configService;
+    @Resource
+    private OrderProductionService orderProductionService;
 
 
     public ResponseDTO<Boolean> scan(OrderScanForm orderScanForm) {
@@ -57,13 +60,13 @@ public class OrderScanService {
             if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_SALES)) {
                 return orderSalesService.scanOrder(orderScanForm, orderInfo);
             } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BUCKET)) {
-
+                orderProductionService.scanOrder(orderScanForm, orderInfo);
             } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BOX)) {
-
+                orderProductionService.scanOrder(orderScanForm, orderInfo);
             } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BAG)) {
-
+                orderProductionService.scanOrder(orderScanForm, orderInfo);
             } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_DISK)) {
-
+                orderProductionService.scanOrder(orderScanForm, orderInfo);
             } else {
                 return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "二厂订单号暂不支持~");
             }

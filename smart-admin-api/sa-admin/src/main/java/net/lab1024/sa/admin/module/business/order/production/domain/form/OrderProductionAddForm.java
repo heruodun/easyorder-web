@@ -14,13 +14,34 @@ import lombok.Data;
 
 @Data
 public class OrderProductionAddForm {
+    /**
+     * 规格
+     */
+    private String guige;
 
-    @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "编号 不能为空")
-    private Long id;
+    /**
+     * 数量
+     */
+    private Integer count;
 
-    @Schema(description = "订单编号", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "订单编号 不能为空")
-    private Long orderId;
+    /**
+     * 单位
+     */
+    private String danwei;
+
+    /**
+     * 类型
+     */
+    private Integer type;
+
+    /**
+     * 温度
+     */
+    private String temperature;
+
+    /**
+     * 打单个数
+     */
+    private int printCount;
 
 }

@@ -25,6 +25,7 @@ import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveAddressVO;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveDetailVO;
 import net.lab1024.sa.admin.module.business.user.dao.UserOperationDao;
 import net.lab1024.sa.admin.module.business.user.domain.entity.UserOperationEntity;
+import net.lab1024.sa.admin.module.business.user.service.UserOperationService;
 import net.lab1024.sa.admin.module.system.role.domain.entity.RoleEntity;
 import net.lab1024.sa.admin.module.system.role.domain.vo.RoleVO;
 import net.lab1024.sa.admin.module.system.role.service.RoleService;
@@ -60,7 +61,7 @@ public class OrderSalesService {
     @Resource
     private OrderSalesDao orderSalesDao;
     @Resource
-    private UserOperationDao userOperationDao;
+    private UserOperationService userOperationService;
     @Resource
     private InventoryDao inventoryDao;
     @Resource
@@ -125,7 +126,8 @@ public class OrderSalesService {
     public int updateOrderAndUserOperation(LocalDateTime now, RequestUser operator, String operation,
                                            Integer waveId, OrderSalesEntity orderSalesEntity){
             int updateOrder = updateScanInfo(now, operator, operation, orderSalesEntity);
-            int updateUserOperation = updateUserOperation(now, operator, operation, orderSalesEntity);
+            int updateUserOperation = userOperationService.updateUserOperation(now, operator, operation,
+                    orderSalesEntity.getOrderId(), "", 1, "单");
             return updateOrder;
     }
 
@@ -133,39 +135,12 @@ public class OrderSalesService {
     public int updateOrderAndUserOperationWithWave(LocalDateTime now, RequestUser operator, String operation,
                                                    Integer waveId,String detail, OrderSalesEntity orderSalesEntity){
         int updateOrder = updateScanInfoWithWave(now, operator, operation,waveId, detail, orderSalesEntity);
-        int updateUserOperation = updateUserOperation(now, operator, operation, orderSalesEntity);
+        int updateUserOperation = userOperationService.updateUserOperation(now, operator, operation,
+                orderSalesEntity.getOrderId(), "", 1,"单");
         return updateOrder;
     }
 
-    public int updateUserOperation(LocalDateTime now, RequestUser operator, String operation,
-                                   OrderSalesEntity orderSalesEntity){
-        Long orderId = orderSalesEntity.getOrderId();
-        Long userId = operator.getUserId();
-        String userName = operator.getUserName();
-        String operationStr = operation;
-        Map map = new HashMap<String, Object>();
-        map.put("order_id", orderId);
-        map.put("operator_id", userId);
-        map.put("operation", operationStr);
 
-        List<UserOperationEntity> list = userOperationDao.selectByMap(map);
-        if (list == null || list.size() == 0) {
-            UserOperationEntity userOperationEntity = new UserOperationEntity();
-            userOperationEntity.setOperation(operationStr);
-            userOperationEntity.setCreateTime(now);
-            userOperationEntity.setUpdateTime(now);
-            userOperationEntity.setOrderId(orderId);
-            userOperationEntity.setDanwei("单");
-            userOperationEntity.setCount(1);
-
-            userOperationEntity.setOperator(userName);
-            userOperationEntity.setOperatorId(userId);
-            int insertCount = userOperationDao.insert(userOperationEntity);
-            return insertCount;
-        }
-
-        return 0;
-    }
 
 
 
@@ -409,6 +384,9 @@ public class OrderSalesService {
         orderSalesEntity.setGuiges(addForm.getGuiges());
 
         int ok = orderSalesDao.insert(orderSalesEntity);
+
+        int updateCount = userOperationService.updateUserOperation(now, requestUser, "打单",
+                orderSalesEntity.getOrderId(), "", 1, "单");
         if(ok > 0){
             OrderSalesAddVO orderSalesAddVO = SmartBeanUtil.copy(orderSalesEntity, OrderSalesAddVO.class);
             orderSalesAddVO.setQrCode(orderId + "$" + QrTypeEnum.V0.getVersion());

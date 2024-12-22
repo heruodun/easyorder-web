@@ -16,4 +16,31 @@ import net.lab1024.sa.admin.module.business.order.domain.entity.OrderEntity;
 @TableName("t_order_production")
 public class OrderProductionEntity extends OrderEntity {
 
+    /**
+     * 规格
+     */
+    private String guige;
+
+    /**
+     * 数量
+     */
+    private Integer count;
+
+    /**
+     * 单位
+     */
+    private String danwei;
+
+    /**
+     * 类型
+     */
+    private Integer type;
+
+    /**
+     * 温度
+     */
+    private String temperature;
+
+
+
 }

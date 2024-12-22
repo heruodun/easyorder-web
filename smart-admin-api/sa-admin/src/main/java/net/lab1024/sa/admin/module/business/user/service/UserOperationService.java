@@ -1,12 +1,17 @@
 package net.lab1024.sa.admin.module.business.user.service;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import net.lab1024.sa.admin.module.business.user.dao.UserOperationDao;
 import net.lab1024.sa.admin.module.business.user.domain.entity.UserOperationEntity;
 import net.lab1024.sa.admin.module.business.user.domain.form.UserOperationAddForm;
 import net.lab1024.sa.admin.module.business.user.domain.form.UserOperationQueryForm;
 import net.lab1024.sa.admin.module.business.user.domain.form.UserOperationUpdateForm;
 import net.lab1024.sa.admin.module.business.user.domain.vo.UserOperationVO;
+import net.lab1024.sa.base.common.domain.RequestUser;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import net.lab1024.sa.base.common.util.SmartPageUtil;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
@@ -30,6 +35,41 @@ public class UserOperationService {
 
     @Resource
     private UserOperationDao userOperationDao;
+
+
+    public int updateUserOperation(LocalDateTime now, RequestUser operator, String operationStr,
+                                   Long orderId, String guige, Integer count, String danwei){
+        Long userId = operator.getUserId();
+        String userName = operator.getUserName();
+        Map map = new HashMap<String, Object>();
+        map.put("order_id", orderId);
+        map.put("operator_id", userId);
+        map.put("operation", operationStr);
+
+        List<UserOperationEntity> list = userOperationDao.selectByMap(map);
+        if (list == null || list.size() == 0) {
+            UserOperationEntity userOperationEntity = new UserOperationEntity();
+            userOperationEntity.setOperation(operationStr);
+            userOperationEntity.setCreateTime(now);
+            userOperationEntity.setUpdateTime(now);
+            userOperationEntity.setOrderId(orderId);
+            userOperationEntity.setGuige(guige);
+            userOperationEntity.setDanwei(danwei);
+            userOperationEntity.setCount(count);
+
+            userOperationEntity.setOperator(userName);
+            userOperationEntity.setOperatorId(userId);
+            int insertCount = 0;
+            try {
+                insertCount = userOperationDao.insert(userOperationEntity);
+            }catch (Exception e){
+                //todo 异常处理
+            }
+            return insertCount;
+        }
+
+        return 0;
+    }
 
     /**
      * 分页查询

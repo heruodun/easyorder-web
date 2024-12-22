@@ -1,8 +1,13 @@
 package net.lab1024.sa.admin.module.business.order.sales.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import net.lab1024.sa.admin.module.business.order.dao.OrderGuigeTypeHandler;
 import net.lab1024.sa.admin.module.business.order.domain.entity.OrderEntity;
+import net.lab1024.sa.admin.module.business.order.domain.entity.OrderGuigeEntity;
+
+import java.util.List;
 
 /**
  * 销售订单 实体类
@@ -30,5 +35,11 @@ public class OrderSalesEntity extends OrderEntity {
      * 波次编号
      */
     private Integer waveId;
+
+    /**
+     * 规格情况
+     */
+    @TableField(typeHandler = OrderGuigeTypeHandler.class)
+    private List<OrderGuigeEntity> guiges;
 
 }

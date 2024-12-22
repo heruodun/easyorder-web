@@ -61,7 +61,7 @@ public class OrderUtil {
             // 获取最后四位字符
             String typeTenantCode = orderId.substring(orderId.length() - 4);
 
-            // 提取前两位作为 type，后两位作为 tenant
+            // 提取前两位作为tenant ，后两位作为 type
             Integer tenant = Integer.parseInt(typeTenantCode.substring(0, 2));
             Integer type = Integer.parseInt(typeTenantCode.substring(2, 4));
 

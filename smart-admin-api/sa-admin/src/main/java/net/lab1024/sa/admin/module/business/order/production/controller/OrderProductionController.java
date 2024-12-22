@@ -3,6 +3,7 @@ package net.lab1024.sa.admin.module.business.order.production.controller;
 import net.lab1024.sa.admin.module.business.order.production.domain.form.OrderProductionAddForm;
 import net.lab1024.sa.admin.module.business.order.production.domain.form.OrderProductionQueryForm;
 import net.lab1024.sa.admin.module.business.order.production.domain.form.OrderProductionUpdateForm;
+import net.lab1024.sa.admin.module.business.order.production.domain.vo.OrderProductionAddVO;
 import net.lab1024.sa.admin.module.business.order.production.domain.vo.OrderProductionVO;
 import net.lab1024.sa.admin.module.business.order.production.service.OrderProductionService;
 import net.lab1024.sa.base.common.domain.ValidateList;
@@ -42,7 +43,7 @@ public class OrderProductionController {
 
     @Operation(summary = "添加 @author dahang")
     @PostMapping("/orderProduction/add")
-    public ResponseDTO<String> add(@RequestBody @Valid OrderProductionAddForm addForm) {
+    public ResponseDTO<OrderProductionAddVO> add(@RequestBody @Valid OrderProductionAddForm addForm) {
         return orderProductionService.add(addForm);
     }
 

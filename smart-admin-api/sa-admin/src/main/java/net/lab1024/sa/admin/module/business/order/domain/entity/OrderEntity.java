@@ -33,11 +33,6 @@ public class OrderEntity {
      */
     private Long orderId;
 
-    /**
-     * 规格情况
-     */
-    @TableField(typeHandler = OrderGuigeTypeHandler.class)
-   private List<OrderGuigeEntity> guiges;
 
    /**
      * 备注

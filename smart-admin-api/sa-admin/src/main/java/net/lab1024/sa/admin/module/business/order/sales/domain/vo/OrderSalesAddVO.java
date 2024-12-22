@@ -18,7 +18,7 @@ import java.util.List;
 
 @Data
 public class OrderSalesAddVO extends OrderSalesVO{
-    @Schema(description = "地址")
+    @Schema(description = "二维码")
     private String qrCode;
 
 }
