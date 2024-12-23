@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.lab1024.sa.admin.module.business.inventory.service.InventoryService;
 import net.lab1024.sa.admin.module.business.order.constant.OrderTypeEnum;
 import net.lab1024.sa.admin.module.business.order.constant.QrTypeEnum;
 import net.lab1024.sa.admin.module.business.order.domain.entity.OrderGuigeEntity;
@@ -60,6 +61,8 @@ public class OrderProductionService {
     private UserOperationService userOperationService;
     @Resource
     private RoleService roleService;
+    @Resource
+    private InventoryService inventoryService;
 
 
     public OrderProductionEntity getById(Long id) {
@@ -193,9 +196,10 @@ public class OrderProductionService {
             LocalDateTime now = LocalDateTime.now();
             RoleEntity curRole = roleService.getRoleByRoleCode(orderScanForm.getOperation());
             int updateCount = updateOrderAndUserOperation(now, operator, curRole.getRoleName(), orderProductionEntity);
-            //todo update updateInventory
-//            int updateInventory = updateInventory(now, operator, orderScanForm.getOperation(), orderSalesEntity);
 
+            int type = orderInfo.getOrderType().getType();
+
+            inventoryService.updateInventory(now, operator, orderScanForm.getOperation(), type, orderProductionEntity);
             if (updateCount <= 0) {
                 return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "扫码失败，请重试~");
             }

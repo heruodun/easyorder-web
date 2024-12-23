@@ -45,7 +45,13 @@ public class InventoryEntity {
     private String detail;
 
     /**
-     * 入库1，出库-1
+     * 入库100，出库200
+     */
+    private Integer status;
+
+    /**
+     * @OrderTypeEnum
+     * 库存类型
      */
     private Integer type;
 

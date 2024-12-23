@@ -109,18 +109,6 @@ public class OrderSalesService {
         }
     }
 
-    public int updateInventory(LocalDateTime now, RequestUser operator, String operation,
-                               OrderSalesEntity orderSalesEntity){
-        //todo 异步入库出库
-
-        InventoryEntity inventory = new InventoryEntity();
-        inventory.setOrderId(orderSalesEntity.getOrderId());
-        inventory.setType(1);
-        inventory.setOperator(operator.getUserName());
-        inventory.setOperatorId(operator.getUserId());
-
-        return inventoryDao.insertOrUpdate(inventory);
-    }
 
     @Transactional
     public int updateOrderAndUserOperation(LocalDateTime now, RequestUser operator, String operation,
