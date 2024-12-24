@@ -2,7 +2,9 @@ package net.lab1024.sa.admin.module.business.inventory.controller;
 
 import net.lab1024.sa.admin.module.business.inventory.domain.form.InventoryAddForm;
 import net.lab1024.sa.admin.module.business.inventory.domain.form.InventoryQueryForm;
+import net.lab1024.sa.admin.module.business.inventory.domain.form.InventorySummaryQueryForm;
 import net.lab1024.sa.admin.module.business.inventory.domain.form.InventoryUpdateForm;
+import net.lab1024.sa.admin.module.business.inventory.domain.vo.InventorySummaryVO;
 import net.lab1024.sa.admin.module.business.inventory.domain.vo.InventoryVO;
 import net.lab1024.sa.admin.module.business.inventory.service.InventoryService;
 import net.lab1024.sa.base.common.domain.ValidateList;
@@ -18,6 +20,7 @@ import io.swagger.v3.oas.annotations.Operation;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 库存 Controller
@@ -33,6 +36,12 @@ public class InventoryController {
 
     @Resource
     private InventoryService inventoryService;
+
+    @Operation(summary = "查询剩余库存 @author dahang")
+    @PostMapping("/inventory/inSummary/queryPage")
+    public ResponseDTO<PageResult<InventorySummaryVO>> query(@RequestBody @Valid InventorySummaryQueryForm inventorySummaryQueryForm) {
+        return ResponseDTO.ok(inventoryService.queryInSummary(inventorySummaryQueryForm));
+    }
 
     @Operation(summary = "分页查询 @author dahang")
     @PostMapping("/inventory/queryPage")

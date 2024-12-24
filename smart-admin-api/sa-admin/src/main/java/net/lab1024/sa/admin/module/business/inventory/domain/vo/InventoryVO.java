@@ -28,17 +28,20 @@ public class InventoryVO {
     @Schema(description = "单位")
     private String danwei;
 
-    @Schema(description = "明细")
-    private String detail;
+    /**
+     * 备注
+     */
+    @Schema(description = "备注")
+    private String remark;
 
-    @Schema(description = "当前状态")
-    private Integer curStatus;
+    @Schema(description = "库存状态")
+    private Integer status;
 
-    @Schema(description = "当前处理时间")
-    private LocalDateTime curTime;
+    @Schema(description = "库存类型")
+    private Integer type;
 
-    @Schema(description = "当前处理人")
-    private String curMan;
+    @Schema(description = "入库人")
+    private String inMan;
 
     @Schema(description = "入库时间")
     private LocalDateTime inTime;
@@ -50,10 +53,7 @@ public class InventoryVO {
     private LocalDateTime outTime;
 
     @Schema(description = "订单号")
-    private Long salesOrderId;
-
-    @Schema(description = "订单号")
-    private Long productionOrderId;
+    private Long orderId;
 
     @Schema(description = "创建时间")
     private LocalDateTime createTime;

@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -40,9 +42,9 @@ public class InventoryEntity {
     private String danwei;
 
     /**
-     * 明细
+     * 备注
      */
-    private String detail;
+    private String remark;
 
     /**
      * 入库100，出库200
@@ -56,14 +58,35 @@ public class InventoryEntity {
     private Integer type;
 
     /**
-     * 处理人
+     * 入库人
      */
-    private String operator;
+    private String inMan;
 
     /**
-     * 处理人id
+     * 入库人id
      */
-    private Long operatorId;
+    private Integer inManId;
+
+    /**
+     * 入库时间
+     */
+    private LocalDateTime inTime;
+
+    /**
+     * 出库人
+     */
+    private String outMan;
+
+    /**
+     * 出库人id
+     */
+    private Integer outManId;
+
+
+    /**
+     * 出库时间
+     */
+    private LocalDateTime outTime;
 
     /**
      * 订单号

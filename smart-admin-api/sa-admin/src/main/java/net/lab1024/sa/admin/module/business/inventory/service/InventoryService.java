@@ -1,7 +1,10 @@
 package net.lab1024.sa.admin.module.business.inventory.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -12,9 +15,12 @@ import net.lab1024.sa.admin.module.business.inventory.dao.InventoryDao;
 import net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity;
 import net.lab1024.sa.admin.module.business.inventory.domain.form.InventoryAddForm;
 import net.lab1024.sa.admin.module.business.inventory.domain.form.InventoryQueryForm;
+import net.lab1024.sa.admin.module.business.inventory.domain.form.InventorySummaryQueryForm;
 import net.lab1024.sa.admin.module.business.inventory.domain.form.InventoryUpdateForm;
+import net.lab1024.sa.admin.module.business.inventory.domain.vo.InventorySummaryVO;
 import net.lab1024.sa.admin.module.business.inventory.domain.vo.InventoryVO;
 import net.lab1024.sa.admin.module.business.order.production.domain.entity.OrderProductionEntity;
+import net.lab1024.sa.admin.module.business.order.production.domain.vo.OrderProductionVO;
 import net.lab1024.sa.base.common.domain.RequestUser;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import net.lab1024.sa.base.common.util.SmartPageUtil;
@@ -25,6 +31,9 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+
+import static net.lab1024.sa.admin.module.business.inventory.constant.InventoryUtil.IN;
+import static net.lab1024.sa.admin.module.business.inventory.constant.InventoryUtil.OUT;
 
 /**
  * 库存 Service
@@ -64,7 +73,8 @@ public class InventoryService {
 
                 int status = InventoryOperationEnum.getStatus(operation, type);
                 if(status == -1){
-                    log.warn("operator= {}, operation = {}, type = {} not invalid inventory operation", operator, operation, type);
+                    log.warn("operator= {}, operation = {}, type = {} not invalid inventory operation", operator,
+                            operation, type);
                     return;
                 }
 
@@ -72,18 +82,71 @@ public class InventoryService {
                 inventory.setOrderId(orderProductionEntity.getOrderId());
                 inventory.setType(type);
                 inventory.setStatus(status);
-                inventory.setOperator(operator.getUserName());
-                inventory.setOperatorId(operator.getUserId());
                 inventory.setCreateTime(now);
+                inventory.setUpdateTime(now);
                 inventory.setGuige(orderProductionEntity.getGuige());
                 inventory.setCount(orderProductionEntity.getCount());
                 inventory.setDanwei(orderProductionEntity.getDanwei());
-
-                inventoryDao.insertOrUpdate(inventory);
+                inventory.setRemark(orderProductionEntity.getRemark());
+                if(status == IN) {
+                    inventory.setInMan(operator.getUserName());
+                    inventory.setInManId(Math.toIntExact(operator.getUserId()));
+                    inventory.setInTime(now);
+                    inventoryDao.inUpdate(inventory);
+                }
+                else {
+                    inventory.setOutMan(operator.getUserName());
+                    inventory.setOutManId(Math.toIntExact(operator.getUserId()));
+                    inventory.setOutTime(now);
+                    inventoryDao.outUpdate(inventory);
+                }
             }
         });
 
     }
+
+    /**
+     * 库存还有多少
+
+     * @return
+     */
+    public PageResult<InventorySummaryVO> queryInSummary(InventorySummaryQueryForm queryForm) {
+
+        int offset = (int) ((queryForm.getPageNum() - 1) * queryForm.getPageSize());
+        int limit = Math.toIntExact(queryForm.getPageSize());
+
+        Page<?> page = SmartPageUtil.convert2PageQuery(queryForm);
+
+        //guige搜索处理成大写
+        if(queryForm.getGuige() != null) {
+            queryForm.setGuige(queryForm.getGuige().toUpperCase().trim());
+        }
+        int status = IN;
+        queryForm.setStatus(status);
+        List<InventorySummaryVO> inventorySummaryVOS = inventoryDao.querySummaryPage(queryForm, limit, offset);
+
+        List<InventorySummaryVO> list = SmartBeanUtil.copyList(inventorySummaryVOS, InventorySummaryVO.class);
+        int count = inventoryDao.querySummarySize(queryForm);
+        page.setTotal(count);
+        PageResult<InventorySummaryVO> pageResult = SmartPageUtil.convert2PageResult(page, list);
+        return pageResult;
+
+    }
+
+
+//    /**
+//     * 出库了多少
+//     * @param type
+//     * @param guige
+//     * @param startTime
+//     * @param endTime
+//     * @return
+//     */
+//    public List<InventorySummaryVO> queryOutSummary(Integer type, String guige,
+//                                                   String startTime, String endTime) {
+//        int status = OUT;
+//        return inventoryDao.querySummaryPage(type, guige, status, startTime, endTime);
+//    }
 
 
     /**
@@ -93,8 +156,19 @@ public class InventoryService {
      * @return
      */
     public PageResult<InventoryVO> queryPage(InventoryQueryForm queryForm) {
+        int offset = (int) ((queryForm.getPageNum() - 1) * queryForm.getPageSize());
+        int limit = Math.toIntExact(queryForm.getPageSize());
+
         Page<?> page = SmartPageUtil.convert2PageQuery(queryForm);
-        List<InventoryVO> list = inventoryDao.queryPage(page, queryForm);
+
+        //guige搜索处理成大写
+        if(queryForm.getGuige() != null) {
+            queryForm.setGuige(queryForm.getGuige().toUpperCase().trim());
+        }
+        List<InventoryEntity>  inventoryEntities = inventoryDao.queryPage(queryForm, limit, offset);
+        List<InventoryVO> list = SmartBeanUtil.copyList(inventoryEntities, InventoryVO.class);
+        int count = inventoryDao.querySize(queryForm);
+        page.setTotal(count);
         PageResult<InventoryVO> pageResult = SmartPageUtil.convert2PageResult(page, list);
         return pageResult;
     }

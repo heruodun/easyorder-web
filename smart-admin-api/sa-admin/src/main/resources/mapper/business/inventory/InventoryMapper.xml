@@ -2,35 +2,195 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="net.lab1024.sa.admin.module.business.inventory.dao.InventoryDao">
 
-    <insert id="insertOrUpdate" parameterType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
+    <!--  索引
+    ALTER TABLE `t_inventory`
+    ADD INDEX `idx_create_time` (`create_time`),
+    ADD INDEX `idx_deleted_flag` (`deleted_flag`),
+    ADD INDEX `idx_create_time_deleted_flag` (`deleted_flag`, `create_time`);
+
+    唯一索引
+    type,order_id
+    -->
+    <!--    in的时候 可以是插入也可以是更新 可能存在多次入库动作-->
+    <insert id="inUpdate" parameterType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
         INSERT INTO t_inventory
-            (guige, count, danwei, detail, type, operator, operator_id, order_id)
+        (guige, count, danwei, detail, type, status, in_man, in_man_id, in_time, order_id)
         VALUES
-            (#{guige}, #{count}, #{danwei}, #{detail}, #{type}, #{operator}, #{operatorId}, #{orderId})
+            (#{guige}, #{count}, #{danwei}, #{detail}, #{type}, #{status}, #{inMan},#{inManId}, #{inTime}, #{orderId})
             ON DUPLICATE KEY UPDATE
-                                 operator = VALUES(operator),
-                                 operator_id = VALUES(operator_id);
+                                 count = VALUES(count),
+                                 danwei = VALUES(danwei),
+                                 detail = VALUES(detail),
+                                 guige = VALUES(guige),
+                                 in_man = VALUES(inMan),
+                                 in_man_id = VALUES(inManId),
+                                 in_time = VALUES(inTime)
     </insert>
 
+    <update id="outInventory" parameterType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
+        UPDATE t_inventory
+        SET
+            status = #{status},
+            out_man = #{outMan},
+            out_time = #{outTime},
+            out_man_id = #{outManId},
+            WHERE
+                `type` = #{type} AND
+                `order_id` = #{orderId}
+    </update>
+
+    <select id="querySummaryPage" resultType="net.lab1024.sa.admin.module.business.inventory.domain.vo.InventorySummaryVO">
+        SELECT
+        `type`,
+        `guige`,
+        `danwei`,
+        SUM(`count`) AS total_count
+        FROM
+        `t_inventory`
+        WHERE
+
+        `deleted_flag` = 0
+
+        <if test="queryForm.type != null">
+            and type = #{queryForm.type}
+        </if>
+
+        <if test="queryForm.guige != null and queryForm.guige != ''">
+            and guige = #{queryForm.guige}
+        </if>
+
+        <if test="queryForm.status != null">
+            and status = #{queryForm.status}
+        </if>
+
+        <!--        <if test="queryForm.startTime != null">-->
+        <!--            AND DATE_FORMAT(create_time, '%Y-%m-%d') >= #{queryForm.startTime}-->
+        <!--        </if>-->
+
+        <!--        <if test="queryForm.endTime != null">-->
+        <!--            AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;= #{queryForm.endTime}-->
+        <!--        </if>-->
+
+        GROUP BY
+        `type`,
+        `guige`,
+        `danwei`
+
+        ORDER BY
+        `type`,
+        `guige`,
+        `danwei`
+
+        LIMIT #{limit} OFFSET #{offset};
+    </select>
+
+    <select id="querySummarySize" resultType="java.lang.Integer">
+        SELECT
+        count(*)
+        FROM (
+
+        SELECT
+        `type`,
+        `guige`,
+        `danwei`,
+        SUM(`count`) AS total_count
+        FROM
+        `t_inventory`
+        WHERE
+
+        `deleted_flag` = 0
+
+        <if test="queryForm.type != null">
+            and type = #{queryForm.type}
+        </if>
+
+        <if test="queryForm.guige != null and queryForm.guige != ''">
+            and guige = #{queryForm.guige}
+        </if>
+
+        <if test="queryForm.status != null">
+            and status = #{queryForm.status}
+        </if>
+
+        <!--            <if test="queryForm.startTime != null">-->
+        <!--                AND DATE_FORMAT(create_time, '%Y-%m-%d') >= #{queryForm.startTime}-->
+        <!--            </if>-->
+
+        <!--            <if test="queryForm.endTime != null">-->
+        <!--                AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;= #{queryForm.endTime}-->
+        <!--            </if>-->
+
+        GROUP BY
+        `type`,
+        `guige`,
+        `danwei`
+        ) AS summary;
+
+    </select>
+
+
+
     <!-- 分页查询 -->
-    <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.inventory.domain.vo.InventoryVO">
+    <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
         SELECT
         *
         FROM t_inventory
         <where>
-            <!--规格-->
-            <if test="queryForm.guige != null">
-                AND t_inventory.guige = #{queryForm.guige}
+
+            <if test="queryForm.guige != null and queryForm.guige != ''">
+                and guige = #{queryForm.guige}
             </if>
-            <!--开始时间-->
+
+            <if test="queryForm.type != null">
+                and type = #{queryForm.type}
+            </if>
+
+            <if test="queryForm.status != null">
+                and status = #{queryForm.status}
+            </if>
+
             <if test="queryForm.createTimeBegin != null">
-                AND DATE_FORMAT(t_inventory.create_time, '%Y-%m-%d') &gt;= #{queryForm.createTimeBegin}
+                AND DATE_FORMAT(create_time, '%Y-%m-%d') >= #{queryForm.createTimeBegin}
             </if>
+
             <if test="queryForm.createTimeEnd != null">
-                AND DATE_FORMAT(t_inventory.create_time, '%Y-%m-%d') &lt;= #{queryForm.createTimeEnd}
+                AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;= #{queryForm.createTimeEnd}
             </if>
+
+        </where>
+
+        ORDER BY create_time DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="querySize" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM t_inventory
+        <where>
+
+            <if test="queryForm.guige != null and queryForm.guige != ''">
+                and guige = #{queryForm.guige}
+            </if>
+
+            <if test="queryForm.type != null">
+                and type = #{queryForm.type}
+            </if>
+
+            <if test="queryForm.status != null">
+                and status = #{queryForm.status}
+            </if>
+
+            <if test="queryForm.createTimeBegin != null">
+                AND DATE_FORMAT(create_time, '%Y-%m-%d') >= #{queryForm.createTimeBegin}
+            </if>
+
+            <if test="queryForm.createTimeEnd != null">
+                AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;= #{queryForm.createTimeEnd}
+            </if>
+
         </where>
     </select>
+
 
 
 

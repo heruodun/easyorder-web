@@ -50,21 +50,18 @@
   import { orderApi } from '../../../../api/business/order/order-api';
   import { printT1 } from '/@/lib/smart-print.js';
   const formRef = ref(); // Create a reference to the form
-  import { printProductionTong } from '/@/lib/smart-print.js';
+  import { printProductionBucket } from '/@/lib/smart-print.js';
 
   function orderPrint(time, orderId, orderIdStr) {
-    const userStore = useUserStore(); // 使用你的 store
     let printData = {
-      man: `经办人：${userStore.actualName}`, // 模板字符串用于结合变量和静态文本
-      time: time,
       orderid: orderId,
       qrcodestr: orderIdStr,
-      qrcodestr1: orderIdStr,
-      beizhu: formData.remark,
-      guige: `规格：${formData.spec}`,
+      remark: formData.remark,
+      count: '1 盘',
+      guige: `${formData.guige}`,
     };
     // 打印
-    printProductionTong(printData);
+    printProductionBox(printData);
   }
 
   const formData = reactive({

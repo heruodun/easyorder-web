@@ -13,12 +13,6 @@
     <!-- 第一行：地址、规格、备注 -->
     <a-row :gutter="16">
       <a-col :span="8">
-        <a-form-item name="machineNo" label="技工号" :rules="[{ required: true, message: '请输入技工号' }]">
-          <a-input v-model:value="formData.workerNo" placeholder="请输入技工号" />
-        </a-form-item>
-      </a-col>
-
-      <a-col :span="8">
         <a-form-item name="guige" label="规格" :rules="[{ required: true, message: '请输入规格' }]">
           <a-input v-model:value="formData.guige" placeholder="请输入规格" />
         </a-form-item>
@@ -56,21 +50,19 @@
   import { orderApi } from '../../../../api/business/order/order-api';
   import { printT1 } from '/@/lib/smart-print.js';
   const formRef = ref(); // Create a reference to the form
-  import { printProductionTong } from '/@/lib/smart-print.js';
+  import { printProductionBox } from '/@/lib/smart-print.js';
 
   function orderPrint(time, orderId, orderIdStr) {
     const userStore = useUserStore(); // 使用你的 store
     let printData = {
-      man: `经办人：${userStore.actualName}`, // 模板字符串用于结合变量和静态文本
-      time: time,
       orderid: orderId,
       qrcodestr: orderIdStr,
-      qrcodestr1: orderIdStr,
-      beizhu: formData.remark,
-      guige: `规格：${formData.spec}`,
+      remark: formData.remark,
+      count: '1 框',
+      guige: `${formData.guige}`,
     };
     // 打印
-    printProductionTong(printData);
+    printProductionBox(printData);
   }
 
   const formData = reactive({

@@ -19,6 +19,8 @@ let businessERPInitTableId = 40000;
 
 let businessOrderInitTableId = 50000;
 
+let businessInventoryInitTableId = 60000;
+
 export const TABLE_ID_CONST = {
   /**
    * 业务
@@ -37,6 +39,10 @@ export const TABLE_ID_CONST = {
 
     ORDER: {
       SALES: businessOrderInitTableId + 1, //
+    },
+    INVENTORY: {
+      LIST: businessInventoryInitTableId + 1, //
+      SUMMARY: businessInventoryInitTableId + 2, //
     },
   },
 
