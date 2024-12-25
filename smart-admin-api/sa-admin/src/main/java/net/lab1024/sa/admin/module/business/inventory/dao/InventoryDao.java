@@ -46,9 +46,11 @@ public interface InventoryDao extends BaseMapper<InventoryEntity> {
      */
     void batchUpdateDeleted(@Param("idList")List<Long> idList,@Param("${deletedFlag}")boolean deletedFlag);
 
-    int inUpdate(@Param("inventory")InventoryEntity inventory);
+    int insertOrUpdateIn(@Param("inventory")InventoryEntity inventory);
 
-    int outUpdate(@Param("inventory")InventoryEntity inventory);
+    int insertOrUpdateOut(@Param("inventory")InventoryEntity inventory);
+
+    int update(@Param("inventory")InventoryEntity inventory);
 
     List<InventorySummaryVO> querySummaryPage(@Param("queryForm") InventorySummaryQueryForm queryForm,
                                               @Param("limit") int limit, @Param("offset") int offset);

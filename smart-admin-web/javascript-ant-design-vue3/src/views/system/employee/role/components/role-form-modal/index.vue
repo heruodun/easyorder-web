@@ -17,6 +17,15 @@
       <a-form-item label="角色编码" name="roleCode">
         <a-input style="width: 100%" placeholder="请输入角色编码" v-model:value="form.roleCode" />
       </a-form-item>
+
+      <a-form-item label="角色类型" name="roleType">
+        <a-input-number style="width: 100%" placeholder="请输入角色类型（0表示普通角色，1表示扫码角色）" v-model:value="form.roleType" />
+      </a-form-item>
+
+      <a-form-item label="角色菜单按钮">
+        <a-input style="width: 100%" placeholder="请输入角色菜单按钮icon" v-model:value="form.menuIcon" />
+      </a-form-item>
+
       <a-form-item label="角色备注">
         <a-input style="width: 100%" placeholder="请输入角色备注" v-model:value="form.remark" />
       </a-form-item>
@@ -67,6 +76,8 @@
     remark: undefined,
     roleCode: undefined,
     roleName: undefined,
+    roleType: undefined,
+    menuIcon: undefined,
   };
 
   let form = reactive({ ...formDefault });
@@ -75,6 +86,7 @@
   const rules = {
     roleName: [{ required: true, message: '请输入角色名称' }],
     roleCode: [{ required: true, message: '请输入角色编码' }],
+    roleType: [{ required: true, message: '请输入角色类型' }],
   };
 
   // 提交表单

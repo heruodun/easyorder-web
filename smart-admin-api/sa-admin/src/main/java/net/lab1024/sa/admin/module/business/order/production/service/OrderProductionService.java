@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.lab1024.sa.admin.module.business.inventory.constant.InventoryOperationEnum;
+import net.lab1024.sa.admin.module.business.inventory.constant.InventoryUtil;
 import net.lab1024.sa.admin.module.business.inventory.service.InventoryService;
 import net.lab1024.sa.admin.module.business.order.constant.OrderTypeEnum;
 import net.lab1024.sa.admin.module.business.order.constant.QrTypeEnum;
@@ -26,6 +28,7 @@ import net.lab1024.sa.admin.module.business.user.service.UserOperationService;
 import net.lab1024.sa.admin.module.system.role.domain.entity.RoleEntity;
 import net.lab1024.sa.admin.module.system.role.service.RoleService;
 import net.lab1024.sa.base.common.code.OrderErrorCode;
+import net.lab1024.sa.base.common.code.UserErrorCode;
 import net.lab1024.sa.base.common.domain.RequestUser;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import net.lab1024.sa.base.common.util.SmartPageUtil;
@@ -41,6 +44,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+
+import static net.lab1024.sa.admin.module.business.inventory.constant.InventoryOperationEnum.getInventoryOperation;
 
 /**
  * 生产订单 Service
@@ -193,50 +198,103 @@ public class OrderProductionService {
         }
 
         else {
-            LocalDateTime now = LocalDateTime.now();
-            RoleEntity curRole = roleService.getRoleByRoleCode(orderScanForm.getOperation());
-            int updateCount = updateOrderAndUserOperation(now, operator, curRole.getRoleName(), orderProductionEntity);
-
-            int type = orderInfo.getOrderType().getType();
-
-            inventoryService.updateInventory(now, operator, orderScanForm.getOperation(), type, orderProductionEntity);
-            if (updateCount <= 0) {
-                return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "扫码失败，请重试~");
-            }
-            return ResponseDTO.ok();
+            return updateOrderAndUserOperation(operator, orderInfo, orderScanForm, orderProductionEntity);
         }
     }
 
     @Transactional
-    public int updateOrderAndUserOperation(LocalDateTime now, RequestUser operator, String operation,
-                                           OrderProductionEntity orderProductionEntity){
-        int updateOrder = updateScanInfo(now, operator, operation, orderProductionEntity);
-        int updateUserOperation = userOperationService.updateUserOperation(now, operator, operation,
-                orderProductionEntity.getOrderId(), orderProductionEntity.getGuige(), orderProductionEntity.getCount()
-        ,orderProductionEntity.getDanwei());
-        return updateOrder;
+    public ResponseDTO<Boolean> updateOrderAndUserOperation(RequestUser operator, OrderTypeAndIdVO orderInfo,
+                                           OrderScanForm orderScanForm,OrderProductionEntity orderProductionEntity){
+
+        LocalDateTime now = LocalDateTime.now();
+
+        RoleEntity curRole = roleService.getRoleByRoleCode(orderScanForm.getOperation());
+
+        if(curRole == null){
+            return ResponseDTO.error(UserErrorCode.USER_STATUS_ERROR, "用户角色异常~");
+        }
+
+        int type = orderInfo.getOrderType().getType();
+
+        int updateOrder = updateScanInfo(now, operator, curRole.getRoleName(),orderScanForm.getOperation(),
+                orderProductionEntity, type);
+        userOperationService.updateUserOperation(now, operator, curRole.getRoleName(),
+                orderProductionEntity.getOrderId(), orderProductionEntity.getGuige(), orderProductionEntity.getCount(),
+                orderProductionEntity.getDanwei());
+
+
+        inventoryService.updateInventory(now, operator, orderScanForm.getOperation(), type, orderProductionEntity);
+
+        return ResponseDTO.ok();
     }
 
-    public int updateScanInfo(LocalDateTime now, RequestUser operator, String operation,
-                              OrderProductionEntity orderProductionEntity){
+    public int updateScanInfo(LocalDateTime now, RequestUser operator, String operationStr,String operationCode,
+                              OrderProductionEntity orderProductionEntity, int type){
 
         String userName = operator == null || operator.getUserName() == null ? "工 人" : operator.getUserName();
-        if(operation == null){
-            operation = "服务";
+        if(operationStr == null){
+            operationStr = "服务";
         }
         Long userId = operator == null || operator.getUserId() == null ? 0L : operator.getUserId();
         Long id = orderProductionEntity.getId();
 
+
+
+        List<InventoryOperationEnum> list = getInventoryOperation(operationCode, type);
+
         TraceElementEntity traceElementEntity = new TraceElementEntity();
-        traceElementEntity.setOperation(operation);
+        traceElementEntity.setOperation(operationStr);
         traceElementEntity.setTime(now);
         traceElementEntity.setOperator(userName);
+        traceElementEntity.setDetail(generateInventoryStr(list));
         //加到头部，保证倒序
         orderProductionEntity.getTrace().add(0, traceElementEntity);
 
-        int updateCount = orderProductionDao.updateScanInfo(operation, userName,
+        int updateCount = orderProductionDao.updateScanInfo(operationStr, userName,
                 userId, now, orderProductionEntity.getTrace(),id);
         return updateCount;
+    }
+
+    private String generateInventoryStr(List<InventoryOperationEnum> list){
+        if(list.size() == 0){
+            return null;
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        for(InventoryOperationEnum inventoryOperationEnum : list){
+
+            if(InventoryUtil.IN == inventoryOperationEnum.getStatus()){
+                stringBuilder.append("入库");
+
+            }else if(InventoryUtil.OUT == inventoryOperationEnum.getStatus()){
+                stringBuilder.append("出库");
+            }
+            else {
+                stringBuilder.append("异常");
+            }
+
+            stringBuilder.append(generateInventoryType(inventoryOperationEnum)).append(" ");
+        }
+        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+        return stringBuilder.toString();
+    }
+
+    private String generateInventoryType(InventoryOperationEnum inventoryOperationEnum){
+        if(InventoryUtil.BUCKET == inventoryOperationEnum.getType()){
+            return "白桶库存";
+        }else if(InventoryUtil.BOX == inventoryOperationEnum.getType()){
+            return "框子库存";
+        }else if(InventoryUtil.BAG == inventoryOperationEnum.getType()){
+            return "摇摆库存";
+        }else if(InventoryUtil.DISK == inventoryOperationEnum.getType()){
+            return "盘装库存";
+        }else if(InventoryUtil.WAICHANG1 == inventoryOperationEnum.getType()){
+            return "外厂1库存";
+        }else if(InventoryUtil.WAICHANG2 == inventoryOperationEnum.getType()){
+            return "外厂2库存";
+        }
+        else {
+            return "未知库存";
+        }
     }
 
     /**

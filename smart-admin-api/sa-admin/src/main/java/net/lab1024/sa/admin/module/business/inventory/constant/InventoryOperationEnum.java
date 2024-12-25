@@ -4,7 +4,9 @@ package net.lab1024.sa.admin.module.business.inventory.constant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static net.lab1024.sa.admin.module.business.inventory.constant.InventoryUtil.IN;
@@ -37,9 +39,14 @@ public enum InventoryOperationEnum {
     PANDAI_OUT_BUCKET("pandai", OUT, 2),
 
     /**
-     * 配货外 出库白桶
+     * 配货外1 出库白桶
      */
-    PEIHUOWAI_OUT_BUCKET("peihuowai", OUT, 2),
+    PEIHUOWAI1_OUT_BUCKET("peihuowai1", OUT, 2),
+
+    /**
+     * 配货外2 出库白桶
+     */
+    PEIHUOWAI2_OUT_BUCKET("peihuowai2", OUT, 2),
 
 //    ------------------------------------框子---------------------------------------------
 
@@ -64,9 +71,15 @@ public enum InventoryOperationEnum {
     YAOBAI_OUT_BOX("yaobai", OUT, 3),
 
     /**
-     * 配货外 出库框子
+     * 配货外1 出库框子
      */
-    PEIHUOWAI_OUT_BOX("peihuowai", OUT, 3),
+    PEIHUOWAI1_OUT_BOX("peihuowai1", OUT, 3),
+
+    /**
+     * 配货外2 出库框子
+     */
+    PEIHUOWAI2_OUT_BOX("peihuowai2", OUT, 3),
+
 
     // ------------------------------------摇摆包---------------------------------------------
 
@@ -74,11 +87,25 @@ public enum InventoryOperationEnum {
      * 摇摆入库摇摆包
      */
     YAOBAI_IN_BAG("yaobai", IN, 4),
+    /**
+     * 配货 出库摇摆包
+     */
+    PEIHUO_OUT_BAG("peihuo", OUT, 4),
 
     /**
-     * 配货外 出库摇摆包
+     * 盘带 出库摇摆包
      */
-    PEIHUOWAI_OUT_BAG("peihuowai", OUT, 4),
+    PANDAI_OUT_BAG("pandai", OUT, 4),
+
+    /**
+     * 配货外1 出库摇摆包
+     */
+    PEIHUOWAI1_OUT_BAG("peihuowai1", OUT, 4),
+
+    /**
+     * 配货外2 出库摇摆包
+     */
+    PEIHUOWAI2_OUT_BAG("peihuowai2", OUT, 4),
 
     //-------------------------------------盘装---------------------------------------------
 
@@ -93,22 +120,39 @@ public enum InventoryOperationEnum {
     PEIHUO_OUT_DISK("peihuo", OUT, 5),
 
     /**
-     * 配货外 出库盘装
+     * 配货外1 出库盘装
      */
-    PEIHUOWAI_OUT_DISK("peihuowai", OUT, 5),
-
-    //    ------------------------------------外厂---------------------------------------------
+    PEIHUOWAI1_OUT_DISK("peihuowai1", OUT, 5),
 
     /**
-     * 配货外 入库 外厂库存，此操作与上一个操作是一次扫码行为 ？？
+     * 配货外2 出库盘装
      */
-    PEIHUOWAI_IN_WANICHANG("peihuowai", IN, 6),
+    PEIHUOWAI2_OUT_DISK("peihuowai2", OUT, 5),
+
+    //    ------------------------------------外厂1---------------------------------------------
+
     /**
-     * 外厂出库外厂库存
+     * 配货外1 入库 外厂库存
      */
-    WAICHANG_OUT_WAICHANG("waichang", OUT, 6),
+    PEIHUOWAI1_IN_WANICHANG("peihuowai1", IN, 6),
 
 
+    /**
+     * 出货1 出库外厂1库存
+     */
+    CHUHUOWAI1_OUT_WAICHANG("chuhuowai1", OUT, 6),
+
+
+    //    ------------------------------------外厂2---------------------------------------------
+    /**
+     * 出货2 出库外厂2库存
+     */
+    CHUHUOWAI2_OUT_WAICHANG("chuhuowai2", OUT, 7),
+
+    /**
+     * 配货外2 入库 外厂库存
+     */
+    PEIHUOWAI2_IN_WANICHANG("peihuowai2", IN, 7),
 
 
     ;
@@ -137,14 +181,24 @@ public enum InventoryOperationEnum {
         }
     }
 
-    public static Integer getStatus(String operationCode, Integer type){
+    public static List<InventoryOperationEnum> getInventoryOperation(String operationCode, Integer type){
+        List<InventoryOperationEnum> list = new ArrayList<>();
         for(InventoryOperationEnum inventoryOperationEnum : InventoryOperationEnum.values()){
             if(inventoryOperationEnum.getOperationCode().equals(operationCode)
                     && inventoryOperationEnum.getType() == type){
-                return inventoryOperationEnum.getStatus();
+                list.add(inventoryOperationEnum);
+
+                if(inventoryOperationEnum.getOperationCode().equals("peihuowai1")){
+                    list.add(PEIHUOWAI1_IN_WANICHANG);
+                }
+
+                if(inventoryOperationEnum.getOperationCode().equals("peihuowai2")){
+                    list.add(PEIHUOWAI2_IN_WANICHANG);
+                }
+
             }
         }
-        return -1;
+        return list;
     }
 
 }

@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+import static net.lab1024.sa.admin.module.business.inventory.constant.InventoryOperationEnum.getInventoryOperation;
 import static net.lab1024.sa.admin.module.business.inventory.constant.InventoryUtil.IN;
 import static net.lab1024.sa.admin.module.business.inventory.constant.InventoryUtil.OUT;
 
@@ -71,38 +72,46 @@ public class InventoryService {
             return;
         }
 
-        int status = InventoryOperationEnum.getStatus(operation, type);
-        if(status == -1){
+        List<InventoryOperationEnum> list = getInventoryOperation(operation, type);
+
+        if(list.size() == 0){
             log.warn("operator= {}, operation = {}, type = {} not invalid inventory operation", operator,
                     operation, type);
             return;
         }
 
-        InventoryEntity inventory = new InventoryEntity();
-        inventory.setOrderId(orderProductionEntity.getOrderId());
-        inventory.setType(type);
-        inventory.setStatus(status);
-        inventory.setCreateTime(now);
-        inventory.setUpdateTime(now);
-        inventory.setGuige(orderProductionEntity.getGuige());
-        inventory.setCount(orderProductionEntity.getCount());
-        inventory.setDanwei(orderProductionEntity.getDanwei());
-        inventory.setRemark(orderProductionEntity.getRemark());
-        if(status == IN) {
-            inventory.setInMan(operator.getUserName());
-            inventory.setInManId(Math.toIntExact(operator.getUserId()));
-            inventory.setInTime(now);
-            int rowCount = inventoryDao.inUpdate(inventory);
-            if(rowCount == 0){
-                log.warn("operator= {}, operation = {}, type = {}, orderId = {} not found orderProduction",
-                        operator, operation, type, orderProductionEntity.getOrderId());
+        for(InventoryOperationEnum inventoryOperationEnum : list) {
+            int status = inventoryOperationEnum.getStatus();
+            int inventoryType = inventoryOperationEnum.getType();
+
+            InventoryEntity inventory = new InventoryEntity();
+            inventory.setOrderId(orderProductionEntity.getOrderId());
+            inventory.setType(inventoryType);
+            inventory.setStatus(status);
+            inventory.setCreateTime(now);
+            inventory.setUpdateTime(now);
+            inventory.setGuige(orderProductionEntity.getGuige());
+            inventory.setCount(orderProductionEntity.getCount());
+            inventory.setDanwei(orderProductionEntity.getDanwei());
+            inventory.setRemark(orderProductionEntity.getRemark());
+            int rowCount;
+            if (status == IN) {
+                inventory.setInMan(operator.getUserName());
+                inventory.setInManId(Math.toIntExact(operator.getUserId()));
+                inventory.setInTime(now);
+                rowCount = inventoryDao.insertOrUpdateIn(inventory);
+
+            } else {
+                inventory.setOutMan(operator.getUserName());
+                inventory.setOutManId(Math.toIntExact(operator.getUserId()));
+                inventory.setOutTime(now);
+                rowCount = inventoryDao.insertOrUpdateOut(inventory);
             }
-        }
-        else {
-            inventory.setOutMan(operator.getUserName());
-            inventory.setOutManId(Math.toIntExact(operator.getUserId()));
-            inventory.setOutTime(now);
-            inventoryDao.outUpdate(inventory);
+
+            if (rowCount == 0) {
+                log.warn("operator= {}, operation = {}, type = {}, orderId = {} ",
+                        operator, operation, inventoryType, orderProductionEntity.getOrderId());
+            }
         }
 //            }
 //        });

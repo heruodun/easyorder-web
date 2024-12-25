@@ -66,7 +66,7 @@ public enum OrderTypeEnum{
     ;
 
     /**
-     * 销售0，生产1
+     *
      */
     private final Integer type;
 

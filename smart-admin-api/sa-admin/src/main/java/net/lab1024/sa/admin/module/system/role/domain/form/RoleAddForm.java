@@ -36,6 +36,15 @@ public class RoleAddForm {
     @Schema(description = "角色描述")
     @Length(max = 255, message = "角色描述最多255个字符")
     private String remark;
+    /**
+     * 角色类型
+     */
+    @Schema(description = "角色类型")
+    @NotNull(message = "角色类型不能为空")
+    private Integer roleType;
+
+    @Schema(description = "角色菜单按钮")
+    private String menuIcon;
 
 
 }

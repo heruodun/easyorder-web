@@ -11,10 +11,10 @@
     唯一索引
     type,order_id
     -->
-    <!--    in的时候 可以是插入也可以是更新 可能存在多次入库动作-->
+    <!--    in和out的时候 可以是插入也可以是更新 可能存在多次出入库动作-->
 
 
-    <insert id="inUpdate" parameterType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
+    <insert id="insertOrUpdateIn" parameterType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
         INSERT INTO t_inventory (guige, count, danwei, type, status, in_man, in_man_id, in_time, order_id, remark,
                                  create_time, update_time)
         VALUES
@@ -32,8 +32,26 @@
                                  update_time = NOW();
     </insert>
 
+    <insert id="insertOrUpdateOut" parameterType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
+        INSERT INTO t_inventory (guige, count, danwei, type, status, out_man, out_man_id, out_time, order_id, remark,
+                                 create_time, update_time)
+        VALUES
+            (#{inventory.guige}, #{inventory.count}, #{inventory.danwei}, #{inventory.type},
+             #{inventory.status}, #{inventory.outMan}, #{inventory.outManId}, #{inventory.outTime}, #{inventory.orderId},
+             #{inventory.remark}, NOW(),  NOW())
+            ON DUPLICATE KEY UPDATE
+                                 count = VALUES(count),
+                                 danwei = VALUES(danwei),
+                                 guige = VALUES(guige),
+                                out_man = VALUES(out_man),
+                                    out_man_id = VALUES(out_man_id),
+                                    out_time = VALUES(out_time),
+                                 remark = VALUES(remark),
+                                 update_time = NOW();
+    </insert>
 
-    <update id="outUpdate" parameterType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
+
+    <update id="update" parameterType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
         UPDATE t_inventory
         SET
             status = #{inventory.status},
@@ -213,5 +231,13 @@
     <update id="updateDeleted">
         update t_inventory set deleted_flag = #{deletedFlag}
         where id = #{id}
+    </update>
+
+    <update id="batchUpdateStatus">
+        update t_inventory set status = #{status}
+        where id in
+        <foreach collection="idList" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
     </update>
 </mapper>

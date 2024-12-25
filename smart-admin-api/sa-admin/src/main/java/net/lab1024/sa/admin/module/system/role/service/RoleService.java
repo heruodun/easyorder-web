@@ -79,9 +79,12 @@ public class RoleService implements InitializingBean {
      */
     @Transactional(rollbackFor = Exception.class)
     public ResponseDTO<String> updateRole(RoleUpdateForm roleUpdateForm) {
-        if (null == roleDao.selectById(roleUpdateForm.getRoleId())) {
+        RoleEntity roleEntity = roleDao.selectById(roleUpdateForm.getRoleId());
+
+        if (null == roleEntity) {
             return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
         }
+
 
         RoleEntity existRoleEntity = roleDao.getByRoleName(roleUpdateForm.getRoleName());
         if (null != existRoleEntity && !existRoleEntity.getRoleId().equals(roleUpdateForm.getRoleId())) {
@@ -89,11 +92,16 @@ public class RoleService implements InitializingBean {
         }
 
         existRoleEntity = roleDao.getByRoleCode(roleUpdateForm.getRoleCode());
-        if (null != existRoleEntity) {
+        if (null != existRoleEntity && !existRoleEntity.getRoleId().equals(roleUpdateForm.getRoleId())) {
             return ResponseDTO.userErrorParam("角色编码重复，重复的角色为：" + existRoleEntity.getRoleName());
         }
 
-        RoleEntity roleEntity = SmartBeanUtil.copy(roleUpdateForm, RoleEntity.class);
+        roleEntity.setRoleCode(roleUpdateForm.getRoleCode());
+        roleEntity.setRoleName(roleUpdateForm.getRoleName());
+        roleEntity.setRoleType(roleUpdateForm.getRoleType());
+        roleEntity.setMenuIcon(roleUpdateForm.getMenuIcon());
+        roleEntity.setRemark(roleUpdateForm.getRemark());
+
         roleDao.updateById(roleEntity);
         roleMap.put(roleEntity.getRoleCode(), roleEntity);
         return ResponseDTO.ok();

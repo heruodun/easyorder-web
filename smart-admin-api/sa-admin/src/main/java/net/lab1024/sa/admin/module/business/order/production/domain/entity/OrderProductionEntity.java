@@ -36,11 +36,5 @@ public class OrderProductionEntity extends OrderEntity {
      */
     private Integer type;
 
-    /**
-     * 温度
-     */
-    private String temperature;
-
-
 
 }

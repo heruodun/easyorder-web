@@ -22,6 +22,16 @@ export const INVENTORY_TYPE_ENUM = {
     value: 5,
     desc: '盘带',
   },
+
+  WAICHNAG1: {
+    value: 6,
+    desc: '外厂1',
+  },
+
+  WAICHNAG2: {
+    value: 7,
+    desc: '外厂2',
+  },
 };
 
 export default {

@@ -4,7 +4,7 @@
 -->
 
 <template>
-  <a-form class="smart-query-form" v-privilege="'oa:notice:query'">
+  <a-form class="smart-query-form">
     <a-row class="smart-query-form-row">
       <a-form-item label="规格" class="smart-query-form-item">
         <a-input style="width: 150px" v-model:value="queryForm.guige" placeholder="请输入完整规格" />
@@ -39,7 +39,9 @@
 
   <a-card size="small" :bordered="false">
     <a-row class="smart-table-btn-block">
-      <div class="smart-table-operate-block"></div>
+      <div class="smart-table-operate-block">
+        <span style="color: yellowgreen; font-weight: bold">库存汇总</span>
+      </div>
 
       <div class="smart-table-setting-block">
         <TableOperator v-model="summaryTableColumns" :tableId="TABLE_ID_CONST.BUSINESS.INVENTORY.SUMMARY" :refresh="queryInventorySummary" />
@@ -92,12 +94,13 @@
   <a-card size="small" :bordered="false">
     <a-row class="smart-table-btn-block">
       <div class="smart-table-operate-block">
-        <a-button type="primary" size="small" @click="addOrUpdate()" v-privilege="'oa:notice:add'">
+        <!-- <a-button type="primary" size="small" @click="addOrUpdate()" v-privilege="'oa:notice:add'">
           <template #icon>
             <PlusOutlined />
           </template>
           新建
-        </a-button>
+        </a-button> -->
+        <span style="color: gray; font-weight: bold">库存明细</span>
       </div>
 
       <div class="smart-table-setting-block">
@@ -353,7 +356,7 @@
     Object.assign(queryForm, queryFormState);
     publishDate.value = [];
     createDate.value = [];
-    clearAddress();
+    queryForm.type = undefined;
     queryInventoryList();
   }
 
