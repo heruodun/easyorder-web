@@ -299,7 +299,7 @@
   ]);
 
   function getInventoryTypeDesc(type) {
-    const entry = Object.values(this.INVENTORY_TYPE_ENUM).find((item) => item.value === type);
+    const entry = Object.values(INVENTORY_TYPE_ENUM).find((item) => item.value === type);
     return entry ? entry.desc : '异常';
   }
 
