@@ -35,13 +35,12 @@ public class OrderUtil {
 
             // 提取$前面的子字符串
             String numberStr = str.substring(0, index);
-//            String qrVersion = str.substring(index + 1);
-
-
-                // 将字符串转为数字（订单 ID）
-                Long orderId = Long.parseLong(numberStr);
-                orderTypeAndIdVO.setOrderId(orderId);
-                orderTypeAndIdVO.setOrderType(OrderTypeEnum.FACTORY_ONE_SALES);
+//
+            OrderTypeEnum orderTypeEnum = getOrderType(numberStr);
+// 将字符串转为数字（订单 ID）
+            Long orderId = Long.parseLong(numberStr);
+            orderTypeAndIdVO.setOrderId(orderId);
+            orderTypeAndIdVO.setOrderType(orderTypeEnum);
 
             return orderTypeAndIdVO;
 
@@ -74,10 +73,10 @@ public class OrderUtil {
             }
         } catch (Exception e) {
             log.error("getOrderType error, str: {}", orderId, e);
-            return null;
+            return OrderTypeEnum.FACTORY_ONE_SALES;
         }
 
-        return null; // 找不到匹配的枚举
+        return OrderTypeEnum.FACTORY_ONE_SALES; // 找不到匹配的枚举
     }
 
 }

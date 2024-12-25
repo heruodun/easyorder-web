@@ -60,18 +60,17 @@ public class OrderScanService {
             if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_SALES)) {
                 return orderSalesService.scanOrder(orderScanForm, orderInfo);
             } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BUCKET)) {
-                orderProductionService.scanOrder(orderScanForm, orderInfo);
+                return orderProductionService.scanOrder(orderScanForm, orderInfo);
             } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BOX)) {
-                orderProductionService.scanOrder(orderScanForm, orderInfo);
+                return orderProductionService.scanOrder(orderScanForm, orderInfo);
             } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BAG)) {
-                orderProductionService.scanOrder(orderScanForm, orderInfo);
+                return orderProductionService.scanOrder(orderScanForm, orderInfo);
             } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_DISK)) {
-                orderProductionService.scanOrder(orderScanForm, orderInfo);
+                return orderProductionService.scanOrder(orderScanForm, orderInfo);
             } else {
                 return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "二厂订单号暂不支持~");
             }
         }
-        return ResponseDTO.ok();
     }
 
 

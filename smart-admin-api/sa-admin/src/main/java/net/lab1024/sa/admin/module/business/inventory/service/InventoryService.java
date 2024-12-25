@@ -62,46 +62,50 @@ public class InventoryService {
      * @return
      */
     public void updateInventory(LocalDateTime now, RequestUser operator, String operation, Integer type,
-                               OrderProductionEntity orderProductionEntity){
-        poolExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                if(operation == null || !InventoryOperationEnum.operationCodeSet.contains(operation)){
-                    log.warn("operator= {}, operation = {} not invalid inventory operation", operator, operation);
-                    return;
-                }
+                                OrderProductionEntity orderProductionEntity){
+//        poolExecutor.submit(new Runnable() {
+//            @Override
+//            public void run() {
+        if(operation == null || !InventoryOperationEnum.operationCodeSet.contains(operation)){
+            log.warn("operator= {}, operation = {} not invalid inventory operation", operator, operation);
+            return;
+        }
 
-                int status = InventoryOperationEnum.getStatus(operation, type);
-                if(status == -1){
-                    log.warn("operator= {}, operation = {}, type = {} not invalid inventory operation", operator,
-                            operation, type);
-                    return;
-                }
+        int status = InventoryOperationEnum.getStatus(operation, type);
+        if(status == -1){
+            log.warn("operator= {}, operation = {}, type = {} not invalid inventory operation", operator,
+                    operation, type);
+            return;
+        }
 
-                InventoryEntity inventory = new InventoryEntity();
-                inventory.setOrderId(orderProductionEntity.getOrderId());
-                inventory.setType(type);
-                inventory.setStatus(status);
-                inventory.setCreateTime(now);
-                inventory.setUpdateTime(now);
-                inventory.setGuige(orderProductionEntity.getGuige());
-                inventory.setCount(orderProductionEntity.getCount());
-                inventory.setDanwei(orderProductionEntity.getDanwei());
-                inventory.setRemark(orderProductionEntity.getRemark());
-                if(status == IN) {
-                    inventory.setInMan(operator.getUserName());
-                    inventory.setInManId(Math.toIntExact(operator.getUserId()));
-                    inventory.setInTime(now);
-                    inventoryDao.inUpdate(inventory);
-                }
-                else {
-                    inventory.setOutMan(operator.getUserName());
-                    inventory.setOutManId(Math.toIntExact(operator.getUserId()));
-                    inventory.setOutTime(now);
-                    inventoryDao.outUpdate(inventory);
-                }
+        InventoryEntity inventory = new InventoryEntity();
+        inventory.setOrderId(orderProductionEntity.getOrderId());
+        inventory.setType(type);
+        inventory.setStatus(status);
+        inventory.setCreateTime(now);
+        inventory.setUpdateTime(now);
+        inventory.setGuige(orderProductionEntity.getGuige());
+        inventory.setCount(orderProductionEntity.getCount());
+        inventory.setDanwei(orderProductionEntity.getDanwei());
+        inventory.setRemark(orderProductionEntity.getRemark());
+        if(status == IN) {
+            inventory.setInMan(operator.getUserName());
+            inventory.setInManId(Math.toIntExact(operator.getUserId()));
+            inventory.setInTime(now);
+            int rowCount = inventoryDao.inUpdate(inventory);
+            if(rowCount == 0){
+                log.warn("operator= {}, operation = {}, type = {}, orderId = {} not found orderProduction",
+                        operator, operation, type, orderProductionEntity.getOrderId());
             }
-        });
+        }
+        else {
+            inventory.setOutMan(operator.getUserName());
+            inventory.setOutManId(Math.toIntExact(operator.getUserId()));
+            inventory.setOutTime(now);
+            inventoryDao.outUpdate(inventory);
+        }
+//            }
+//        });
 
     }
 

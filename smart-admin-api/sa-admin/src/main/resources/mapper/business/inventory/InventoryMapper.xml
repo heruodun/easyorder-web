@@ -12,31 +12,39 @@
     type,order_id
     -->
     <!--    in的时候 可以是插入也可以是更新 可能存在多次入库动作-->
+
+
     <insert id="inUpdate" parameterType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
-        INSERT INTO t_inventory
-        (guige, count, danwei, detail, type, status, in_man, in_man_id, in_time, order_id)
+        INSERT INTO t_inventory (guige, count, danwei, type, status, in_man, in_man_id, in_time, order_id, remark,
+                                 create_time, update_time)
         VALUES
-            (#{guige}, #{count}, #{danwei}, #{detail}, #{type}, #{status}, #{inMan},#{inManId}, #{inTime}, #{orderId})
+            (#{inventory.guige}, #{inventory.count}, #{inventory.danwei}, #{inventory.type},
+             #{inventory.status}, #{inventory.inMan}, #{inventory.inManId}, #{inventory.inTime}, #{inventory.orderId},
+             #{inventory.remark}, NOW(),  NOW())
             ON DUPLICATE KEY UPDATE
                                  count = VALUES(count),
                                  danwei = VALUES(danwei),
-                                 detail = VALUES(detail),
                                  guige = VALUES(guige),
-                                 in_man = VALUES(inMan),
-                                 in_man_id = VALUES(inManId),
-                                 in_time = VALUES(inTime)
+                                 in_man = VALUES(in_man),
+                                 in_man_id = VALUES(in_man_id),
+                                 in_time = VALUES(in_time),
+                                 remark = VALUES(remark),
+                                 update_time = NOW();
     </insert>
 
-    <update id="outInventory" parameterType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
+
+    <update id="outUpdate" parameterType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
         UPDATE t_inventory
         SET
-            status = #{status},
-            out_man = #{outMan},
-            out_time = #{outTime},
-            out_man_id = #{outManId},
-            WHERE
-                `type` = #{type} AND
-                `order_id` = #{orderId}
+            status = #{inventory.status},
+            out_man = #{inventory.outMan},
+            out_time = #{inventory.outTime},
+            out_man_id = #{inventory.outManId},
+            update_time = NOW()
+
+        WHERE
+            `type` = #{inventory.type} AND
+            `order_id` = #{inventory.orderId}
     </update>
 
     <select id="querySummaryPage" resultType="net.lab1024.sa.admin.module.business.inventory.domain.vo.InventorySummaryVO">
