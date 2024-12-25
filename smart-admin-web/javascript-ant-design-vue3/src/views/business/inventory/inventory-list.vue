@@ -60,7 +60,12 @@
     >
       <template #bodyCell="{ column, record, text }">
         <template v-if="column.dataIndex === 'type'">
-          <span style="color: blue; font-weight: bold">{{ getInventoryTypeDesc(record.type) }}</span>
+          <a-tag color="success">
+            <template #icon>
+              <check-circle-outlined />
+            </template>
+            {{ $smartEnumPlugin.getDescByValue('INVENTORY_TYPE_ENUM', text) }}
+          </a-tag>
         </template>
 
         <template v-else-if="column.dataIndex === 'guige'">
@@ -124,7 +129,12 @@
         </template>
 
         <template v-else-if="column.dataIndex === 'type'">
-          <span style="color: blue; font-weight: bold">{{ getInventoryTypeDesc(record.type) }}</span>
+          <a-tag color="success">
+            <template #icon>
+              <check-circle-outlined />
+            </template>
+            {{ $smartEnumPlugin.getDescByValue('INVENTORY_TYPE_ENUM', text) }}
+          </a-tag>
         </template>
 
         <template v-else-if="column.dataIndex === 'status'">
