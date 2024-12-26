@@ -53,7 +53,7 @@ public enum InventoryOperationEnum {
     /**
      * 烫带入库框子
      */
-    PANDAI_IN_BOX("pandai", IN, 3),
+    TANGDAI_IN_BOX("tangdai", IN, 3),
 
     /**
      * 盘带出库框子
@@ -91,6 +91,11 @@ public enum InventoryOperationEnum {
      * 配货 出库摇摆包
      */
     PEIHUO_OUT_BAG("peihuo", OUT, 4),
+
+    /**
+     * 对接 出库摇摆包
+     */
+    DUIJIE_OUT_BAG("duijie", OUT, 4),
 
     /**
      * 盘带 出库摇摆包

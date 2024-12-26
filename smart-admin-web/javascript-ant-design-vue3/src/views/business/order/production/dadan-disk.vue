@@ -48,17 +48,17 @@
   import { useUserStore } from '/@/store/modules/system/user';
   import { now } from 'lodash';
   import { orderApi } from '../../../../api/business/order/order-api';
-  import { printT1 } from '/@/lib/smart-print.js';
+  import { printProductionBox } from '/@/lib/smart-print.js';
   const formRef = ref(); // Create a reference to the form
   import { printProductionBucket } from '/@/lib/smart-print.js';
 
-  function orderPrint(time, orderId, orderIdStr) {
+  function orderPrint(orderId, orderIdStr) {
     let printData = {
       orderid: orderId,
       qrcodestr: orderIdStr,
       remark: formData.remark,
       count: '1 盘',
-      guige: `${formData.guige}`,
+      guige: formData.guige,
     };
     // 打印
     printProductionBox(printData);
@@ -107,10 +107,9 @@
         console.log(response);
 
         if (response.code == 0) {
-          const createTime = response.data.createTime;
           const orderId = response.data.orderId;
           const qrCode = response.data.qrCode;
-          orderPrint(createTime, orderId, qrCode);
+          orderPrint(orderId, qrCode);
           message.info(`打印成功: ${orderId}`);
           console.log(`打印成功: ${orderId}`);
         } else {

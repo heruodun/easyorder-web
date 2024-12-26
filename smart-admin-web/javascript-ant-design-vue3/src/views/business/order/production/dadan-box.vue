@@ -14,7 +14,12 @@
     <a-row :gutter="16">
       <a-col :span="8">
         <a-form-item name="guige" label="规格" :rules="[{ required: true, message: '请输入规格' }]">
-          <a-input v-model:value="formData.guige" placeholder="请输入规格" />
+          <a-input v-model:value="formData.guige" placeholder="规格" />
+        </a-form-item>
+      </a-col>
+      <a-col :span="8">
+        <a-form-item name="temperature" label="温度" :rules="[{ required: true, message: '请输入温度' }]">
+          <a-input-number v-model:value="formData.temperature" placeholder="温度" />
         </a-form-item>
       </a-col>
     </a-row>
@@ -23,13 +28,7 @@
       <a-col :span="8">
         <a-form-item name="printCount" label="打印数量" :rules="[{ required: true, message: '请输入规格' }]">
           <!-- todo 判断下数量，一次性不能打印超过多少 -->
-          <a-input-number v-model:value="formData.printCount" :min="1" placeholder="请输入打印数量" />
-        </a-form-item>
-      </a-col>
-
-      <a-col :span="8">
-        <a-form-item name="remark" label="备注">
-          <a-input v-model:value="formData.remark" placeholder="请输入备注" />
+          <a-input-number v-model:value="formData.printCount" :min="1" placeholder="打印数量" />
         </a-form-item>
       </a-col>
     </a-row>
@@ -57,9 +56,9 @@
     let printData = {
       orderid: orderId,
       qrcodestr: orderIdStr,
-      remark: formData.remark,
+      remark: formData.temperature + '°',
       count: '1 框',
-      guige: `${formData.guige}`,
+      guige: formData.guige,
     };
     // 打印
     printProductionBox(printData);
@@ -67,14 +66,14 @@
 
   const formData = reactive({
     guige: '',
-    remark: '',
+    temperature: '',
     workerNo: '',
     printCount: undefined,
   });
 
   function resetForm() {
     formData.guige = '';
-    formData.remark = '';
+    formData.temperature = '';
     formData.workerNo = '';
     formData.printCount = undefined;
   }
@@ -97,7 +96,7 @@
       }
 
       let payload = {
-        remark: formData.remark,
+        remark: formData.temperature,
         guige: formData.guige,
         count: 1,
         danwei: '框',
