@@ -66,7 +66,7 @@
       qrcodestr: orderIdStr,
       remark: formData.temperature + '°',
       count: '1 包',
-      guige: formData.spec,
+      guige: formData.guige,
     };
     // 打印
     printProductionBox(printData);
