@@ -210,11 +210,11 @@ public enum InventoryOperationEnum {
                     list.add(PEIHUOWAI2_IN_WANICHANG);
                 }
 
-                if(inventoryOperationEnum.getOperationCode().equals("chuhuo1")){
+                if(inventoryOperationEnum.getOperationCode().equals("chuhuowai1")){
                     list.add(CHUHUOWAI1_OUT_WAICHANG);
                 }
 
-                if(inventoryOperationEnum.getOperationCode().equals("chuhuo2")){
+                if(inventoryOperationEnum.getOperationCode().equals("chuhuowai2")){
                     list.add(CHUHUOWAI2_OUT_WAICHANG);
                 }
 
