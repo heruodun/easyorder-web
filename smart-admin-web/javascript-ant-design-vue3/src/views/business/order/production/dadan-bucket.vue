@@ -59,7 +59,7 @@
       qrcodestr: orderIdStr,
       qrcodestr1: orderIdStr,
       remark: formData.remark,
-      count: '1 桶',
+      count: '桶',
       guige: `${formData.guige}`,
     };
     // 打印
