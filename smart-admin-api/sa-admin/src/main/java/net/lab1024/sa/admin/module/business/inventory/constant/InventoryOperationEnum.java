@@ -199,26 +199,25 @@ public enum InventoryOperationEnum {
             if(inventoryOperationEnum.getOperationCode().equals(operationCode)
                     && inventoryOperationEnum.getType() == type){
                 list.add(inventoryOperationEnum);
-
-                // 配货外1 配货外2 均入库 外厂1 外厂2；出货1 出货2 均出库 外厂1 外厂2
-
-                if(inventoryOperationEnum.getOperationCode().equals("peihuowai1")){
-                    list.add(PEIHUOWAI1_IN_WANICHANG);
-                }
-
-                if(inventoryOperationEnum.getOperationCode().equals("peihuowai2")){
-                    list.add(PEIHUOWAI2_IN_WANICHANG);
-                }
-
-                if(inventoryOperationEnum.getOperationCode().equals("chuhuowai1")){
-                    list.add(CHUHUOWAI1_OUT_WAICHANG);
-                }
-
-                if(inventoryOperationEnum.getOperationCode().equals("chuhuowai2")){
-                    list.add(CHUHUOWAI2_OUT_WAICHANG);
-                }
-
             }
+
+        }
+
+        // 配货外1 配货外2 均入库 外厂1 外厂2；出货1 出货2 均出库 外厂1 外厂2
+        if(operationCode.equals("peihuowai1")){
+            list.add(PEIHUOWAI1_IN_WANICHANG);
+        }
+
+        if(operationCode.equals("peihuowai2")){
+            list.add(PEIHUOWAI2_IN_WANICHANG);
+        }
+
+        if(operationCode.equals("chuhuowai1")){
+            list.add(CHUHUOWAI1_OUT_WAICHANG);
+        }
+
+        if(operationCode.equals("chuhuowai2")){
+            list.add(CHUHUOWAI2_OUT_WAICHANG);
         }
         return list;
     }
