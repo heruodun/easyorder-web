@@ -39,4 +39,9 @@ export const orderApi = {
   queryProductionById(id) {
     return getRequest(`/orderProduction/queryById/${id}`);
   },
+
+  // 生产单查询
+  queryProductionByOrderId(orderId) {
+    return getRequest(`/orderProduction/queryByOrderId/${orderId}`);
+  },
 };

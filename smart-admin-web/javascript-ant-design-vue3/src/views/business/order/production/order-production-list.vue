@@ -64,7 +64,7 @@
     >
       <template #bodyCell="{ column, record, text }">
         <template v-if="column.dataIndex === 'orderId'">
-          <a @click="toDetail(record.id)">{{ text }}</a>
+          <a @click="toDetail(record.orderId)">{{ text }}</a>
         </template>
 
         <template v-else-if="column.dataIndex === 'curStatus'">
@@ -330,10 +330,10 @@
 
   // 进入详情
   const router = useRouter();
-  function toDetail(id) {
+  function toDetail(orderId) {
     router.push({
       path: '/order/production/order-detail',
-      query: { id },
+      query: { orderId },
     });
   }
 </script>

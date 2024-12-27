@@ -1,5 +1,6 @@
 <!--
   * 枚举 下拉框
+   @deselect="handleChange"
   * 
   * @Author:    1024创新实验室-主任：卓大 
   * @Date:      2022-08-08 20:32:30 
@@ -17,7 +18,6 @@
     :allowClear="true"
     :size="size"
     @change="handleChange"
-    @deselect="handleChange"
     :disabled="disabled"
   >
     <a-select-option v-for="item in $smartEnumPlugin.getValueDescList(props.enumName)" :key="item.value" :value="item.value">
@@ -31,7 +31,7 @@
 
   const props = defineProps({
     enumName: String,
-    value: [Number,String],
+    value: [Number, String],
     width: {
       type: String,
       default: '100%',
@@ -57,11 +57,13 @@
   watch(
     () => props.value,
     (newValue) => {
+      console.log(newValue + ' watch');
       selectValue.value = newValue;
     }
   );
 
   function handleChange(value) {
+    console.log(value + ' handle');
     emit('update:value', value);
     emit('change', value);
   }

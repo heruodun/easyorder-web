@@ -155,7 +155,7 @@ public enum InventoryOperationEnum {
     CHUHUOWAI2_OUT_WAICHANG("chuhuowai2", OUT, 7),
 
     /**
-     * 配货外2 入库 外厂库存
+     * 配货外2 入库 外厂2库存
      */
     PEIHUOWAI2_IN_WANICHANG("peihuowai2", IN, 7),
 
@@ -186,6 +186,13 @@ public enum InventoryOperationEnum {
         }
     }
 
+    /**
+     * 使用订单类型 和 库存类型 进行匹配 获取出入库类型
+     * @param operationCode
+     * @param type
+     * @return
+     */
+
     public static List<InventoryOperationEnum> getInventoryOperation(String operationCode, Integer type){
         List<InventoryOperationEnum> list = new ArrayList<>();
         for(InventoryOperationEnum inventoryOperationEnum : InventoryOperationEnum.values()){
@@ -193,12 +200,22 @@ public enum InventoryOperationEnum {
                     && inventoryOperationEnum.getType() == type){
                 list.add(inventoryOperationEnum);
 
+                // 配货外1 配货外2 均入库 外厂1 外厂2；出货1 出货2 均出库 外厂1 外厂2
+
                 if(inventoryOperationEnum.getOperationCode().equals("peihuowai1")){
                     list.add(PEIHUOWAI1_IN_WANICHANG);
                 }
 
                 if(inventoryOperationEnum.getOperationCode().equals("peihuowai2")){
                     list.add(PEIHUOWAI2_IN_WANICHANG);
+                }
+
+                if(inventoryOperationEnum.getOperationCode().equals("chuhuo1")){
+                    list.add(CHUHUOWAI1_OUT_WAICHANG);
+                }
+
+                if(inventoryOperationEnum.getOperationCode().equals("chuhuo2")){
+                    list.add(CHUHUOWAI2_OUT_WAICHANG);
                 }
 
             }

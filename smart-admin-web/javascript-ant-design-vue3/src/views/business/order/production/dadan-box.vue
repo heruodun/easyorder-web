@@ -56,8 +56,10 @@
     let printData = {
       orderid: orderId,
       qrcodestr: orderIdStr,
+      orderid2: orderId,
+      qrcodestr2: orderIdStr,
       remark: formData.temperature + '°',
-      count: '1 框',
+      count: '框',
       guige: formData.guige,
     };
     // 打印

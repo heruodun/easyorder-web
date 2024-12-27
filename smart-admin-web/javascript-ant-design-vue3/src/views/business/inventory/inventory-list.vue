@@ -4,29 +4,26 @@
 -->
 
 <template>
+  <!-- 库存汇总 -->
   <a-form class="smart-query-form">
     <a-row class="smart-query-form-row">
       <a-form-item label="规格" class="smart-query-form-item">
-        <a-input style="width: 150px" v-model:value="queryForm.guige" placeholder="请输入完整规格" />
+        <a-input style="width: 150px" v-model:value="summaryQueryForm.guige" placeholder="请输入完整规格" />
       </a-form-item>
 
       <a-form-item label="类型" class="smart-query-form-item">
-        <SmartEnumSelect width="120px" v-model:value="queryForm.type" placeholder="请选择类型" enum-name="INVENTORY_TYPE_ENUM" />
-      </a-form-item>
-
-      <a-form-item label="入库时间" class="smart-query-form-item">
-        <a-range-picker v-model:value="createDate" :presets="defaultTimeRanges" @change="createDateChange" style="width: 250px" />
+        <SmartEnumSelect width="120px" v-model:value="summaryQueryForm.type" placeholder="请选择类型" enum-name="INVENTORY_TYPE_ENUM" />
       </a-form-item>
 
       <a-form-item class="smart-query-form-item smart-margin-left10">
         <a-button-group>
-          <a-button type="primary" @click="onSearch" class="smart-margin-right10">
+          <a-button type="primary" @click="onSearchSummary" class="smart-margin-right10">
             <template #icon>
               <SearchOutlined />
             </template>
             查询
           </a-button>
-          <a-button @click="onReload">
+          <a-button @click="onReloadSummary">
             <template #icon>
               <ReloadOutlined />
             </template>
@@ -60,10 +57,27 @@
     >
       <template #bodyCell="{ column, record, text }">
         <template v-if="column.dataIndex === 'type'">
-          <a-tag color="success">
+          <a-tag
+            :color="
+              record.type === 2
+                ? 'green'
+                : record.type === 3
+                ? 'brown'
+                : record.type === 4
+                ? 'red'
+                : record.type === 5
+                ? 'purple'
+                : record.type === 6
+                ? 'indigo'
+                : record.type === 7
+                ? 'blue'
+                : 'black'
+            "
+          >
             <template #icon>
-              <check-circle-outlined />
+              <component :is="getIconByType(record.type)" />
             </template>
+
             {{ $smartEnumPlugin.getDescByValue('INVENTORY_TYPE_ENUM', text) }}
           </a-tag>
         </template>
@@ -85,16 +99,51 @@
         showQuickJumper
         show-less-items
         :pageSizeOptions="PAGE_SIZE_OPTIONS"
-        :defaultPageSize="queryForm.pageSize"
-        v-model:current="queryForm.pageNum"
-        v-model:pageSize="queryForm.pageSize"
-        :total="total"
-        @change="queryInventoryList"
-        @showSizeChange="queryInventoryList"
+        :defaultPageSize="summaryQueryForm.pageSize"
+        v-model:current="summaryQueryForm.pageNum"
+        v-model:pageSize="summaryQueryForm.pageSize"
+        :total="summaryTotal"
+        @change="queryInventorySummary"
+        @showSizeChange="queryInventorySummary"
         :show-total="(total) => `共${total}条`"
       />
     </div>
   </a-card>
+
+  <!-- 库存明细 -->
+
+  <a-form class="smart-query-form">
+    <a-row class="smart-query-form-row">
+      <a-form-item label="规格" class="smart-query-form-item">
+        <a-input style="width: 150px" v-model:value="detailQueryForm.guige" placeholder="请输入完整规格" />
+      </a-form-item>
+
+      <a-form-item label="类型" class="smart-query-form-item">
+        <SmartEnumSelect width="120px" v-model:value="detailQueryForm.type" placeholder="请选择类型" enum-name="INVENTORY_TYPE_ENUM" />
+      </a-form-item>
+
+      <a-form-item label="入库时间" class="smart-query-form-item">
+        <a-range-picker v-model:value="createDate" :presets="defaultTimeRanges" @change="createDateChange" style="width: 250px" />
+      </a-form-item>
+
+      <a-form-item class="smart-query-form-item smart-margin-left10">
+        <a-button-group>
+          <a-button type="primary" @click="onSearchDetail" class="smart-margin-right10">
+            <template #icon>
+              <SearchOutlined />
+            </template>
+            查询
+          </a-button>
+          <a-button @click="onReloadDetail">
+            <template #icon>
+              <ReloadOutlined />
+            </template>
+            重置
+          </a-button>
+        </a-button-group>
+      </a-form-item>
+    </a-row>
+  </a-form>
 
   <a-card size="small" :bordered="false">
     <a-row class="smart-table-btn-block">
@@ -125,14 +174,31 @@
     >
       <template #bodyCell="{ column, record, text }">
         <template v-if="column.dataIndex === 'orderId'">
-          <a @click="toDetail(record.id)">{{ text }}</a>
+          <a @click="toDetail(record.orderId)">{{ text }}</a>
         </template>
 
         <template v-else-if="column.dataIndex === 'type'">
-          <a-tag color="success">
+          <a-tag
+            :color="
+              record.type === 2
+                ? 'green'
+                : record.type === 3
+                ? 'brown'
+                : record.type === 4
+                ? 'red'
+                : record.type === 5
+                ? 'purple'
+                : record.type === 6
+                ? 'indigo'
+                : record.type === 7
+                ? 'blue'
+                : 'black'
+            "
+          >
             <template #icon>
-              <check-circle-outlined />
+              <component :is="getIconByType(record.type)" />
             </template>
+
             {{ $smartEnumPlugin.getDescByValue('INVENTORY_TYPE_ENUM', text) }}
           </a-tag>
         </template>
@@ -167,10 +233,10 @@
         showQuickJumper
         show-less-items
         :pageSizeOptions="PAGE_SIZE_OPTIONS"
-        :defaultPageSize="queryForm.pageSize"
-        v-model:current="queryForm.pageNum"
-        v-model:pageSize="queryForm.pageSize"
-        :total="total"
+        :defaultPageSize="detailQueryForm.pageSize"
+        v-model:current="detailQueryForm.pageNum"
+        v-model:pageSize="detailQueryForm.pageSize"
+        :total="detailTotal"
         @change="queryInventoryList"
         @showSizeChange="queryInventoryList"
         :show-total="(total) => `共${total}条`"
@@ -192,8 +258,10 @@
   import { TABLE_ID_CONST } from '/@/constants/support/table-id-const';
   import { INVENTORY_TYPE_ENUM } from '/@/constants/business/inventory/inventory-const';
   import SmartEnumSelect from '/@/components/framework/smart-enum-select/index.vue';
+  import { RestOutlined, AppstoreOutlined, ChromeOutlined, NodeIndexOutlined, SendOutlined } from '@ant-design/icons-vue'; // 导入你所需要的图标
 
-  const queryFormState = {
+  // 为汇总表格和明细表格创建独立的分页状态
+  const summaryQueryState = {
     type: undefined, //分类
     guige: undefined, //地址关键词
     status: undefined, //状态
@@ -202,21 +270,36 @@
     createTimeEnd: null, //创建-截止时间
     pageNum: 1,
     pageSize: PAGE_SIZE,
+    // 这里可以加入其他查询参数，保持一致性
   };
-  const queryForm = reactive({ ...queryFormState });
+
+  const detailQueryFormState = {
+    type: undefined, //分类
+    guige: undefined, //地址关键词
+    status: undefined, //状态
+    deletedFlag: undefined, //删除标识
+    createTimeBegin: null, //创建-开始时间
+    createTimeEnd: null, //创建-截止时间
+    pageNum: 1,
+    pageSize: PAGE_SIZE,
+    // 这里可以加入其他查询参数，保持一致性
+  };
+
+  const summaryQueryForm = reactive({ ...summaryQueryState });
+  const detailQueryForm = reactive({ ...detailQueryFormState });
 
   //dataIndex 和 http response的消息体的key相同
   const tableColumns = ref([
     {
       title: `编号`,
       dataIndex: 'id',
-      width: 60,
+      width: 40,
       ellipsis: true,
     },
     {
       title: `订单编号`,
       dataIndex: 'orderId',
-      width: 130,
+      width: 90,
       ellipsis: true,
     },
     //白桶
@@ -238,7 +321,7 @@
     {
       title: `库存数量`,
       dataIndex: 'content',
-      width: 60,
+      width: 40,
       ellipsis: true,
     },
     {
@@ -251,7 +334,7 @@
     {
       title: `出入库状态`,
       dataIndex: 'status',
-      width: 60,
+      width: 50,
       ellipsis: true,
     },
 
@@ -263,7 +346,7 @@
     {
       title: '入库人',
       dataIndex: 'inMan',
-      width: 70,
+      width: 40,
     },
     {
       title: '出库时间',
@@ -273,7 +356,7 @@
     {
       title: '出库人',
       dataIndex: 'outMan',
-      width: 70,
+      width: 40,
     },
 
     {
@@ -308,16 +391,30 @@
     },
   ]);
 
-  function getInventoryTypeDesc(type) {
-    const entry = Object.values(INVENTORY_TYPE_ENUM).find((item) => item.value === type);
-    return entry ? entry.desc : '异常';
+  function getIconByType(type) {
+    switch (type) {
+      case 2:
+        return RestOutlined;
+      case 3:
+        return AppstoreOutlined;
+      case 4:
+        return ChromeOutlined;
+      case 5:
+        return NodeIndexOutlined; // 替换为自定义图标
+      case 6:
+        return SendOutlined; // 替换为自定义图标
+      case 7:
+        return SendOutlined; // 替换为自定义图标
+      default:
+        return NodeIndexOutlined; // 替换为默认图标
+    }
   }
-
   // ------------------ 查询相关 ------------------
 
   const summaryTableData = ref([]);
   const tableData = ref([]);
-  const total = ref(0);
+  const summaryTotal = ref(0);
+  const detailTotal = ref(0);
   const tableLoading = ref(false);
   const summaryTableLoading = ref(false);
 
@@ -330,9 +427,9 @@
   async function queryInventorySummary() {
     try {
       summaryTableLoading.value = true;
-      const result = await inventoryApi.querySummary(queryForm);
+      const result = await inventoryApi.querySummary(summaryQueryForm);
       summaryTableData.value = result.data.list;
-      total.value = result.data.total;
+      summaryTotal.value = result.data.total;
     } catch (err) {
       smartSentry.captureError(err);
     } finally {
@@ -344,9 +441,9 @@
   async function queryInventoryList() {
     try {
       tableLoading.value = true;
-      const result = await inventoryApi.queryPage(queryForm);
+      const result = await inventoryApi.queryPage(detailQueryForm);
       tableData.value = result.data.list;
-      total.value = result.data.total;
+      detailTotal.value = result.data.total;
     } catch (err) {
       smartSentry.captureError(err);
     } finally {
@@ -355,32 +452,35 @@
   }
 
   // 点击查询
-  function onSearch() {
-    queryForm.pageNum = 1;
+  function onSearchDetail() {
+    detailQueryForm.pageNum = 1;
     queryInventoryList();
+  }
+
+  // 点击重置
+  function onReloadDetail() {
+    Object.assign(detailQueryForm, detailQueryFormState);
+    createDate.value = [];
+    queryInventoryList();
+  }
+
+  // 点击查询
+  function onSearchSummary() {
+    summaryQueryForm.pageNum = 1;
     queryInventorySummary();
   }
 
   // 点击重置
-  function onReload() {
-    Object.assign(queryForm, queryFormState);
-    publishDate.value = [];
-    createDate.value = [];
-    queryForm.type = undefined;
-    queryInventoryList();
+  function onReloadSummary() {
+    Object.assign(summaryQueryForm, summaryQueryState);
+    queryInventorySummary();
   }
 
-  // 发布日期选择
-  const publishDate = ref([]);
-  function publishDateChange(dates, dateStrings) {
-    queryForm.publishTimeBegin = dateStrings[0];
-    queryForm.publishTimeEnd = dateStrings[1];
-  }
-  // 创建日期选择
+  // 入库日期选择
   const createDate = ref([]);
   function createDateChange(dates, dateStrings) {
-    queryForm.createTimeBegin = dateStrings[0];
-    queryForm.createTimeEnd = dateStrings[1];
+    detailQueryForm.createTimeBegin = dateStrings[0];
+    detailQueryForm.createTimeEnd = dateStrings[1];
   }
 
   // ------------------ 新建、编辑 ------------------
@@ -422,10 +522,10 @@
 
   // 进入详情
   const router = useRouter();
-  function toDetail(id) {
+  function toDetail(orderId) {
     router.push({
       path: '/order/production/order-detail',
-      query: { id },
+      query: { orderId },
     });
   }
 </script>

@@ -47,6 +47,16 @@ public class OrderProductionController {
     }
 
     @Operation(summary = "查询订单详情 @author dahang")
+    @GetMapping("/orderProduction/queryByOrderId/{orderId}")
+    public ResponseDTO<OrderProductionVO> queryByOrderId(@PathVariable Long orderId) {
+        OrderProductionEntity orderProductionEntity = orderProductionService.getByOrderId(orderId);
+        if(orderProductionEntity == null){
+            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
+        }
+        return  ResponseDTO.ok(SmartBeanUtil.copy(orderProductionEntity, OrderProductionVO.class));
+    }
+
+    @Operation(summary = "查询订单详情 @author dahang")
     @GetMapping("/orderProduction/queryById/{id}")
     public ResponseDTO<OrderProductionVO> queryById(@PathVariable Long id) {
 

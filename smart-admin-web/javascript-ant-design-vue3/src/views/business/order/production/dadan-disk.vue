@@ -56,8 +56,10 @@
     let printData = {
       orderid: orderId,
       qrcodestr: orderIdStr,
+      orderid2: orderId,
+      qrcodestr2: orderIdStr,
       remark: formData.remark,
-      count: '1 盘',
+      count: '盘',
       guige: formData.guige,
     };
     // 打印

@@ -93,7 +93,7 @@
   const orderDetail = ref({});
 
   onMounted(() => {
-    if (route.query.id) {
+    if (route.query.orderId) {
       queryOrderDetail();
     }
   });
@@ -102,7 +102,7 @@
   async function queryOrderDetail() {
     try {
       SmartLoading.show();
-      const result = await orderApi.queryProductionById(route.query.id);
+      const result = await orderApi.queryProductionByOrderId(route.query.orderId);
       orderDetail.value = result.data;
     } catch (err) {
       smartSentry.captureError(err);

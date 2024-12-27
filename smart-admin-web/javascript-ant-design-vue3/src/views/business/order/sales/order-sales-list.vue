@@ -22,11 +22,10 @@
         <AddressSelect ref="addressSelect" placeholder="请输入地址" width="250px" v-model:value="queryForm.address" />
       </a-form-item>
 
-
       <a-form-item label="规格" class="smart-query-form-item">
         <a-input style="width: 150px" v-model:value="queryForm.guige" placeholder="请输入完整规格" />
       </a-form-item>
- <!--
+      <!--
       <a-form-item label="创建人" class="smart-query-form-item">
         <a-input style="width: 100px" v-model:value="queryForm.createUserId" placeholder="创建人" />
       </a-form-item>
@@ -334,7 +333,7 @@
     Object.assign(queryForm, queryFormState);
     publishDate.value = [];
     createDate.value = [];
-    clearAddress();
+    // clearAddress();
     queryOrderSalesList();
   }
 

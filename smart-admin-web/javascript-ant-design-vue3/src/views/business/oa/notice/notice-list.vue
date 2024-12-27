@@ -23,16 +23,9 @@
         <a-input style="width: 300px" v-model:value="queryForm.keywords" placeholder="请输入地址关键词" />
       </a-form-item> -->
 
-      <a-form-item
-        name="address"
-        label="地址"
-        class="smart-query-form-item">
-      <AddressSelect ref="addressSelect"
-                     placeholder="请输入地址"
-                     width="250px"
-                     v-model:value="queryForm.keywords" 
-                     />
-    </a-form-item>
+      <a-form-item name="address" label="地址" class="smart-query-form-item">
+        <AddressSelect ref="addressSelect" placeholder="请输入地址" width="250px" v-model:value="queryForm.keywords" />
+      </a-form-item>
 
       <!-- <a-form-item label="文号" class="smart-query-form-item">
         <a-input style="width: 150px" v-model:value="queryForm.documentNumber" placeholder="文号" />
@@ -106,35 +99,50 @@
         <template v-else-if="column.dataIndex === 'publishFlag'">
           {{ text ? '已发布' : '待发布' }}
         </template>
-        
-      <template v-else-if="column.dataIndex === 'cur_status'">
-        <a-tag 
-        :color="record.cur_status === '打单' ? 'red' : 
-                record.cur_status === '对接' ? 'purple' :
-                record.cur_status === '配货' ? 'yellow' :
-                record.cur_status === '拣货' ? 'blue' :
-                record.cur_status === '送货' ? 'green' : 'black'">
-          {{ record.cur_status }}
-        </a-tag>
-      </template>
 
-      <template v-else-if="column.dataIndex === 'order_trace'">
-          <div v-for="(item, index) in record.order_trace_arr" :key="index" >
-            <a-tag 
-            :color="item.cur_status === '打单' ? 'red' : 
-                    item.cur_status === '对接' ? 'purple' :
-                    item.cur_status === '配货' ? 'yellow' :
-                    item.cur_status === '拣货' ? 'blue' :
-                    item.cur_status === '送货' ? 'green' : 'black'">
+        <template v-else-if="column.dataIndex === 'cur_status'">
+          <a-tag
+            :color="
+              record.cur_status === '打单'
+                ? 'red'
+                : record.cur_status === '对接'
+                ? 'purple'
+                : record.cur_status === '配货'
+                ? 'yellow'
+                : record.cur_status === '拣货'
+                ? 'blue'
+                : record.cur_status === '送货'
+                ? 'green'
+                : 'black'
+            "
+          >
+            {{ record.cur_status }}
+          </a-tag>
+        </template>
+
+        <template v-else-if="column.dataIndex === 'order_trace'">
+          <div v-for="(item, index) in record.order_trace_arr" :key="index">
+            <a-tag
+              :color="
+                item.cur_status === '打单'
+                  ? 'red'
+                  : item.cur_status === '对接'
+                  ? 'purple'
+                  : item.cur_status === '配货'
+                  ? 'yellow'
+                  : item.cur_status === '拣货'
+                  ? 'blue'
+                  : item.cur_status === '送货'
+                  ? 'green'
+                  : 'black'
+              "
+            >
               {{ item.cur_status }}
             </a-tag>
-              
-              {{ item.person }}: {{ item.time }}
-            
+
+            {{ item.person }}: {{ item.time }}
           </div>
-
-    </template>
-
+        </template>
 
         <template v-else-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
@@ -181,7 +189,7 @@
 
   const queryFormState = {
     noticeTypeId: undefined, //分类
-    keywords: '', //标题、作者、来源
+    keywords: undefined, //标题、作者、来源
     documentNumber: '', //文号
     createUserId: undefined, //创建人
     deletedFlag: undefined, //删除标识
@@ -247,7 +255,7 @@
       dataIndex: 'order_trace',
       width: 230,
     },
-    
+
     {
       title: '打单时间',
       dataIndex: 'print_time',
@@ -258,13 +266,12 @@
       dataIndex: 'printer',
       width: 70,
     },
- 
+
     {
       title: '更新时间',
       dataIndex: 'update_time',
       width: 90,
     },
- 
   ]);
 
   // ------------------ 通知分类 ------------------
