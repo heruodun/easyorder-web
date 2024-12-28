@@ -35,6 +35,8 @@ public interface InventoryDao extends BaseMapper<InventoryEntity> {
     List<InventoryEntity> queryPage(@Param("queryForm") InventoryQueryForm queryForm,
                                           @Param("limit") int limit, @Param("offset") int offset);
 
+    InventoryEntity queryByTypeAndOrderId( @Param("type") int type, @Param("orderId") long orderId);
+
     int querySize(@Param("queryForm") InventoryQueryForm queryForm);
 
     /**
@@ -50,7 +52,9 @@ public interface InventoryDao extends BaseMapper<InventoryEntity> {
 
     int insertOrUpdateOut(@Param("inventory")InventoryEntity inventory);
 
-    int update(@Param("inventory")InventoryEntity inventory);
+    int updateIn(@Param("inventory")InventoryEntity inventory);
+
+    int updateOut(@Param("inventory")InventoryEntity inventory);
 
     List<InventorySummaryVO> querySummaryPage(@Param("queryForm") InventorySummaryQueryForm queryForm,
                                               @Param("limit") int limit, @Param("offset") int offset);

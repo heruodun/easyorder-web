@@ -60,10 +60,11 @@
   import { printProductionBucket } from '/@/lib/smart-print.js';
 
   function orderPrint(time, orderId, orderIdStr) {
-    const userStore = useUserStore(); // 使用你的 store
     let printData = {
       orderid: orderId,
       qrcodestr: orderIdStr,
+      orderid2: orderId,
+      qrcodestr2: orderIdStr,
       remark: formData.temperature + '°',
       count: '包',
       guige: formData.guige,
@@ -102,7 +103,7 @@
       }
 
       let payload = {
-        remark: formData.temperature,
+        remark: '温度' + formData.temperature + '°',
         guige: formData.guige,
         count: 1,
         danwei: '包',

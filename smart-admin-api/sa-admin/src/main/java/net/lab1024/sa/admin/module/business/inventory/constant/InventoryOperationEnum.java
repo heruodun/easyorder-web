@@ -21,7 +21,6 @@ import static net.lab1024.sa.admin.module.business.inventory.constant.InventoryU
 public enum InventoryOperationEnum {
 
 
-
 //    ------------------------------------白桶---------------------------------------------
     /**
      * 技术入库白桶
@@ -98,6 +97,11 @@ public enum InventoryOperationEnum {
     DUIJIE_OUT_BAG("duijie", OUT, 4),
 
     /**
+     * 烫带 出库摇摆包
+     */
+    TANGDAI_OUT_BAG("tangdai", OUT, 4),
+
+    /**
      * 盘带 出库摇摆包
      */
     PANDAI_OUT_BAG("pandai", OUT, 4),
@@ -118,6 +122,11 @@ public enum InventoryOperationEnum {
      * 盘带入库盘装
      */
     PANDAI_IN_DISK("pandai", IN, 5),
+
+    /**
+     * 对接 出库盘装
+     */
+    DUIJIE_OUT_DISK("duijie", OUT, 5),
 
     /**
      * 配货出库盘装

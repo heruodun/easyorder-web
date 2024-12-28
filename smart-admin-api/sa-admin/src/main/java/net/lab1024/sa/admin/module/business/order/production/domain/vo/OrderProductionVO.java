@@ -37,6 +37,9 @@ public class OrderProductionVO {
     @Schema(description = "明细")
     private String detail;
 
+    @Schema(description = "备注")
+    private String remark;
+
     @Schema(description = "轨迹")
     private List<TraceElementEntity> trace;
 

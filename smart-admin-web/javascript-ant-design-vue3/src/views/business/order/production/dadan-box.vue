@@ -98,7 +98,7 @@
       }
 
       let payload = {
-        remark: formData.temperature,
+        remark: '温度' + formData.temperature + '°',
         guige: formData.guige,
         count: 1,
         danwei: '框',

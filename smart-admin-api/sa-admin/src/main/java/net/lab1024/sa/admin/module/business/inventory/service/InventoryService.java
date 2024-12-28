@@ -84,34 +84,61 @@ public class InventoryService {
             int status = inventoryOperationEnum.getStatus();
             int inventoryType = inventoryOperationEnum.getType();
 
-            InventoryEntity inventory = new InventoryEntity();
-            inventory.setOrderId(orderProductionEntity.getOrderId());
-            inventory.setType(inventoryType);
-            inventory.setStatus(status);
-            inventory.setCreateTime(now);
-            inventory.setUpdateTime(now);
-            inventory.setGuige(orderProductionEntity.getGuige());
-            inventory.setCount(orderProductionEntity.getCount());
-            inventory.setDanwei(orderProductionEntity.getDanwei());
-            inventory.setRemark(orderProductionEntity.getRemark());
-            int rowCount;
-            if (status == IN) {
-                inventory.setInMan(operator.getUserName());
-                inventory.setInManId(Math.toIntExact(operator.getUserId()));
-                inventory.setInTime(now);
-                rowCount = inventoryDao.insertOrUpdateIn(inventory);
+            InventoryEntity inventory = inventoryDao.queryByTypeAndOrderId(inventoryType, orderProductionEntity.getOrderId());
 
-            } else {
-                inventory.setOutMan(operator.getUserName());
-                inventory.setOutManId(Math.toIntExact(operator.getUserId()));
-                inventory.setOutTime(now);
-                rowCount = inventoryDao.insertOrUpdateOut(inventory);
+            int rowCount;
+            //insert
+            if(inventory == null){
+                inventory = new InventoryEntity();
+                inventory.setOrderId(orderProductionEntity.getOrderId());
+                inventory.setType(inventoryType);
+                inventory.setStatus(status);
+                inventory.setCreateTime(now);
+                inventory.setUpdateTime(now);
+                inventory.setGuige(orderProductionEntity.getGuige());
+                inventory.setCount(orderProductionEntity.getCount());
+                inventory.setDanwei(orderProductionEntity.getDanwei());
+                inventory.setRemark(orderProductionEntity.getRemark());
+
+                if (status == IN) {
+                    inventory.setInMan(operator.getUserName());
+                    inventory.setInManId(Math.toIntExact(operator.getUserId()));
+                    inventory.setInTime(now);
+                    rowCount = inventoryDao.insertOrUpdateIn(inventory);
+
+                } else {
+                    inventory.setOutMan(operator.getUserName());
+                    inventory.setOutManId(Math.toIntExact(operator.getUserId()));
+                    inventory.setOutTime(now);
+                    rowCount = inventoryDao.insertOrUpdateOut(inventory);
+                }
+            }
+            //update
+            else {
+
+                inventory.setStatus(status);
+                inventory.setUpdateTime(now);
+
+                if (status == IN) {
+                    inventory.setInMan(operator.getUserName());
+                    inventory.setInManId(Math.toIntExact(operator.getUserId()));
+                    inventory.setInTime(now);
+                    rowCount = inventoryDao.updateIn(inventory);
+
+                } else {
+                    inventory.setOutMan(operator.getUserName());
+                    inventory.setOutManId(Math.toIntExact(operator.getUserId()));
+                    inventory.setOutTime(now);
+                    rowCount = inventoryDao.updateOut(inventory);
+                }
             }
 
             if (rowCount == 0) {
                 log.warn("operator= {}, operation = {}, type = {}, orderId = {} ",
                         operator, operation, inventoryType, orderProductionEntity.getOrderId());
             }
+
+
         }
 //            }
 //        });

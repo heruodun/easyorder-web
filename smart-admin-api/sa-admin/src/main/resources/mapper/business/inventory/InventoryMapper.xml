@@ -56,18 +56,30 @@
 
 
 
-    <update id="update" parameterType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
+    <update id="updateIn" parameterType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
         UPDATE t_inventory
         SET
             status = #{inventory.status},
-            out_man = #{inventory.outMan},
-            out_time = #{inventory.outTime},
-            out_man_id = #{inventory.outManId},
-            update_time = NOW()
-
+            in_man = #{inventory.inMan},
+            in_time = #{inventory.inTime},
+            in_man_id = #{inventory.inManId},
+            update_time = #{inventory.updateTime}
         WHERE
             `type` = #{inventory.type} AND
             `order_id` = #{inventory.orderId}
+    </update>
+
+    <update id="updateOut" parameterType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
+        UPDATE t_inventory
+        SET
+        status = #{inventory.status},
+        out_man = #{inventory.outMan},
+        out_time = #{inventory.outTime},
+        out_man_id = #{inventory.outManId},
+        update_time =  #{inventory.updateTime}
+        WHERE
+        `type` = #{inventory.type} AND
+        `order_id` = #{inventory.orderId}
     </update>
 
     <select id="querySummaryPage" resultType="net.lab1024.sa.admin.module.business.inventory.domain.vo.InventorySummaryVO">
@@ -222,6 +234,11 @@
         </where>
     </select>
 
+
+    <select id="queryByTypeAndOrderId" resultType="net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity">
+        SELECT * FROM t_inventory
+        WHERE type = #{type} AND order_id = #{orderId}
+    </select>
 
 
 

@@ -35,9 +35,9 @@ public class OrderProductionAddForm {
     private Integer type;
 
     /**
-     * 温度
+     * 备注 温度
      */
-    private String temperature;
+    private String remark;
 
     /**
      * 打单个数
