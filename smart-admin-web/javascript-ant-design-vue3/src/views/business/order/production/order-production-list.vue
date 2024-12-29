@@ -94,7 +94,7 @@
           ：
           <span style="color: red; font-weight: bold">{{ record.count }}</span>
           {{ record.danwei }}
-          <span v-if="record.remark !== ''" style="color: grey; font-style: italic">备注：{{ record.remark }}</span>
+          <span v-if="record.remark && record.remark !== ''" style="color: grey; font-style: italic">备注：{{ record.remark }}</span>
         </template>
 
         <template v-else-if="column.dataIndex === 'trace'">

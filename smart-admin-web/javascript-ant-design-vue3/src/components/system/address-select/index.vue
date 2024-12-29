@@ -3,7 +3,7 @@
 -->
 <template>
   <a-auto-complete
-    v-model="selectAddress"
+    :value="selectAddress"
     :options="options"
     :style="`width: ${width}`"
     :placeholder="props.placeholder"

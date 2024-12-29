@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import com.alibaba.fastjson2.JSONArray;
+import net.lab1024.sa.admin.module.business.address.service.AddressService;
 import net.lab1024.sa.admin.module.business.inventory.dao.InventoryDao;
 import net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity;
 import net.lab1024.sa.admin.module.business.order.constant.OrderTypeEnum;
@@ -41,7 +42,6 @@ import net.lab1024.sa.base.module.support.serialnumber.constant.SerialNumberIdEn
 import net.lab1024.sa.base.module.support.serialnumber.service.SerialNumberService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.util.Strings;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,6 +68,8 @@ public class OrderSalesService {
     private RoleService roleService;
     @Resource
     private SerialNumberService serialNumberService;
+    @Resource
+    private AddressService addressService;
 
 
     public OrderSalesEntity getByOrderId(Long orderId) {
@@ -307,10 +309,9 @@ public class OrderSalesService {
      */
     @Transactional(rollbackFor = Exception.class)
     public ResponseDTO<OrderSalesAddVO> add(OrderSalesAddForm addForm) {
-        //todo 条数校验
         List<OrderGuigeEntity> orderGuigeEntityList = addForm.getGuiges();
         if(CollectionUtils.isEmpty(orderGuigeEntityList)){
-            return ResponseDTO.error(OrderErrorCode.PARAM_ERROR,"无规格");
+            return ResponseDTO.error(OrderErrorCode.PARAM_ERROR,"无规格~");
         }
 
         for(OrderGuigeEntity orderGuigeEntity: orderGuigeEntityList){
@@ -319,19 +320,19 @@ public class OrderSalesService {
             if("条".equals(danwei)){
                 List<OrderTiaoEntity> tiaos = orderGuigeEntity.getTiaos();
                 if(CollectionUtils.isEmpty(tiaos)){
-                    return ResponseDTO.error(OrderErrorCode.PARAM_ERROR,"无条数");
+                    return ResponseDTO.error(OrderErrorCode.PARAM_ERROR,"无条数~");
                 }
                 int count = 0;
                 for(OrderTiaoEntity orderTiaoEntity: tiaos){
                     String length = orderTiaoEntity.getLength();
                     Integer count1 = orderTiaoEntity.getCount();
                     if(length == null || count1 == null){
-                        return ResponseDTO.error(OrderErrorCode.PARAM_ERROR, "长度或数量为空");
+                        return ResponseDTO.error(OrderErrorCode.PARAM_ERROR, "长度或数量为空~");
                     }
                     count += count1;
                 }
                 if(count != totalCount){
-                    return ResponseDTO.error(OrderErrorCode.PARAM_ERROR,"长度或数量不对");
+                    return ResponseDTO.error(OrderErrorCode.PARAM_ERROR,"长度或数量不对~");
                 }
 
             }
@@ -350,6 +351,12 @@ public class OrderSalesService {
         //订单号
         Long orderId = Long.valueOf(serialNumberService.generate(SerialNumberIdEnum.SALES_ORDER, 1).get(0));
         orderSalesEntity.setOrderId(orderId);
+        //address
+        Long addressId = addressService.getAddressId(addForm.getAddress());
+        if(addressId == null){
+            return ResponseDTO.error(OrderErrorCode.PARAM_ERROR,"地址未添加到地址库~");
+        }
+        orderSalesEntity.setAddressId(Math.toIntExact(addressId));
         orderSalesEntity.setCurStatus("打单");
         orderSalesEntity.setCurOperator(requestUser.getUserName());
         orderSalesEntity.setCurOperatorId(requestUser.getUserId());

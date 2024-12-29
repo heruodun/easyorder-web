@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -49,7 +50,7 @@ public class AddressService implements InitializingBean {
     @Resource
     private DictCacheService dictCacheService;
 
-    private Set addressSet = new HashSet();
+    private ConcurrentHashMap<String, Long> addressMap = new ConcurrentHashMap();
 
     /**
      * 添加地址
@@ -64,7 +65,7 @@ public class AddressService implements InitializingBean {
         addressEntity.setDeletedFlag(Boolean.FALSE);
         addressDao.insert(addressEntity);
         dataTracerService.insert(addressEntity.getAddressId(), DataTracerTypeEnum.ADDRESS);
-        addressSet.add(addressEntity.getPlace());
+        addressMap.put(addressEntity.getPlace(), addressEntity.getAddressId());
         return ResponseDTO.ok();
     }
 
@@ -77,8 +78,8 @@ public class AddressService implements InitializingBean {
         AddressEntity addressEntity = SmartBeanUtil.copy(updateForm, AddressEntity.class);
         addressDao.updateById(addressEntity);
         dataTracerService.update(updateForm.getAddressId(), DataTracerTypeEnum.ADDRESS, originEntity, addressEntity);
-        addressSet.remove(originEntity.getPlace());
-        addressSet.add(addressEntity.getPlace());
+        addressMap.remove(originEntity.getPlace());
+        addressMap.put(addressEntity.getPlace(), addressEntity.getAddressId());
         return ResponseDTO.ok();
     }
 
@@ -109,7 +110,7 @@ public class AddressService implements InitializingBean {
 
         batchDelete(Collections.singletonList(goodsId));
         dataTracerService.batchDelete(Collections.singletonList(goodsId), DataTracerTypeEnum.ADDRESS);
-        addressSet.remove(addressEntity.getPlace());
+        addressMap.remove(addressEntity.getPlace());
         return ResponseDTO.ok();
     }
 
@@ -140,8 +141,12 @@ public class AddressService implements InitializingBean {
 
 
     public Set<String> fquery(String keyword){
-        Set<String> set = SmartSearchUtil.search(keyword, addressSet);
+        Set<String> set = SmartSearchUtil.search(keyword, addressMap.keySet());
         return set;
+    }
+
+    public Long getAddressId(String place){
+        return addressMap.get(place);
     }
 
 
@@ -149,7 +154,7 @@ public class AddressService implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         List<AddressEntity> list = addressDao.selectByMap(new HashMap<>());
         for(AddressEntity entity:list){
-            addressSet.add(entity.getPlace());
+            addressMap.put(entity.getPlace(), entity.getAddressId());
         }
     }
 
