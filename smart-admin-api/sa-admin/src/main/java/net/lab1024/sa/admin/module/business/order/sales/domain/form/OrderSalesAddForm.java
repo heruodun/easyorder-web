@@ -20,7 +20,7 @@ import net.lab1024.sa.admin.module.business.order.domain.entity.OrderGuigeEntity
 public class OrderSalesAddForm {
 
     @Schema(description = "地址", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "地址 不能为空")
+    @NotBlank(message = "地址不能为空~")
     private String address;
 
     @Schema(description = "地址id", requiredMode = Schema.RequiredMode.NOT_REQUIRED)

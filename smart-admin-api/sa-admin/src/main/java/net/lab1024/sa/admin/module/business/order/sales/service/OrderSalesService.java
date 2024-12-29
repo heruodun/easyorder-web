@@ -344,6 +344,7 @@ public class OrderSalesService {
             orderGuigeEntity.setGuige(orderGuigeEntity.getGuige().toUpperCase().trim());
         }
 
+        addForm.setAddress(addForm.getAddress().trim());
 
         RequestUser requestUser = SmartRequestUtil.getRequestUser();
         OrderSalesEntity orderSalesEntity = SmartBeanUtil.copy(addForm, OrderSalesEntity.class);
