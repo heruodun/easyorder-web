@@ -66,6 +66,11 @@ public class OrderSalesVO {
     @Schema(description = "波次编号")
     private Integer waveId;
 
+    /**
+     * 删除标记
+     */
+    private Boolean deletedFlag;
+
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
 

@@ -4,12 +4,19 @@
 -->
 <template>
   <a-card style="margin-bottom: 15px; padding: 15px" :title="orderDetail.id">
-    <template #extra>
+    <template #extra v-if="orderDetail.deletedFlag === false">
       <a-button type="primary" size="big" @click="onDelete(orderDetail.id)" v-privilege="'oa:notice:delete'" danger> 删除 </a-button>
     </template>
 
+    <template #extra v-if="orderDetail.deletedFlag === true">
+      <span style="color: red"> 已删除 </span>
+    </template>
+
     <a-descriptions :column="2" size="middle" bordered>
-      <a-descriptions-item label="订单编号" span="1">{{ orderDetail.orderId }}</a-descriptions-item>
+      <a-descriptions-item label="订单编号" span="1">
+        {{ orderDetail.orderId }}
+      </a-descriptions-item>
+
       <a-descriptions-item label="地址" span="2">{{ orderDetail.address }}</a-descriptions-item>
       <a-descriptions-item v-if="orderDetail.guiges && orderDetail.guiges.length > 0" label="货物" span="2">
         <div v-for="(item, index) in orderDetail.guiges" :key="index">
@@ -136,14 +143,12 @@
   // 删除API
   async function deleteOrder(id) {
     try {
-      tableLoading.value = true;
-      await orderApi.deleteOrder(id);
+      await orderApi.deleteSales(id);
       message.success('删除成功');
       queryOrderDetail();
     } catch (err) {
       smartSentry.captureError(err);
     } finally {
-      tableLoading.value = false;
     }
   }
 

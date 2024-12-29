@@ -75,7 +75,7 @@ public class OrderSalesController {
 
     @Operation(summary = "单个删除 @author dahang")
     @GetMapping("/orderSales/delete/{id}")
-    public ResponseDTO<String> batchDelete(@PathVariable Long id) {
+    public ResponseDTO<String> delete(@PathVariable Long id) {
         return orderSalesService.delete(id);
     }
 }

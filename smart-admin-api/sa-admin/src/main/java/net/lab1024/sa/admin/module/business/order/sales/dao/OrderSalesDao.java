@@ -40,7 +40,7 @@ public interface OrderSalesDao extends BaseMapper<OrderSalesEntity> {
     /**
      * 更新删除状态
      */
-    long updateDeleted(@Param("id")Long id,@Param("${deletedFlag}")boolean deletedFlag);
+    long updateDeleted(@Param("id")Long id,@Param("deletedFlag")boolean deletedFlag);
     /**
      * 批量更新删除状态
      */

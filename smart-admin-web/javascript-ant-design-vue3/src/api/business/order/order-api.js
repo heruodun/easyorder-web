@@ -25,6 +25,11 @@ export const orderApi = {
     return postRequest('/orderSales/queryPage', param);
   },
 
+  //删除销售单
+  deleteSales(id) {
+    return getRequest(`/orderSales/delete/${id}`);
+  },
+
   // 销售单查询
   querySalesById(id) {
     return getRequest(`/orderSales/queryById/${id}`);
