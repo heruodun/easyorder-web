@@ -22,6 +22,7 @@ import net.lab1024.sa.base.module.support.datatracer.service.DataTracerService;
 import net.lab1024.sa.base.module.support.dict.service.DictCacheService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
@@ -156,6 +157,11 @@ public class AddressService implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        refresh();
+    }
+
+    @Scheduled(fixedRate = 60000)
+    public void refresh(){
         List<AddressEntity> list = addressDao.selectByMap(new HashMap<>());
         for(AddressEntity entity:list){
             addressMap.put(entity.getPlace().trim(), entity.getAddressId());
