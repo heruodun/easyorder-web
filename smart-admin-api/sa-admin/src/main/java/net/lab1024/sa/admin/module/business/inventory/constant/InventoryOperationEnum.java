@@ -22,10 +22,13 @@ public enum InventoryOperationEnum {
 
 
 //    ------------------------------------白桶---------------------------------------------
+
+//    JISHU_IN_BUCKET("jishu", IN, 2),
+
     /**
-     * 技术入库白桶
+     * 拉货入库白桶
      */
-    JISHU_IN_BUCKET("jishu", IN, 2),
+    LAHUO_IN_BUCKET("lahuo", IN, 2),
 
     /**
      * 烫带出库白桶
