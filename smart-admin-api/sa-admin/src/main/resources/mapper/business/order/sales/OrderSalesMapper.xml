@@ -43,30 +43,13 @@
         FROM t_order_sales
         <where>
 
-            <if test="queryForm.address != null and queryForm.address != ''">
-                and address like concat('%',#{queryForm.address},'%')
+            <if test="queryForm.addressId != null">
+                and address_id = #{queryForm.addressId}
             </if>
 
             <if test="queryForm.guige != null and queryForm.guige != ''">
                 and guiges like concat('%',#{queryForm.guige},'%')
             </if>
-
-<!--            <if test="queryForm.addressId != null">-->
-<!--                and address_id = #{queryForm.addressId}-->
-<!--            </if>-->
-<!--            <if test="queryForm.detail != null">-->
-<!--                and detail = #{queryForm.detail}-->
-<!--            </if>-->
-<!--            <if test="queryForm.curStatus != null">-->
-<!--                and cur_status = #{queryForm.curStatus}-->
-<!--            </if>-->
-<!--            <if test="queryForm.curOperator != null">-->
-<!--                and cur_operator = #{queryForm.curOperator}-->
-<!--            </if>-->
-
-<!--            <if test="queryForm.waveId != null">-->
-<!--                and wave_id = #{queryForm.waveId}-->
-<!--            </if>-->
 
             <if test="queryForm.createTimeBegin != null">
                 AND DATE_FORMAT(create_time, '%Y-%m-%d') >= #{queryForm.createTimeBegin}
@@ -87,8 +70,8 @@
         FROM t_order_sales
         <where>
 
-            <if test="queryForm.address != null and queryForm.address != ''">
-                and address like concat('%',#{queryForm.address},'%')
+            <if test="queryForm.addressId != null">
+                and address_id = #{queryForm.addressId}
             </if>
 
             <if test="queryForm.guige != null and queryForm.guige != ''">
@@ -102,12 +85,7 @@
             <if test="queryForm.createTimeEnd != null">
                 AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;= #{queryForm.createTimeEnd}
             </if>
-<!--            <if test="queryForm.addressId != null">-->
-<!--                and address_id = #{queryForm.addressId}-->
-<!--            </if>-->
-<!--            <if test="queryForm.detail != null">-->
-<!--                and detail = #{queryForm.detail}-->
-<!--            </if>-->
+
         </where>
     </select>
 
@@ -144,6 +122,14 @@
         id = #{id}
     </update>
 
+
+    <update id="updateAddressId" parameterType="map">
+        UPDATE t_order_sales
+        SET
+        address_id = #{addressId}
+        WHERE
+        id = #{id}
+    </update>
 
 
     <update id="updateDeleted">

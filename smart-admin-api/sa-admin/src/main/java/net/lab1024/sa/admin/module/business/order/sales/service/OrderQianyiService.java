@@ -3,6 +3,7 @@ package net.lab1024.sa.admin.module.business.order.sales.service;
 import com.alibaba.fastjson2.JSONObject;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import net.lab1024.sa.admin.module.business.address.service.AddressService;
 import net.lab1024.sa.admin.module.business.order.constant.OrderTypeEnum;
 import net.lab1024.sa.admin.module.business.order.constant.OrderUtil;
 import net.lab1024.sa.admin.module.business.order.constant.QrTypeEnum;
@@ -46,6 +47,8 @@ public class OrderQianyiService {
     private OrderSalesDao orderSalesDao;
     @Resource
     private OrderSalesService orderSalesService;
+    @Resource
+    private AddressService addressService;
 
 
     /**
@@ -224,6 +227,24 @@ public class OrderQianyiService {
         }
 
         return traceList;
+    }
+
+    public ResponseDTO<Long> runAddress() {
+        long i;
+        for (i = 1; i <= 100000; i++) {
+            OrderSalesEntity orderSalesEntity = orderSalesDao.selectById(i);
+            if (orderSalesEntity != null) {
+                String place = orderSalesEntity.getAddress();
+                if (place != null) {
+                    Long addressId = addressService.getAddressId(place);
+                    if (addressId != null) {
+                        orderSalesDao.updateAddressId(Math.toIntExact(addressId), orderSalesEntity.getId());
+                    }
+                }
+
+            }
+        }
+        return ResponseDTO.ok(i);
     }
 
     public ResponseDTO<Boolean> run() {

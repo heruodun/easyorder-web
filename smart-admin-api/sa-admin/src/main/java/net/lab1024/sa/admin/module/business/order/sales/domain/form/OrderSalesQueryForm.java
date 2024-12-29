@@ -20,6 +20,9 @@ public class OrderSalesQueryForm extends PageParam{
     @Schema(description = "地址")
     private String address;
 
+    @Schema(description = "地址编号")
+    private Integer addressId;
+
     @Schema(description = "规格")
     private String guige;
 

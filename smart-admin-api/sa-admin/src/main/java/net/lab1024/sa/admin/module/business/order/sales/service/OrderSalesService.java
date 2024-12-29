@@ -41,6 +41,7 @@ import net.lab1024.sa.base.common.util.SmartRequestUtil;
 import net.lab1024.sa.base.module.support.serialnumber.constant.SerialNumberIdEnum;
 import net.lab1024.sa.base.module.support.serialnumber.service.SerialNumberService;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -296,6 +297,18 @@ public class OrderSalesService {
         if(queryForm.getGuige() != null) {
             queryForm.setGuige(queryForm.getGuige().toUpperCase().trim());
         }
+
+        String place = queryForm.getAddress();
+        if(StringUtils.isNotBlank(place)){
+            Long addressId = addressService.getAddressId(place.trim());
+            if(addressId == null) {
+                //无地址id 默认-1
+                addressId = -1L;
+            }
+
+            queryForm.setAddressId(Math.toIntExact(addressId));
+        }
+
         List<OrderSalesEntity>  orderSalesEntities = orderSalesDao.queryPage(queryForm, limit, offset);
         List<OrderSalesVO> list = SmartBeanUtil.copyList(orderSalesEntities, OrderSalesVO.class);
         int count = orderSalesDao.querySize(queryForm);

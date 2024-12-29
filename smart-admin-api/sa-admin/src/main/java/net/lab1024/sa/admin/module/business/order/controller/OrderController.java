@@ -48,7 +48,11 @@ public class OrderController {
         return   orderQianyiService.run();
     }
 
-
+    @NoNeedLogin
+    @GetMapping("/app/order/qianyiaddress")
+    public ResponseDTO<Long> qianyiAddress() {
+        return   orderQianyiService.runAddress();
+    }
 
 
 }

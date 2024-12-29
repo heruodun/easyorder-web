@@ -65,5 +65,7 @@ public interface OrderSalesDao extends BaseMapper<OrderSalesEntity> {
 
     List<OrderSalesEntity> queryByWaveIds(@Param("waveIds") int[] waveIds);
 
+    int updateAddressId(@Param("addressId") Integer addressId, @Param("id") Long id);
+
 
 }

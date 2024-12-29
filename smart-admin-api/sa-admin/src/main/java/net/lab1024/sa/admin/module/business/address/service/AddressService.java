@@ -57,6 +57,7 @@ public class AddressService implements InitializingBean {
      */
     @Transactional(rollbackFor = Exception.class)
     public ResponseDTO<String> add(AddressAddForm addForm) {
+        addForm.setPlace(addForm.getPlace().trim());
         ResponseDTO<String> res = this.checkAddress(addForm);
         if (!res.getOk()) {
             return res;
@@ -75,6 +76,9 @@ public class AddressService implements InitializingBean {
     @Transactional(rollbackFor = Exception.class)
     public ResponseDTO<String> update(AddressUpdateForm updateForm) {
         AddressEntity originEntity = addressDao.selectById(updateForm.getAddressId());
+        if(updateForm.getPlace()!=null){
+            updateForm.setPlace(updateForm.getPlace().trim());
+        }
         AddressEntity addressEntity = SmartBeanUtil.copy(updateForm, AddressEntity.class);
         addressDao.updateById(addressEntity);
         dataTracerService.update(updateForm.getAddressId(), DataTracerTypeEnum.ADDRESS, originEntity, addressEntity);
@@ -154,7 +158,7 @@ public class AddressService implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         List<AddressEntity> list = addressDao.selectByMap(new HashMap<>());
         for(AddressEntity entity:list){
-            addressMap.put(entity.getPlace(), entity.getAddressId());
+            addressMap.put(entity.getPlace().trim(), entity.getAddressId());
         }
     }
 
