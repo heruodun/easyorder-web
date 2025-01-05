@@ -85,6 +85,7 @@
       :loading="tableLoading"
       size="small"
       bordered
+      :rowClassName="(record) => (record.deletedFlag ? 'row-deleted' : '')"
     >
       <template #bodyCell="{ column, record, text }">
         <template v-if="column.dataIndex === 'orderId'">
@@ -397,4 +398,11 @@
   }
 </script>
 
-<style lang="less" scoped></style>
+<style>
+  .row-deleted {
+    background-color: #f5f5f5; /* 设置灰色背景 */
+    color: #999999; /* 设置字体颜色为灰色 */
+    font-style: oblique;
+    text-decoration: line-through;
+  }
+</style>
