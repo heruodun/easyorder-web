@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.lab1024.sa.admin.module.business.order.task.dao.SubTaskDao">
+
+
+    <select id="queryByOrderId" resultType="net.lab1024.sa.admin.module.business.order.task.domain.entity.SubTaskEntity">
+        SELECT * FROM t_order_sub_task
+        WHERE order_id = #{orderId} AND deleted_flag = 0
+    </select>
+
+    <update id="updateSubTask">
+        UPDATE sub_task
+        SET task_id = #{taskId},
+        count = #{count},
+        WHERE order_id = #{orderId} AND user_id = #{userId} AND mark = #{mark}
+    </update>
+
+    <select id="findSubTask" parameterType="map" resultType="net.lab1024.sa.admin.module.business.order.task.domain.entity.SubTaskEntity">
+        SELECT * FROM sub_task
+        WHERE order_id = #{orderId} AND user_id = #{userId} AND mark = #{mark}
+        LIMIT 1
+    </select>
+
+    <!-- 更新 deletedFlag -->
+    <update id="updateDeletedFlag" >
+        UPDATE t_order_sub_task
+        SET deleted_flag = 1
+        WHERE order_id = #{orderId} AND mark = #{mark}
+    </update>
+
+    <!-- 更新 deletedFlag -->
+    <update id="updateDeletedFlagByType" >
+        UPDATE t_order_sub_task
+        SET deleted_flag = 1
+        WHERE order_id = #{orderId} AND type = #{type}
+    </update>
+
+    <update id="updateStatus" >
+        UPDATE t_order_sub_task
+        SET status = #{status}
+        WHERE order_id = #{orderId} AND user_id = #{userId}
+    </update>
+
+    <!-- 批量插入子任务 -->
+    <insert id="batchInsertSubTasks" parameterType="java.util.List">
+        INSERT INTO t_order_sub_task (task_id, user_id, order_id, user_name, mark, count, status, type
+        , deleted_flag)
+        VALUES
+        <foreach collection="subTasks" item="subTask" separator=",">
+            (#{subTask.taskId}, #{subTask.userId}, #{subTask.orderId}, #{subTask.userName}, #{subTask.mark}, #{subTask.count},
+            #{subTask.status}, #{subTask.type}, 0)
+        </foreach>
+    </insert>
+
+</mapper>

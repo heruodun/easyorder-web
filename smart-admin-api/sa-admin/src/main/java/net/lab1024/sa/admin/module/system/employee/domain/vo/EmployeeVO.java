@@ -55,4 +55,7 @@ public class EmployeeVO {
 
     @Schema(description = "角色名称列表")
     private List<String> roleNameList;
+
+    @Schema(description = "token")
+    private String token = "";
 }

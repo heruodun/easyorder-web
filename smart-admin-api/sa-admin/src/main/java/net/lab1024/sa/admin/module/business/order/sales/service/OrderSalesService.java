@@ -24,6 +24,8 @@ import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesAddV
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesVO;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveAddressVO;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveDetailVO;
+import net.lab1024.sa.admin.module.business.order.task.constant.TaskStatusEnum;
+import net.lab1024.sa.admin.module.business.order.task.service.TaskService;
 import net.lab1024.sa.admin.module.business.user.dao.UserOperationDao;
 import net.lab1024.sa.admin.module.business.user.domain.entity.UserOperationEntity;
 import net.lab1024.sa.admin.module.business.user.service.UserOperationService;
@@ -71,6 +73,8 @@ public class OrderSalesService {
     private SerialNumberService serialNumberService;
     @Resource
     private AddressService addressService;
+    @Resource
+    private TaskService taskService;
 
 
     public OrderSalesEntity getByOrderId(Long orderId) {
@@ -101,12 +105,15 @@ public class OrderSalesService {
         else {
             LocalDateTime now = LocalDateTime.now();
             RoleEntity curRole = roleService.getRoleByRoleCode(orderScanForm.getOperation());
-            int updateCount = updateOrderAndUserOperation(now, operator, curRole.getRoleName(), null, orderSalesEntity);
-            //todo update updateInventory
-//            int updateInventory = updateInventory(now, operator, orderScanForm.getOperation(), orderSalesEntity);
+            int updateCount = updateOrderAndUserOperation(now, operator, curRole.getRoleName(),  null, orderSalesEntity);
+
 
             if (updateCount <= 0) {
                 return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "扫码失败，请重试~");
+            }
+
+            if(curRole.getRoleCode().equals("duijie")){
+                taskService.updateStatus(orderId, TaskStatusEnum.DONE.getStatus(), Math.toIntExact(operator.getUserId()));
             }
             return ResponseDTO.ok();
         }
@@ -114,10 +121,10 @@ public class OrderSalesService {
 
 
     @Transactional
-    public int updateOrderAndUserOperation(LocalDateTime now, RequestUser operator, String operation,
-                                           Integer waveId, OrderSalesEntity orderSalesEntity){
-            int updateOrder = updateScanInfo(now, operator, operation, orderSalesEntity);
-            int updateUserOperation = userOperationService.updateUserOperation(now, operator, operation,
+    public int updateOrderAndUserOperation(LocalDateTime now, RequestUser operator, String operationStr,
+                                           String detail, OrderSalesEntity orderSalesEntity){
+            int updateOrder = updateScanInfo(now, operator, operationStr, detail, orderSalesEntity);
+            int updateUserOperation = userOperationService.updateUserOperation(now, operator, operationStr,
                     orderSalesEntity.getOrderId(), "", 1, "单");
             return updateOrder;
     }
@@ -135,24 +142,27 @@ public class OrderSalesService {
 
 
 
-    public int updateScanInfo(LocalDateTime now, RequestUser operator, String operation,
-                              OrderSalesEntity orderSalesEntity){
+    private int updateScanInfo(LocalDateTime now, RequestUser operator, String operationStr,String detail,
+                               OrderSalesEntity orderSalesEntity){
 
         String userName = operator == null || operator.getUserName() == null ? "工 人" : operator.getUserName();
-        if(operation == null){
-            operation = "服务";
+        if(operationStr == null){
+            operationStr = "服务";
         }
         Long userId = operator == null || operator.getUserId() == null ? 0L : operator.getUserId();
         Long id = orderSalesEntity.getId();
 
         TraceElementEntity traceElementEntity = new TraceElementEntity();
-        traceElementEntity.setOperation(operation);
+        traceElementEntity.setOperation(operationStr);
         traceElementEntity.setTime(now);
+        if(detail != null) {
+            traceElementEntity.setDetail(detail);
+        }
         traceElementEntity.setOperator(userName);
         //加到头部，保证倒序
         orderSalesEntity.getTrace().add(0, traceElementEntity);
 
-        int updateCount = orderSalesDao.updateScanInfo(operation, userName,
+        int updateCount = orderSalesDao.updateScanInfo(operationStr, userName,
                 userId, now, orderSalesEntity.getTrace(),null, id);
         return updateCount;
     }

@@ -58,6 +58,10 @@ public class RoleEmployeeService {
         roleEmployeeManager.saveBatch(roleEmployeeList);
     }
 
+    public List<EmployeeVO> getAllEmployeeByRoleCode(String roleCode) {
+        return roleEmployeeDao.selectEmployeeByRoleCode(roleCode);
+    }
+
     /**
      * 通过角色id，分页获取成员员工列表
      *
