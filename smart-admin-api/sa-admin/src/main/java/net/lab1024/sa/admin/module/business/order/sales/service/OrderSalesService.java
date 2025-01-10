@@ -87,7 +87,7 @@ public class OrderSalesService {
         return orderSalesDao.selectById(id);
     }
 
-    @Transactional
+
     public ResponseDTO<Boolean> scanOrder(OrderScanForm orderScanForm, OrderTypeAndIdVO orderInfo){
         RequestUser requestUser = SmartRequestUtil.getRequestUser();
         RequestUser operator = requestUser;
