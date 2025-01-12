@@ -172,6 +172,10 @@ public class EmployeeService {
             return ResponseDTO.userErrorParam("手机号已存在");
         }
 
+        if(!employeeEntity.getActualName().equals(employeeUpdateForm.getActualName())){
+            return ResponseDTO.userErrorParam("姓名不允许更改");
+        }
+
         existEntity = employeeDao.getByActualName(employeeUpdateForm.getActualName(), null);
         if (null != existEntity && !Objects.equals(existEntity.getEmployeeId(), employeeId)) {
             return ResponseDTO.userErrorParam("姓名重复");

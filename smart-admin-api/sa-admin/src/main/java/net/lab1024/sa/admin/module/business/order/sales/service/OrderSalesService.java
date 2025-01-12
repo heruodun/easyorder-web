@@ -346,12 +346,21 @@ public class OrderSalesService {
                     return ResponseDTO.error(OrderErrorCode.PARAM_ERROR,"无条数~");
                 }
                 int count = 0;
+                Set<String> lengthSet = new HashSet<>();
                 for(OrderTiaoEntity orderTiaoEntity: tiaos){
                     String length = orderTiaoEntity.getLength();
                     Integer count1 = orderTiaoEntity.getCount();
-                    if(length == null || count1 == null){
+                    if(length == null || length.trim().length() == 0 || count1 == null){
                         return ResponseDTO.error(OrderErrorCode.PARAM_ERROR, "长度或数量为空~");
                     }
+
+                    if(lengthSet.contains(length)){
+                        return ResponseDTO.error(OrderErrorCode.PARAM_ERROR, "长度重复~");
+                    }
+                    else {
+                        lengthSet.add(length.trim());
+                    }
+
                     count += count1;
                 }
                 if(count != totalCount){
