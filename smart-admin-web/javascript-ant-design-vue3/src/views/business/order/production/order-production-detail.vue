@@ -65,6 +65,7 @@
       <a-descriptions-item label="打单时间">{{ orderDetail.createTime }}</a-descriptions-item>
       <a-descriptions-item label="更新时间">{{ orderDetail.updateTime }}</a-descriptions-item>
     </a-descriptions>
+    <a-qrcode :value="orderDetail.orderId + '$xiaowangniujin'" />
   </a-card>
 
   <!-- 预览附件 -->
