@@ -55,6 +55,12 @@ public class OrderSalesController {
         return  ResponseDTO.ok(SmartBeanUtil.copy(orderSalesEntity, OrderSalesVO.class));
     }
 
+    @Operation(summary = "查询订单详情 @author dahang")
+    @GetMapping("/app/order/queryByQrcode/{orderIdQr}")
+    public ResponseDTO<OrderSalesVO> queryById(@PathVariable String orderIdQr) {
+        return  orderSalesService.getByQrcode(orderIdQr);
+    }
+
     @Operation(summary = "添加 @author dahang")
     @PostMapping("/orderSales/add")
     public ResponseDTO<OrderSalesAddVO> add(@RequestBody @Valid OrderSalesAddForm addForm) {

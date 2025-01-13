@@ -8,6 +8,7 @@ import net.lab1024.sa.admin.module.business.address.service.AddressService;
 import net.lab1024.sa.admin.module.business.inventory.dao.InventoryDao;
 import net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity;
 import net.lab1024.sa.admin.module.business.order.constant.OrderTypeEnum;
+import net.lab1024.sa.admin.module.business.order.constant.OrderUtil;
 import net.lab1024.sa.admin.module.business.order.constant.QrTypeEnum;
 import net.lab1024.sa.admin.module.business.order.domain.entity.OrderEntity;
 import net.lab1024.sa.admin.module.business.order.domain.entity.OrderGuigeEntity;
@@ -86,6 +87,23 @@ public class OrderSalesService {
     public OrderSalesEntity getById(Long id) {
         return orderSalesDao.selectById(id);
     }
+
+    public ResponseDTO<OrderSalesVO> getByQrcode(String qrCode) {
+        //区分是哪种类型订单
+        OrderTypeAndIdVO orderInfo = OrderUtil.parseOrderInfo(qrCode);
+        if(orderInfo == null){
+            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
+        }
+        OrderSalesEntity orderSalesEntity =  orderSalesDao.selectById(orderInfo.getOrderId());
+        if(orderSalesEntity == null){
+            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
+        }
+        OrderSalesVO orderSalesVO = SmartBeanUtil.copy(orderSalesEntity, OrderSalesVO.class);
+        return ResponseDTO.ok(orderSalesVO);
+    }
+
+
+
 
 
     public ResponseDTO<Boolean> scanOrder(OrderScanForm orderScanForm, OrderTypeAndIdVO orderInfo){
