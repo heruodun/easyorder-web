@@ -158,7 +158,7 @@
     try {
       SmartLoading.show();
       let payload = {
-        keywords: value,
+        address: value,
         pageNum: 1,
         pageSize: 2,
         type: 1,
