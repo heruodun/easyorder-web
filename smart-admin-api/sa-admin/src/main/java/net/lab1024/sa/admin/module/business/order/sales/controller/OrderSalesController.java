@@ -1,3 +1,5 @@
+
+
 package net.lab1024.sa.admin.module.business.order.sales.controller;
 
 import net.lab1024.sa.admin.module.business.order.sales.domain.entity.OrderSalesEntity;
@@ -6,10 +8,13 @@ import net.lab1024.sa.admin.module.business.order.sales.domain.form.OrderSalesQu
 import net.lab1024.sa.admin.module.business.order.sales.domain.form.OrderSalesUpdateForm;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesAddVO;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesVO;
+import net.lab1024.sa.admin.module.business.order.sales.repository.OrderSalesESRepository;
+import net.lab1024.sa.admin.module.business.order.sales.repository.OrderSalesSearchCriteria;
 import net.lab1024.sa.admin.module.business.order.sales.service.OrderSalesService;
 import net.lab1024.sa.base.common.code.OrderErrorCode;
 import net.lab1024.sa.base.common.domain.ValidateList;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
@@ -37,12 +42,27 @@ public class OrderSalesController {
 
     @Resource
     private OrderSalesService orderSalesService;
+    @Resource
+    private OrderSalesESRepository searchService;
+
+
+    /**
+     * 搜索引擎
+     * @param criteria
+     * @return
+     */
+    @PostMapping("/orderSales/search")
+    public ResponseDTO<Page<OrderSalesVO>> searchOrders(@RequestBody OrderSalesSearchCriteria criteria) {
+        return searchService.searchOrders(criteria);
+    }
 
     @Operation(summary = "分页查询 @author dahang")
     @PostMapping("/orderSales/queryPage")
     public ResponseDTO<PageResult<OrderSalesVO>> queryPage(@RequestBody @Valid OrderSalesQueryForm queryForm) {
         return ResponseDTO.ok(orderSalesService.queryPage(queryForm));
     }
+
+
 
     @Operation(summary = "查询订单详情 @author dahang")
     @GetMapping("/orderSales/queryById/{id}")
@@ -55,16 +75,10 @@ public class OrderSalesController {
         return  ResponseDTO.ok(SmartBeanUtil.copy(orderSalesEntity, OrderSalesVO.class));
     }
 
-    @Operation(summary = "查询订单详情 @author dahang")
-    @GetMapping("/app/order/queryByQrcode/{orderIdQr}")
-    public ResponseDTO<OrderSalesVO> queryById(@PathVariable String orderIdQr) {
-        return  orderSalesService.getByQrcode(orderIdQr);
-    }
-
     @Operation(summary = "添加 @author dahang")
     @PostMapping("/orderSales/add")
     public ResponseDTO<OrderSalesAddVO> add(@RequestBody @Valid OrderSalesAddForm addForm) {
-        return orderSalesService.add(addForm);
+        return orderSalesService.addOrder(addForm);
     }
 
     @Operation(summary = "更新 @author dahang")
@@ -85,3 +99,4 @@ public class OrderSalesController {
         return orderSalesService.delete(id);
     }
 }
+

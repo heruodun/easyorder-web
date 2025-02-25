@@ -6,6 +6,7 @@ import lombok.Data;
 import net.lab1024.sa.admin.module.business.order.dao.OrderGuigeTypeHandler;
 import net.lab1024.sa.admin.module.business.order.domain.entity.OrderEntity;
 import net.lab1024.sa.admin.module.business.order.domain.entity.OrderGuigeEntity;
+import org.springframework.data.elasticsearch.annotations.Document;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
  * @Date 2024-12-12 23:44:48
  * @Copyright dahang
  */
-
+@Document(indexName = "order_sales")
 @Data
 @TableName(value = "t_order_sales", autoResultMap = true)
 public class OrderSalesEntity extends OrderEntity {

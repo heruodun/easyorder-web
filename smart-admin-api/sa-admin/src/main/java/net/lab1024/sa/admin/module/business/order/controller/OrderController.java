@@ -37,7 +37,13 @@ public class OrderController {
     @Operation(summary = "扫码 @author dahang")
     @PostMapping("/app/order/scan")
     public ResponseDTO<Boolean> scan(@RequestBody @Valid OrderScanForm orderScanForm) {
-        return   orderScanService.scan(orderScanForm);
+        long c = System.currentTimeMillis();
+
+        ResponseDTO responseDTO = orderScanService.scan(orderScanForm);
+
+        System.out.println("耗时：" + (System.currentTimeMillis() - c));
+
+        return responseDTO;
     }
 
 
@@ -52,6 +58,12 @@ public class OrderController {
     @GetMapping("/app/order/qianyiaddress")
     public ResponseDTO<Long> qianyiAddress() {
         return   orderQianyiService.runAddress();
+    }
+
+    @NoNeedLogin
+    @GetMapping("/app/order/qianyiorder")
+    public ResponseDTO<Long> qianyiOrder() {
+        return   orderQianyiService.syncData();
     }
 
 

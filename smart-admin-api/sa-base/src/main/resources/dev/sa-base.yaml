@@ -56,6 +56,10 @@ spring:
   cache:
     type: caffeine
 
+  data:
+    elasticsearch:
+      uris: http://localhost:9200
+
 # tomcat 配置，主要用于 配置 访问日志（便于将来排查错误）
 server:
   tomcat:

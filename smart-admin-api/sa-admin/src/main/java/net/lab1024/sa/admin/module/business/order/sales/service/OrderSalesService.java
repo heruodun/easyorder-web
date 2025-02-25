@@ -8,7 +8,6 @@ import net.lab1024.sa.admin.module.business.address.service.AddressService;
 import net.lab1024.sa.admin.module.business.inventory.dao.InventoryDao;
 import net.lab1024.sa.admin.module.business.inventory.domain.entity.InventoryEntity;
 import net.lab1024.sa.admin.module.business.order.constant.OrderTypeEnum;
-import net.lab1024.sa.admin.module.business.order.constant.OrderUtil;
 import net.lab1024.sa.admin.module.business.order.constant.QrTypeEnum;
 import net.lab1024.sa.admin.module.business.order.domain.entity.OrderEntity;
 import net.lab1024.sa.admin.module.business.order.domain.entity.OrderGuigeEntity;
@@ -16,6 +15,7 @@ import net.lab1024.sa.admin.module.business.order.domain.entity.OrderTiaoEntity;
 import net.lab1024.sa.admin.module.business.order.domain.entity.TraceElementEntity;
 import net.lab1024.sa.admin.module.business.order.domain.form.OrderScanForm;
 import net.lab1024.sa.admin.module.business.order.domain.vo.OrderTypeAndIdVO;
+import net.lab1024.sa.admin.module.business.order.sales.constant.OrderSalesUtil;
 import net.lab1024.sa.admin.module.business.order.sales.dao.OrderSalesDao;
 import net.lab1024.sa.admin.module.business.order.sales.domain.entity.OrderSalesEntity;
 import net.lab1024.sa.admin.module.business.order.sales.domain.form.OrderSalesAddForm;
@@ -25,6 +25,7 @@ import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesAddV
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesVO;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveAddressVO;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveDetailVO;
+import net.lab1024.sa.admin.module.business.order.sales.repository.OrderSalesESRepository;
 import net.lab1024.sa.admin.module.business.order.task.constant.TaskStatusEnum;
 import net.lab1024.sa.admin.module.business.order.task.service.TaskService;
 import net.lab1024.sa.admin.module.business.user.dao.UserOperationDao;
@@ -46,6 +47,7 @@ import net.lab1024.sa.base.module.support.serialnumber.service.SerialNumberServi
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,6 +78,8 @@ public class OrderSalesService {
     private AddressService addressService;
     @Resource
     private TaskService taskService;
+    @Resource
+    private OrderESService orderESService;
 
 
     public OrderSalesEntity getByOrderId(Long orderId) {
@@ -87,23 +91,6 @@ public class OrderSalesService {
     public OrderSalesEntity getById(Long id) {
         return orderSalesDao.selectById(id);
     }
-
-    public ResponseDTO<OrderSalesVO> getByQrcode(String qrCode) {
-        //区分是哪种类型订单
-        OrderTypeAndIdVO orderInfo = OrderUtil.parseOrderInfo(qrCode);
-        if(orderInfo == null){
-            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
-        }
-        OrderSalesEntity orderSalesEntity =  orderSalesDao.selectById(orderInfo.getOrderId());
-        if(orderSalesEntity == null){
-            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
-        }
-        OrderSalesVO orderSalesVO = SmartBeanUtil.copy(orderSalesEntity, OrderSalesVO.class);
-        return ResponseDTO.ok(orderSalesVO);
-    }
-
-
-
 
 
     public ResponseDTO<Boolean> scanOrder(OrderScanForm orderScanForm, OrderTypeAndIdVO orderInfo){
@@ -133,6 +120,11 @@ public class OrderSalesService {
             if(curRole.getRoleCode().equals("duijie")){
                 taskService.updateStatus(orderId, TaskStatusEnum.DONE.getStatus(), Math.toIntExact(operator.getUserId()));
             }
+
+            //添加ES
+
+            orderESService.asyncData(Arrays.asList(orderSalesEntity.getId()));
+
             return ResponseDTO.ok();
         }
     }
@@ -271,29 +263,8 @@ public class OrderSalesService {
         List<OrderSalesVO> orderSalesVOList = SmartBeanUtil.copyList(list, OrderSalesVO.class);
         Map<Integer, List<OrderSalesVO>> map = new HashMap<>();
         for (OrderSalesVO orderSalesVO : orderSalesVOList) {
-            StringBuilder sb = new StringBuilder();
-            List<OrderGuigeEntity> guiges = orderSalesVO.getGuiges();
-            if(CollectionUtils.isNotEmpty(guiges)){
-
-                for(OrderGuigeEntity orderGuige : guiges){
-                    sb.append("规格：").append(orderGuige.getGuige()).append("    ");
-                    sb.append("总数：").append(orderGuige.getCount()).append(" ").append(orderGuige.getDanwei()).append("\n\n");
-                    List<OrderTiaoEntity> tiaos = orderGuige.getTiaos();
-                    if(CollectionUtils.isNotEmpty(tiaos)){
-                        for(OrderTiaoEntity orderTiaoEntity : tiaos){
-                            sb.append(orderTiaoEntity.getLength()).append(" x ").append(orderTiaoEntity.getCount())
-                                    .append("，");
-                        }
-                        sb.deleteCharAt(sb.length() - 1);
-                    }
-                }
-            }
-            if(Strings.isNotBlank(orderSalesVO.getRemark())){
-                sb.append("\n\n").append("备注：").append(orderSalesVO.getRemark());
-            }
-
-
-            orderSalesVO.setDetail(sb.toString());
+            String detail = OrderSalesUtil.getDetail(orderSalesVO);
+            orderSalesVO.setDetail(detail);
             Integer waveId = orderSalesVO.getWaveId();
             List<OrderSalesVO> waveDetailVOList = map.get(waveId);
             if (waveDetailVOList == null) {
@@ -343,6 +314,17 @@ public class OrderSalesService {
         page.setTotal(count);
         PageResult<OrderSalesVO> pageResult = SmartPageUtil.convert2PageResult(page, list);
         return pageResult;
+    }
+
+
+    public ResponseDTO<OrderSalesAddVO> addOrder(OrderSalesAddForm addForm) {
+        ResponseDTO<OrderSalesAddVO> responseDTO = add(addForm);
+        if(responseDTO.getOk()) {
+           //add es
+            OrderSalesAddVO orderSalesAddVO = responseDTO.getData();
+            orderESService.asyncData(Arrays.asList(orderSalesAddVO.getId()));
+        }
+        return responseDTO;
     }
 
     /**
@@ -479,6 +461,8 @@ public class OrderSalesService {
         }
 
         orderSalesDao.updateDeleted(id,true);
+
+        orderESService.asyncData(Arrays.asList(id));
         return ResponseDTO.ok();
     }
 }

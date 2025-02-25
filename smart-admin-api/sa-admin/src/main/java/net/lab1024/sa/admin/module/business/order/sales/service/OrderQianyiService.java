@@ -15,9 +15,11 @@ import net.lab1024.sa.admin.module.business.order.domain.vo.OrderTypeAndIdVO;
 import net.lab1024.sa.admin.module.business.order.sales.dao.OrderSalesDao;
 import net.lab1024.sa.admin.module.business.order.sales.domain.entity.OrderSalesEntity;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveVO;
+import net.lab1024.sa.admin.module.business.order.sales.repository.OrderSalesESRepository;
 import net.lab1024.sa.admin.module.business.order.service.WaveHttpService;
 import net.lab1024.sa.base.common.code.OrderErrorCode;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -49,6 +51,31 @@ public class OrderQianyiService {
     private OrderSalesService orderSalesService;
     @Resource
     private AddressService addressService;
+
+    @Resource
+    private OrderSalesESRepository orderSalesESRepository;
+
+
+    // 每天凌晨4点执行
+    @Scheduled(cron = "0 0 4 * * ?")
+    public ResponseDTO<Long> syncData() {
+        long i = 1;
+        for(; i < 100000; i++) {
+            List<Long> ids = new ArrayList<>();
+            ids.add(Long.valueOf(i));
+            List<OrderSalesEntity> orders = orderSalesDao.selectBatchIds(ids);
+            if(orders == null || orders.size() == 0) {
+                continue;
+            }
+            for (OrderSalesEntity order : orders) {
+                orderSalesESRepository.save(order);
+            }
+        }
+
+        return ResponseDTO.ok(i);
+    }
+
+
 
 
     /**

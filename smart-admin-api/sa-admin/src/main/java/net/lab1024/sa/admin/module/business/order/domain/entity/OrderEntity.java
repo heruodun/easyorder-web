@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import net.lab1024.sa.admin.module.business.order.dao.OrderGuigeTypeHandler;
 import net.lab1024.sa.admin.module.business.order.dao.TraceTypeHandler;
+import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,6 +26,7 @@ public class OrderEntity {
     /**
      * 编号
      */
+    @Id
     @TableId(type = IdType.AUTO)
     private Long id;
 
