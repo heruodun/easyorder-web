@@ -47,12 +47,6 @@ public class OrderController {
     }
 
 
-    @NoNeedLogin
-    @Operation(summary = "扫码 @author dahang")
-    @GetMapping("/app/order/qianyi")
-    public ResponseDTO<Boolean> qianyi() {
-        return   orderQianyiService.run();
-    }
 
     @NoNeedLogin
     @GetMapping("/app/order/qianyiaddress")

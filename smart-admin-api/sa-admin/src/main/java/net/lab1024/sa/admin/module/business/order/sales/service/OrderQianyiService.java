@@ -16,7 +16,6 @@ import net.lab1024.sa.admin.module.business.order.sales.dao.OrderSalesDao;
 import net.lab1024.sa.admin.module.business.order.sales.domain.entity.OrderSalesEntity;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveVO;
 import net.lab1024.sa.admin.module.business.order.sales.repository.OrderSalesESRepository;
-import net.lab1024.sa.admin.module.business.order.service.WaveHttpService;
 import net.lab1024.sa.base.common.code.OrderErrorCode;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,10 +29,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,6 +47,8 @@ public class OrderQianyiService {
     private OrderSalesService orderSalesService;
     @Resource
     private AddressService addressService;
+    @Resource
+    private OrderESService orderESService;
 
     @Resource
     private OrderSalesESRepository orderSalesESRepository;
@@ -74,8 +72,6 @@ public class OrderQianyiService {
 
         return ResponseDTO.ok(i);
     }
-
-
 
 
     /**
@@ -272,91 +268,6 @@ public class OrderQianyiService {
             }
         }
         return ResponseDTO.ok(i);
-    }
-
-    public ResponseDTO<Boolean> run() {
-        for(long i = 73000;i <= 100000;i++) {
-            JSONObject jsonObject = WaveHttpService.getOrderById(i);
-            if(jsonObject == null){
-                log.error("不存在 {}", i);
-                return ResponseDTO.error(OrderErrorCode.FORM_SUBMIT_FAIL, "已迁移"+ (i-1));
-            }
-            Long orderId = jsonObject.getLong("order_id");
-
-            Integer waveId = jsonObject.getInteger("wave_id");
-
-            String remark = jsonObject.getString("content");
-            String address = jsonObject.getString("address");
-
-            String curStatus = jsonObject.getString("cur_status");
-
-            String curMan = jsonObject.getString("cur_man");
-
-            String printer = jsonObject.getString("printer");
-            LocalDateTime curTime = null;
-            if(jsonObject.getLong("cur_time")  != null) {
-                Instant instant = Instant.ofEpochMilli(jsonObject.getLong("cur_time"));
-                curTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-
-            }
-
-            LocalDateTime printTime = null;
-            if(jsonObject.getLong("print_time") != null) {
-                Instant instant = Instant.ofEpochMilli(jsonObject.getLong("print_time"));
-                printTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-            }
-
-            String orderTrace = jsonObject.getString("order_trace");
-
-            // 创建日期时间格式器
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-
-
-
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-            Date utcDate = null;
-            try {
-                utcDate = sdf.parse(jsonObject.getString("update_time"));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            Instant instant = utcDate.toInstant();
-            ZoneId zoneId = ZoneId.systemDefault();
-            LocalDateTime updateTime = instant.atZone(zoneId).toLocalDateTime();
-
-
-            OrderSalesEntity orderSalesEntity = new OrderSalesEntity();
-            orderSalesEntity.setOrderId(orderId);
-
-            orderSalesEntity.setAddress(address);
-            orderSalesEntity.setCurStatus(curStatus);
-            orderSalesEntity.setCurOperator(curMan);
-            orderSalesEntity.setCreator(printer);
-            orderSalesEntity.setCreateTime(printTime);
-            orderSalesEntity.setCurTime(curTime);
-            orderSalesEntity.setUpdateTime(updateTime);
-            orderSalesEntity.setWaveId(waveId);
-            parseContent(remark, orderSalesEntity);
-
-            List<TraceElementEntity> elementEntityList = parseOrderTrace(orderTrace);
-            Lists.reverse(elementEntityList);
-            orderSalesEntity.setTrace(Lists.reverse(elementEntityList));
-
-            OrderSalesEntity exist = orderSalesService.getByOrderId(orderId);
-            if(exist != null){
-                continue;
-            }
-            int ok =orderSalesDao.insert(orderSalesEntity);
-            if(ok > 0){
-                log.info("{} 迁移成功", i);
-            }
-
-        }
-
-
-        return ResponseDTO.ok();
     }
 
 

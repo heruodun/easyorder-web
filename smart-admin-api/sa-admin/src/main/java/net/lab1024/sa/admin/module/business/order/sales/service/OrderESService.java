@@ -2,6 +2,7 @@
 
 package net.lab1024.sa.admin.module.business.order.sales.service;
 
+import lombok.extern.slf4j.Slf4j;
 import net.lab1024.sa.admin.module.business.order.sales.dao.OrderSalesDao;
 import net.lab1024.sa.admin.module.business.order.sales.domain.entity.OrderSalesEntity;
 import net.lab1024.sa.admin.module.business.order.sales.repository.OrderSalesESRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.List;
 
+@Slf4j
 @Service
 public class OrderESService {
     @Resource

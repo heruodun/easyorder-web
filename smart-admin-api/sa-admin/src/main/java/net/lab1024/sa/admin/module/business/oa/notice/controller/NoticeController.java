@@ -2,41 +2,24 @@ package net.lab1024.sa.admin.module.business.oa.notice.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.hutool.extra.servlet.ServletUtil;
-
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Lists;
-import com.mysql.cj.xdevapi.JsonArray;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
-import kotlin.collections.ArrayDeque;
 import net.lab1024.sa.admin.constant.AdminSwaggerTagConst;
 import net.lab1024.sa.admin.module.business.oa.notice.domain.form.*;
 import net.lab1024.sa.admin.module.business.oa.notice.domain.vo.*;
 import net.lab1024.sa.admin.module.business.oa.notice.service.NoticeEmployeeService;
 import net.lab1024.sa.admin.module.business.oa.notice.service.NoticeService;
 import net.lab1024.sa.admin.module.business.oa.notice.service.NoticeTypeService;
-import net.lab1024.sa.admin.module.business.order.service.WaveHttpService;
 import net.lab1024.sa.base.common.domain.PageResult;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
-import net.lab1024.sa.base.common.util.SmartPageUtil;
 import net.lab1024.sa.base.common.util.SmartRequestUtil;
 import net.lab1024.sa.base.module.support.operatelog.annotation.OperateLog;
 import net.lab1024.sa.base.module.support.repeatsubmit.annoation.RepeatSubmit;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 
 /**
@@ -50,7 +33,7 @@ import java.util.List;
  */
 @Tag(name = AdminSwaggerTagConst.Business.OA_NOTICE)
 @RestController
-//@OperateLog
+@OperateLog
 public class NoticeController {
 
     @Resource
@@ -91,58 +74,11 @@ public class NoticeController {
     // --------------------- 【管理】通知公告-------------------------
 
 
-//    @Operation(summary = "【管理】通知公告-分页查询 @author 卓大")
+    @Operation(summary = "【管理】通知公告-分页查询 @author 卓大")
     @PostMapping("/oa/notice/query")
     @SaCheckPermission("oa:notice:query")
-    public ResponseDTO<PageResult<OrderVO>> query(@RequestBody @Valid NoticeQueryForm queryForm) throws JsonProcessingException {
-        Page<?> page = SmartPageUtil.convert2PageQuery(queryForm);
-        String keyword = queryForm.getKeywords();
-
-        int offset = (int) ((queryForm.getPageNum() - 1) * queryForm.getPageSize());
-        int limit = Math.toIntExact(queryForm.getPageSize());
-
-        Integer type = queryForm.getType();
-        if(type == null){
-            type = 0;
-        }
-
-        JSONObject jsonObject = WaveHttpService.getOrdersByKeyword(keyword, limit, offset,type);
-
-        // 使用 Jackson 处理 JSON 数组
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        JSONArray json = jsonObject.getJSONArray("orders");
-
-        int count = jsonObject.getIntValue("count");
-
-        page.setTotal(count);
-        page.setPages(queryForm.getPageNum());
-
-        List<OrderVO> orderVoList = objectMapper.readValue(json.toString(), new TypeReference<List<OrderVO>>(){});
-
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-
-        for(OrderVO orderVO : orderVoList){
-            if(orderVO.getCur_time() != null){
-                long m =  Long.valueOf(orderVO.getCur_time());
-                Date date = new Date(m);
-                String formattedDate = sdf.format(date);
-                orderVO.setCur_time(formattedDate);
-            }
-            if(orderVO.getPrint_time() != null){
-                long m =  Long.valueOf(orderVO.getPrint_time());
-                Date date = new Date(m);
-                String formattedDate = sdf.format(date);
-                orderVO.setPrint_time(formattedDate);
-            }
-            orderVO.setOrder_trace_arr(process(orderVO.getOrder_trace()));
-        }
-
-        // 现在 noticeList 中包含所有的 NoticeVO 对象
-
-        return ResponseDTO.ok(SmartPageUtil.convert2PageResult(page, orderVoList));
+    public ResponseDTO<PageResult<NoticeVO>> query(@RequestBody @Valid NoticeQueryForm queryForm) {
+        return ResponseDTO.ok(noticeService.query(queryForm));
     }
 
     @Operation(summary = "【管理】通知公告-添加 @author 卓大")
@@ -162,31 +98,12 @@ public class NoticeController {
         return noticeService.update(updateForm);
     }
 
-
     @Operation(summary = "【管理】通知公告-更新详情 @author 卓大")
     @GetMapping("/oa/notice/getUpdateVO/{noticeId}")
     @SaCheckPermission("oa:notice:update")
-    public ResponseDTO<OrderVO> getUpdateFormVO(@PathVariable Long noticeId) throws JsonProcessingException {
-        JSONObject jsonObject = WaveHttpService.getOrder(noticeId);
-        ObjectMapper objectMapper = new ObjectMapper();
-        OrderVO orderVO = objectMapper.readValue(jsonObject.toString(), OrderVO.class);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        if(orderVO.getCur_time() != null){
-            long m =  Long.valueOf(orderVO.getCur_time());
-            Date date = new Date(m);
-            String formattedDate = sdf.format(date);
-            orderVO.setCur_time(formattedDate);
-        }
-        if(orderVO.getPrint_time() != null){
-            long m =  Long.valueOf(orderVO.getPrint_time());
-            Date date = new Date(m);
-            String formattedDate = sdf.format(date);
-            orderVO.setPrint_time(formattedDate);
-        }
-        orderVO.setOrder_trace_arr(process(orderVO.getOrder_trace()));
-        return ResponseDTO.ok(orderVO);
+    public ResponseDTO<NoticeUpdateFormVO> getUpdateFormVO(@PathVariable Long noticeId) {
+        return ResponseDTO.ok(noticeService.getUpdateFormVO(noticeId));
     }
-
 
     @Operation(summary = "【管理】通知公告-删除 @author 卓大")
     @GetMapping("/oa/notice/delete/{noticeId}")
@@ -220,49 +137,4 @@ public class NoticeController {
     public ResponseDTO<PageResult<NoticeViewRecordVO>> queryViewRecord(@RequestBody @Valid NoticeViewRecordQueryForm noticeViewRecordQueryForm) {
         return ResponseDTO.ok(noticeEmployeeService.queryViewRecord(noticeViewRecordQueryForm));
     }
-
-    public static List process(String str){
-        // 依据 \n\n 分割字符串
-        String[] elements = str.split("\n\n");
-
-        // 创建 JSONArray 用于存储结果
-        List list = new ArrayList();
-
-        for (String element : elements) {
-            // 依据，分隔元素
-            String[] parts = element.split("，");
-            if (parts.length < 2) {
-                continue; // 如果没有足够的部分，跳过
-            }
-
-            // 处理第一个部分
-            String[] x1Parts = parts[0].split("：");
-            if (x1Parts.length < 2) {
-                continue; // 如果分隔后没有足够的元素，跳过
-            }
-            String s1 = x1Parts[0].substring(0, 2); // 取前两个中文字符
-            String s2 = x1Parts[1].trim(); // 取出第二个子元素
-
-            // 处理第二个部分
-            String[] x2Parts = parts[1].split("：");
-            if (x2Parts.length < 2) {
-                continue; // 如果分隔后没有足够的元素，跳过
-            }
-            String s3 = x2Parts[1].trim(); // 取第二个子元素
-
-            // 构建 JSON 对象
-            Map jsonObject = new HashMap();
-            jsonObject.put("cur_status", s1);
-            jsonObject.put("person", s2);
-            jsonObject.put("time", s3);
-
-            // 将 JSON 对象添加到数组中
-            list.add(jsonObject);
-        }
-        return Lists.reverse(list);
-
-    }
-
-
-
 }
