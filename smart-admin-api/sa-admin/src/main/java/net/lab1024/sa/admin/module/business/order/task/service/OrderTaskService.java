@@ -13,6 +13,7 @@ import net.lab1024.sa.admin.module.business.order.sales.domain.vo.OrderSalesVO;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveDetailVO;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveInfoVO;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveVO;
+import net.lab1024.sa.admin.module.business.order.sales.service.OrderESService;
 import net.lab1024.sa.admin.module.business.order.sales.service.OrderSalesService;
 import net.lab1024.sa.admin.module.business.order.task.constant.TaskStatusEnum;
 import net.lab1024.sa.admin.module.business.order.task.dao.SubTaskDao;
@@ -63,6 +64,8 @@ public class OrderTaskService {
     private TaskDao taskDao;
     @Resource
     private SubTaskDao subTaskDao;
+    @Resource
+    private OrderESService orderESService;
 
     public ResponseDTO<TaskOrderVO> queryByOrderIdQr(String orderIdQr) {
 
@@ -127,6 +130,7 @@ public class OrderTaskService {
                 String detail = getDetail(subTasks);
                 orderSalesService.updateOrderAndUserOperation(LocalDateTime.now(), requestUser, "分单",
                         detail, orderSalesEntity);
+                orderESService.asyncData(Arrays.asList(orderSalesEntity.getId()));
 
             }).start();
 
