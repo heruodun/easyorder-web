@@ -41,6 +41,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
@@ -67,36 +70,60 @@ public class OrderTaskService {
     @Resource
     private OrderESService orderESService;
 
+    // 创建一个固定大小的线程池
+    ExecutorService executor = Executors.newFixedThreadPool(10);
+
     public ResponseDTO<TaskOrderVO> queryByOrderIdQr(String orderIdQr) {
 
-        OrderTypeAndIdVO orderTypeAndIdVO = OrderUtil.parseOrderInfo(orderIdQr);
-        if (orderTypeAndIdVO == null ) {
-            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
+            OrderTypeAndIdVO orderTypeAndIdVO = OrderUtil.parseOrderInfo(orderIdQr);
+            if (orderTypeAndIdVO == null ) {
+                return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
+            }
+
+            Long orderId = orderTypeAndIdVO.getOrderId();
+            //通过订单号查询波次id
+            try {
+                // 异步调用：获取订单销售信息
+                CompletableFuture<OrderSalesEntity> orderSalesFuture = CompletableFuture.supplyAsync(() -> {
+                    return orderSalesService.getByOrderId(orderId);
+                }, executor);
+
+                // 异步调用：获取任务信息
+                CompletableFuture<TaskEntity> taskFuture = CompletableFuture.supplyAsync(() -> {
+                    return taskDao.queryByOrderId(orderId);
+                }, executor);
+
+                // 异步调用：获取子任务列表
+                CompletableFuture<List<SubTaskEntity>> subTaskFuture = CompletableFuture.supplyAsync(() -> {
+                    return subTaskDao.queryByOrderId(orderId);
+                }, executor);
+
+                // 等待所有异步任务完成，并获取结果
+                OrderSalesEntity orderSalesEntity = orderSalesFuture.join();
+                TaskEntity taskEntity = taskFuture.join();
+                List<SubTaskEntity> subTaskEntityList = subTaskFuture.join();
+
+                // 检查订单销售信息是否存在
+                if (orderSalesEntity == null) {
+                    return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
+                }
+
+                // 构造返回对象
+                TaskOrderVO taskOrderVO = new TaskOrderVO();
+
+                TaskVO taskVO = SmartBeanUtil.copy(taskEntity, TaskVO.class);
+                if (taskVO != null) {
+                    taskVO.setSubTasks(SmartBeanUtil.copyList(subTaskEntityList, SubTaskVO.class));
+                }
+                taskOrderVO.setOrder(SmartBeanUtil.copy(orderSalesEntity, OrderSalesVO.class));
+                taskOrderVO.setTask(taskVO);
+
+                return ResponseDTO.ok(taskOrderVO);
+            } finally {
+                // 关闭线程池
+                executor.shutdown();
+            }
         }
-
-        Long orderId = orderTypeAndIdVO.getOrderId();
-        //通过订单号查询波次id
-        OrderSalesEntity orderSalesEntity = orderSalesService.getByOrderId(orderId);
-        if (orderSalesEntity == null) {
-            return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "非法订单号~");
-        }
-
-        TaskEntity taskEntity = taskDao.queryByOrderId(orderId);
-
-        List<SubTaskEntity> subTaskEntityList = subTaskDao.queryByOrderId(orderId);
-
-        TaskOrderVO taskOrderVO = new TaskOrderVO();
-
-        TaskVO taskVO = SmartBeanUtil.copy(taskEntity, TaskVO.class);
-        if(taskVO != null){
-            taskVO.setSubTasks(SmartBeanUtil.copyList(subTaskEntityList, SubTaskVO.class));
-        }
-        taskOrderVO.setOrder(SmartBeanUtil.copy(orderSalesEntity, OrderSalesVO.class));
-        taskOrderVO.setTask(taskVO);
-
-        return ResponseDTO.ok(taskOrderVO);
-    }
-
 
     public ResponseDTO<Boolean> addOrderTask(List<SubTaskAddEle> subTasks ) {
         RequestUser requestUser = SmartRequestUtil.getRequestUser();
