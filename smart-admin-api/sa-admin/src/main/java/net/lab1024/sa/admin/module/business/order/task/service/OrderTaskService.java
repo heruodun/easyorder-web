@@ -71,7 +71,7 @@ public class OrderTaskService {
     private OrderESService orderESService;
 
     // 创建一个固定大小的线程池
-    ExecutorService executor = Executors.newFixedThreadPool(10);
+    ExecutorService executor = Executors.newFixedThreadPool(50);
 
     public ResponseDTO<TaskOrderVO> queryByOrderIdQr(String orderIdQr) {
 
@@ -82,7 +82,7 @@ public class OrderTaskService {
 
             Long orderId = orderTypeAndIdVO.getOrderId();
             //通过订单号查询波次id
-            try {
+
                 // 异步调用：获取订单销售信息
                 CompletableFuture<OrderSalesEntity> orderSalesFuture = CompletableFuture.supplyAsync(() -> {
                     return orderSalesService.getByOrderId(orderId);
@@ -119,10 +119,7 @@ public class OrderTaskService {
                 taskOrderVO.setTask(taskVO);
 
                 return ResponseDTO.ok(taskOrderVO);
-            } finally {
-                // 关闭线程池
-                executor.shutdown();
-            }
+
         }
 
     public ResponseDTO<Boolean> addOrderTask(List<SubTaskAddEle> subTasks ) {
