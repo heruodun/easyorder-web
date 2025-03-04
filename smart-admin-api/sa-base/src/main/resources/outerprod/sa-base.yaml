@@ -101,7 +101,7 @@ knife4j:
 # RestTemplate 请求配置
 http:
   pool:
-    max-total: 100
+    max-total: 1000
     connect-timeout: 50000
     read-timeout: 50000
     write-timeout: 50000
