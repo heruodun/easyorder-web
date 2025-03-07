@@ -19,10 +19,12 @@ import net.lab1024.sa.base.common.domain.ResponseDTO;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import net.lab1024.sa.base.common.util.SmartPageUtil;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -49,6 +51,8 @@ public class RoleEmployeeService {
     @Resource
     private RoleEmployeeManager roleEmployeeManager;
 
+    private List<EmployeeVO> employeeVOList = new ArrayList<>();
+
 
     /**
      * 批量插入
@@ -58,9 +62,25 @@ public class RoleEmployeeService {
         roleEmployeeManager.saveBatch(roleEmployeeList);
     }
 
+
+
     public List<EmployeeVO> getAllEmployeeByRoleCode(String roleCode) {
-        return roleEmployeeDao.selectEmployeeByRoleCode(roleCode);
+        if("duijie".equals(roleCode)) {
+            return employeeVOList;
+        }
+        else {
+            return roleEmployeeDao.selectEmployeeByRoleCode(roleCode);
+        }
     }
+
+
+    @Scheduled(fixedRate = 60000)
+    public void getAllDuijieEmployee() {
+        employeeVOList =  roleEmployeeDao.selectEmployeeByRoleCode("duijie");
+    }
+
+
+
 
     /**
      * 通过角色id，分页获取成员员工列表

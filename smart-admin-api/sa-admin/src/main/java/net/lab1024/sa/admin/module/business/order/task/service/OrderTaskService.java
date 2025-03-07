@@ -24,6 +24,8 @@ import net.lab1024.sa.admin.module.business.order.task.domain.form.SubTaskAddEle
 import net.lab1024.sa.admin.module.business.order.task.domain.vo.SubTaskVO;
 import net.lab1024.sa.admin.module.business.order.task.domain.vo.TaskOrderVO;
 import net.lab1024.sa.admin.module.business.order.task.domain.vo.TaskVO;
+import net.lab1024.sa.admin.module.system.employee.domain.vo.EmployeeVO;
+import net.lab1024.sa.admin.module.system.role.service.RoleEmployeeService;
 import net.lab1024.sa.base.common.code.OrderErrorCode;
 import net.lab1024.sa.base.common.domain.RequestUser;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
@@ -69,9 +71,12 @@ public class OrderTaskService {
     private SubTaskDao subTaskDao;
     @Resource
     private OrderESService orderESService;
+    @Resource
+    private RoleEmployeeService roleEmployeeService;
 
     // 创建一个固定大小的线程池
     ExecutorService executor = Executors.newFixedThreadPool(50);
+
 
     public ResponseDTO<TaskOrderVO> queryByOrderIdQr(String orderIdQr) {
 
@@ -117,6 +122,7 @@ public class OrderTaskService {
                 }
                 taskOrderVO.setOrder(SmartBeanUtil.copy(orderSalesEntity, OrderSalesVO.class));
                 taskOrderVO.setTask(taskVO);
+                taskOrderVO.setDuijieUsers(roleEmployeeService.getAllEmployeeByRoleCode("duijie"));
 
                 return ResponseDTO.ok(taskOrderVO);
 
