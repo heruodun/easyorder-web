@@ -12,24 +12,24 @@
             <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="[%d][%-5p][%t] %m (%F:%L)%n"/>
         </Console>
-        <RollingFile name="debug" fileName="${log-directory}/debug/debug.log"
-                     filePattern="${log-directory}/debug/debug-%d{yyyy-MM-dd}-%i.log">
-            <Filters>
-                <ThresholdFilter level="info" onMatch="DENY" onMismatch="NEUTRAL"/>
-                <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
-            </Filters>
-            <PatternLayout pattern="[%d][%-5p][%t] %m (%F:%L)%n"/>
-            <Policies>
-                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
-                <SizeBasedTriggeringPolicy size="50 MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="30">
-                <Delete basePath="${log-directory}/debug" maxDepth="1">
-                    <IfFileName glob="debug-*.log"/>
-                    <IfLastModified age="15d"/>
-                </Delete>
-            </DefaultRolloverStrategy>
-        </RollingFile>
+<!--        <RollingFile name="debug" fileName="${log-directory}/debug/debug.log"-->
+<!--                     filePattern="${log-directory}/debug/debug-%d{yyyy-MM-dd}-%i.log">-->
+<!--            <Filters>-->
+<!--                <ThresholdFilter level="info" onMatch="DENY" onMismatch="NEUTRAL"/>-->
+<!--                <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>-->
+<!--            </Filters>-->
+<!--            <PatternLayout pattern="[%d][%-5p][%t] %m (%F:%L)%n"/>-->
+<!--            <Policies>-->
+<!--                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>-->
+<!--                <SizeBasedTriggeringPolicy size="50 MB"/>-->
+<!--            </Policies>-->
+<!--            <DefaultRolloverStrategy max="30">-->
+<!--                <Delete basePath="${log-directory}/debug" maxDepth="1">-->
+<!--                    <IfFileName glob="debug-*.log"/>-->
+<!--                    <IfLastModified age="15d"/>-->
+<!--                </Delete>-->
+<!--            </DefaultRolloverStrategy>-->
+<!--        </RollingFile>-->
         <RollingFile name="info" fileName="${log-directory}/info/info.log"
                      filePattern="${log-directory}/info/info-%d{yyyy-MM-dd}-%i.log">
             <Filters>

@@ -59,6 +59,9 @@ spring:
 # tomcat 配置，主要用于 配置 访问日志（便于将来排查错误）
 server:
   tomcat:
+#    max-connections: 10000
+#    max-threads: 200
+#    accept-count: 100
     basedir: ${project.log-directory}/tomcat-logs
     accesslog:
       enabled: true
