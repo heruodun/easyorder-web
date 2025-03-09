@@ -14,6 +14,7 @@ import net.lab1024.sa.admin.module.business.order.domain.form.OrderScanForm;
 import net.lab1024.sa.admin.module.business.order.domain.vo.OrderTypeAndIdVO;
 import net.lab1024.sa.admin.module.business.order.sales.dao.OrderSalesDao;
 import net.lab1024.sa.admin.module.business.order.sales.domain.entity.OrderSalesEntity;
+import net.lab1024.sa.admin.module.business.order.sales.domain.form.OrderSalesQueryForm;
 import net.lab1024.sa.admin.module.business.order.sales.domain.vo.WaveVO;
 import net.lab1024.sa.admin.module.business.order.sales.repository.OrderSalesESRepository;
 import net.lab1024.sa.base.common.code.OrderErrorCode;
@@ -57,8 +58,11 @@ public class OrderQianyiService {
     // 每天凌晨4点执行
     @Scheduled(cron = "0 0 4 * * ?")
     public ResponseDTO<Long> syncData() {
+        log.info("start sync es data...");
+        int count = orderSalesDao.querySize(new OrderSalesQueryForm());
+        log.info("start sync es data, data count is {}", count);
         long i = 1;
-        for(; i < 100000; i++) {
+        for(; i <= count + 100; i++) {
             List<Long> ids = new ArrayList<>();
             ids.add(Long.valueOf(i));
             List<OrderSalesEntity> orders = orderSalesDao.selectBatchIds(ids);
@@ -70,6 +74,7 @@ public class OrderQianyiService {
             }
         }
 
+        log.info("end sync es data, data count is {}", count);
         return ResponseDTO.ok(i);
     }
 

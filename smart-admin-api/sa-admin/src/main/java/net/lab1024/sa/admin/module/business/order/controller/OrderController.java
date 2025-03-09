@@ -2,6 +2,7 @@ package net.lab1024.sa.admin.module.business.order.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import net.lab1024.sa.admin.module.business.order.domain.form.OrderScanForm;
 import net.lab1024.sa.admin.module.business.order.sales.service.OrderQianyiService;
 import net.lab1024.sa.admin.module.business.order.service.OrderScanService;
@@ -21,7 +22,7 @@ import javax.validation.Valid;
  * @Author dahang
  * @Copyright dahang
  */
-
+@Slf4j
 @RestController
 @Tag(name = "")
 public class OrderController {
@@ -41,7 +42,7 @@ public class OrderController {
 
         ResponseDTO responseDTO = orderScanService.scan(orderScanForm);
 
-        System.out.println("耗时：" + (System.currentTimeMillis() - c));
+        log.info("scan cost {} ms", (System.currentTimeMillis() - c));
 
         return responseDTO;
     }
