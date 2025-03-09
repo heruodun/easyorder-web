@@ -23,18 +23,24 @@
             </template>
             查询
           </a-button>
-          <a-button @click="onReloadSummary">
+          <a-button @click="onReloadSummary" class="smart-margin-right10">
             <template #icon>
               <ReloadOutlined />
             </template>
             重置
           </a-button>
+          <!-- <a-button type="primary" danger @click="resetQuery">
+            <template #icon>
+              <DeleteOutlined />
+            </template>
+            一键清理
+          </a-button> -->
         </a-button-group>
       </a-form-item>
     </a-row>
   </a-form>
 
-  <a-card size="small" :bordered="false">
+  <a-card size="small" :bordered="false" :hoverable="true">
     <a-row class="smart-table-btn-block">
       <div class="smart-table-operate-block">
         <span style="color: yellowgreen; font-weight: bold">库存汇总</span>
@@ -134,11 +140,23 @@
             </template>
             查询
           </a-button>
-          <a-button @click="onReloadDetail">
+          <a-button @click="onReloadDetail" class="smart-margin-right10">
             <template #icon>
               <ReloadOutlined />
             </template>
             重置
+          </a-button>
+          <a-button
+            @click="confirmBatchDelete"
+            type="primary"
+            danger
+            :disabled="selectedRowKeyList.length == 0"
+            v-privilege="'inventory:batchDelete'"
+          >
+            <template #icon>
+              <DeleteOutlined />
+            </template>
+            批量删除
           </a-button>
         </a-button-group>
       </a-form-item>
@@ -163,12 +181,13 @@
     </a-row>
 
     <a-table
-      rowKey="orderId"
+      rowKey="id"
       :columns="tableColumns"
       :dataSource="tableData"
       :scroll="{ x: 1510 }"
       :pagination="false"
       :loading="tableLoading"
+      :row-selection="{ selectedRowKeys: selectedRowKeyList, onChange: onSelectChange }"
       size="small"
       bordered
     >
@@ -248,6 +267,7 @@
 <script setup>
   import { reactive, ref, onMounted } from 'vue';
   import { message, Modal } from 'ant-design-vue';
+  import { SmartLoading } from '/@/components/framework/smart-loading';
   import { useRouter } from 'vue-router';
   import { PAGE_SIZE, PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
   import SmartBooleanSelect from '/@/components/framework/boolean-select/index.vue';
@@ -417,6 +437,8 @@
   const detailTotal = ref(0);
   const tableLoading = ref(false);
   const summaryTableLoading = ref(false);
+  // 选择表格行
+  const selectedRowKeyList = ref([]);
 
   onMounted(() => {
     queryInventoryList();
@@ -515,6 +537,43 @@
       smartSentry.captureError(err);
     } finally {
       tableLoading.value = false;
+    }
+  }
+
+  // ---------------------------- 批量删除 ----------------------------
+
+  function onSelectChange(selectedRowKeys) {
+    selectedRowKeyList.value = selectedRowKeys;
+    console.log(selectedRowKeys);
+  }
+
+  // 批量删除
+  function confirmBatchDelete() {
+    Modal.confirm({
+      title: '提示',
+      content: '确定要批量删除这些数据吗?',
+      okText: '删除',
+      okType: 'danger',
+      onOk() {
+        requestBatchDelete();
+      },
+      cancelText: '取消',
+      onCancel() {},
+    });
+  }
+
+  //请求批量删除
+  async function requestBatchDelete() {
+    try {
+      SmartLoading.show();
+      await inventoryApi.batchDelete(selectedRowKeyList.value);
+      message.success('删除成功');
+      onSearchSummary();
+      onSearchDetail();
+    } catch (e) {
+      smartSentry.captureError(e);
+    } finally {
+      SmartLoading.hide();
     }
   }
 
