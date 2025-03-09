@@ -144,6 +144,7 @@ public class OrderSalesESRepository implements ElasticsearchRepository<OrderSale
                 .withQuery(query) // 将 BoolQueryBuilder 添加到查询中
                 .withPageable(PageRequest.of(pageNum, pageSize)) // 添加分页
                 .withSort(Sort.by(Sort.Direction.DESC, "createTime"))
+                .withTrackTotalHits(true)
                 .build();
 
 
