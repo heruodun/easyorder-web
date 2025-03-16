@@ -15,8 +15,8 @@
     "build:pre": "vite build  --mode pre",
     "build:innerprod": "vite build  --mode innerproduction",
     "build:outerprod": "vite build  --mode outerproduction",
+    "build:outerproddongyang": "vite build  --mode outerproductiondongyang",
     "build:prod": "vite build  --mode production"
-
   },
   "type": "module",
   "dependencies": {

@@ -9,6 +9,7 @@ import customVariables from '/@/theme/custom-variables.js';
 // 一个运行时函数检测，用于判断你是否想要自定义环境名称
 const isInnerProduction = process.env.NODE_ENV === 'innerproduction';
 const isOuterProduction = process.env.NODE_ENV === 'outerproduction';
+const isOuterProductiondongyang = process.env.NODE_ENV === 'outerproductiondongyang';
 
 const pathResolve = (dir) => {
   return resolve(__dirname, '.', dir);
@@ -19,6 +20,8 @@ if (isInnerProduction) {
   mode = 'innerproduction';
 } else if (isOuterProduction) {
   mode = 'outerproduction';
+} else if (isOuterProductiondongyang) {
+  mode = 'outerproductiondongyang';
 } else {
   mode = process.env.NODE_ENV;
 }
@@ -99,4 +102,3 @@ export default {
     'process.env': process.env,
   },
 };
-
