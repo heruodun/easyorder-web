@@ -337,6 +337,7 @@
                     <exclude>prod/*</exclude>
                     <exclude>innerprod/*</exclude>
                     <exclude>outerprod/*</exclude>
+                    <exclude>outerproddongyang/*</exclude>
                 </excludes>
             </resource>
 
@@ -420,6 +421,13 @@
             <id>outerprod</id>
             <properties>
                 <profiles.active>outerprod</profiles.active>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>outerproddongyang</id>
+            <properties>
+                <profiles.active>outerproddongyang</profiles.active>
             </properties>
         </profile>
     </profiles>

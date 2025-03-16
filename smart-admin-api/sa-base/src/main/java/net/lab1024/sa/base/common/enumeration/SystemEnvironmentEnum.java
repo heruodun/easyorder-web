@@ -42,7 +42,13 @@ public enum SystemEnvironmentEnum implements BaseEnum {
     /**
      * outer prod
      */
-    OUTER_PROD(SystemEnvironmentNameConst.OUTER_PROD, "外网生产环境");
+    OUTER_PROD(SystemEnvironmentNameConst.OUTER_PROD, "外网生产环境"),
+
+    /**
+     * outer prod
+     */
+    OUTER_PROD_DONGYANG(SystemEnvironmentNameConst.OUTER_PROD_DONGYANG, "东阳外网生产环境");
+
 
     private final String value;
 
@@ -55,6 +61,7 @@ public enum SystemEnvironmentEnum implements BaseEnum {
         public static final String PROD = "prod";
         public static final String INNER_PROD = "innerprod";
         public static final String OUTER_PROD = "outerprod";
+        public static final String OUTER_PROD_DONGYANG = "outerproddongyang";
     }
 
 }

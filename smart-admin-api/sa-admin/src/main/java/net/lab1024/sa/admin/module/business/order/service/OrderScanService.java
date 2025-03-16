@@ -46,15 +46,25 @@ public class OrderScanService {
         }
 
         //分流处理，不同的订单类型到不同的服务
-        if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_SALES)) {
+        if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_SALES)
+        || orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_TWO_SALES)
+        ) {
             return orderSalesService.scanOrder(orderScanForm, orderInfo);
-        } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BUCKET)) {
+        } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BUCKET)
+                || orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_TWO_PRODUCTION_BUCKET)
+        ) {
             return orderProductionService.scanOrder(orderScanForm, orderInfo);
-        } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BOX)) {
+        } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BOX)
+                || orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_TWO_PRODUCTION_BOX)
+        ) {
             return orderProductionService.scanOrder(orderScanForm, orderInfo);
-        } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BAG)) {
+        } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_BAG)
+                || orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_TWO_PRODUCTION_BAG)
+        ) {
             return orderProductionService.scanOrder(orderScanForm, orderInfo);
-        } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_DISK)) {
+        } else if (orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_ONE_PRODUCTION_DISK)
+                || orderInfo.getOrderType().equals(OrderTypeEnum.FACTORY_TWO_PRODUCTION_DISK)
+        ) {
             return orderProductionService.scanOrder(orderScanForm, orderInfo);
         } else {
             return ResponseDTO.error(OrderErrorCode.ILLEGAL_ORDER_ID, "其他厂订单号暂不支持~");
