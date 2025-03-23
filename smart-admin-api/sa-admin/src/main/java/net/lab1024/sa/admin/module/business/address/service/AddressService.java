@@ -205,6 +205,9 @@ public class AddressService implements InitializingBean {
             if(!entity.getDeletedFlag()) {
                 unDeletedAddressMap.put(entity.getPlace().trim(), entity);
             }
+            else {
+                unDeletedAddressMap.remove(entity.getPlace().trim());
+            }
 
         }
     }
