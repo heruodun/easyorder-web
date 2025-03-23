@@ -4,18 +4,62 @@
  */
 
 import { hiPrintPlugin } from 'vue-plugin-hiprint';
-import mb2 from './mb2.json';
-import mb1 from './mb1.json';
-import mb3 from './mb3.json';
-import mb4 from './mb4.json';
+
+// 根据环境变量动态获取模板配置
+const env = process.env.NODE_ENV;
+
+console.log('env:' + env);
+
+// 定义环境与模板的映射，示例根据实际需求调整
+const templateMapping = {
+  innerproduction: {
+    t1: 'mb1',
+    t2: 'mb2',
+    bucket: 'mb3',
+    box: 'mb4',
+  },
+  outerproduction: {
+    t1: 'mb1',
+    t2: 'mb2',
+    bucket: 'mb3',
+    box: 'mb4',
+  },
+  outerproductiondongyang: {
+    t1: 'mb1',
+    t2: 'mb2',
+    bucket: 'mb3',
+    box: 'mb4',
+  },
+  development: {
+    t1: 'mb1',
+    t2: 'mb2',
+    bucket: 'mb3',
+    box: 'mb4',
+  },
+
+  // 其他环境配置...
+};
+
+// 动态导入所有mb*.json文件
+const modules = import.meta.glob('./mb*.json', { eager: true });
+const getTemplateData = (name) => modules[`./${name}.json`].default;
+
+// 获取当前环境对应的模板配置
+const currentEnvTemplates = templateMapping[env];
+
+// 初始化模板实例
+let hiPrintTemplate1, hiPrintTemplate2, productionBucketprintTemplate, productionBoxprintTemplate;
+
+const initTemplates = () => {
+  hiPrintTemplate1 = new hiprint.PrintTemplate({ template: getTemplateData(currentEnvTemplates.t1) });
+  hiPrintTemplate2 = new hiprint.PrintTemplate({ template: getTemplateData(currentEnvTemplates.t2) });
+  productionBucketprintTemplate = new hiprint.PrintTemplate({ template: getTemplateData(currentEnvTemplates.bucket) });
+  productionBoxprintTemplate = new hiprint.PrintTemplate({ template: getTemplateData(currentEnvTemplates.box) });
+};
 
 hiprint.init();
-hiprint.hiwebSocket.setHost('localhost:17521');
-let hiPrintTemplate1 = new hiprint.PrintTemplate({ template: mb1 });
-let hiPrintTemplate2 = new hiprint.PrintTemplate({ template: mb2 });
-// 白桶模版
-let productionBucketprintTemplate = new hiprint.PrintTemplate({ template: mb3 });
-let productionBoxprintTemplate = new hiprint.PrintTemplate({ template: mb4 });
+initTemplates(); // 调用初始化
+
 // 打印
 export function printT1(printData) {
   // 打印
