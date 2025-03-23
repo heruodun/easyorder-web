@@ -68,7 +68,7 @@
         let params = {
           code: 'utf-8',
           key: value,
-          containDeleted: true,
+          containDeleted: false,
         };
 
         // 发起请求并等待返回

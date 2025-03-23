@@ -194,8 +194,7 @@
   import { onMounted, onBeforeUnmount } from 'vue';
   import { SmartLoading } from '/@/components/framework/smart-loading/index.js';
   import { activeTabStore } from '/@/store/modules/system/tab';
-  import AddressSelect from '/@/components/system/address-select/index.vue';
-
+  import AddressSelect from '/@/components/system/address-select/index-no-deleted.vue';
   onMounted(() => {
     activeTabStore().setActive(window.location.hash);
     document.addEventListener('keydown', handleKeyPress);

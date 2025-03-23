@@ -140,7 +140,7 @@
 
 <script setup>
   import { ref, reactive, computed } from 'vue';
-  import AddressSelect from '/@/components/system/address-select/index.vue';
+  import AddressSelect from '/@/components/system/address-select/index-no-deleted.vue';
   import { message } from 'ant-design-vue';
   import { useUserStore } from '/@/store/modules/system/user';
   import { now } from 'lodash';

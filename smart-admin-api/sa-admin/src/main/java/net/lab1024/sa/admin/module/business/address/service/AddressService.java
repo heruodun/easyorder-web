@@ -51,7 +51,9 @@ public class AddressService implements InitializingBean {
     @Resource
     private DictCacheService dictCacheService;
 
-    private ConcurrentHashMap<String, Long> addressMap = new ConcurrentHashMap();
+    private ConcurrentHashMap<String, AddressEntity> addressMap = new ConcurrentHashMap();
+
+    private ConcurrentHashMap<String, AddressEntity> unDeletedAddressMap = new ConcurrentHashMap();
 
     /**
      * 添加地址
@@ -67,7 +69,7 @@ public class AddressService implements InitializingBean {
         addressEntity.setDeletedFlag(Boolean.FALSE);
         addressDao.insert(addressEntity);
         dataTracerService.insert(addressEntity.getAddressId(), DataTracerTypeEnum.ADDRESS);
-        addressMap.put(addressEntity.getPlace(), addressEntity.getAddressId());
+        addressMap.put(addressEntity.getPlace(), addressEntity);
         return ResponseDTO.ok();
     }
 
@@ -84,7 +86,7 @@ public class AddressService implements InitializingBean {
         addressDao.updateById(addressEntity);
         dataTracerService.update(updateForm.getAddressId(), DataTracerTypeEnum.ADDRESS, originEntity, addressEntity);
         addressMap.remove(originEntity.getPlace());
-        addressMap.put(addressEntity.getPlace(), addressEntity.getAddressId());
+        addressMap.put(addressEntity.getPlace(), addressEntity);
         return ResponseDTO.ok();
     }
 
@@ -107,27 +109,52 @@ public class AddressService implements InitializingBean {
      * 删除
      */
     @Transactional(rollbackFor = Exception.class)
-    public ResponseDTO<String> delete(Long goodsId) {
-        AddressEntity addressEntity = addressDao.selectById(goodsId);
+    public ResponseDTO<String> delete(Long addressId) {
+        AddressEntity addressEntity = addressDao.selectById(addressId);
         if (addressEntity == null) {
             return ResponseDTO.userErrorParam("地址不存在");
         }
 
-        batchDelete(Collections.singletonList(goodsId));
-        dataTracerService.batchDelete(Collections.singletonList(goodsId), DataTracerTypeEnum.ADDRESS);
-        addressMap.remove(addressEntity.getPlace());
+        batchDelete(Collections.singletonList(addressId));
+        dataTracerService.batchDelete(Collections.singletonList(addressId), DataTracerTypeEnum.ADDRESS);
+        return ResponseDTO.ok();
+    }
+
+    /**
+     * 恢复
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> recover(Long addressId) {
+        AddressEntity addressEntity = addressDao.selectById(addressId);
+        if (addressEntity == null) {
+            return ResponseDTO.userErrorParam("地址不存在");
+        }
+
+        batchRecover(Collections.singletonList(addressId));
         return ResponseDTO.ok();
     }
 
     /**
      * 批量删除
      */
-    public ResponseDTO<String> batchDelete(List<Long> goodsIdList) {
-        if (CollectionUtils.isEmpty(goodsIdList)) {
+    public ResponseDTO<String> batchDelete(List<Long> addressIdList) {
+        if (CollectionUtils.isEmpty(addressIdList)) {
             return ResponseDTO.ok();
         }
 
-        addressDao.batchUpdateDeleted(goodsIdList, Boolean.TRUE);
+        addressDao.batchUpdateDeleted(addressIdList, Boolean.TRUE);
+        return ResponseDTO.ok();
+    }
+
+    /**
+     * 批量恢复
+     */
+    public ResponseDTO<String> batchRecover(List<Long> addressIdList) {
+        if (CollectionUtils.isEmpty(addressIdList)) {
+            return ResponseDTO.ok();
+        }
+
+        addressDao.batchUpdateDeleted(addressIdList, Boolean.FALSE);
         return ResponseDTO.ok();
     }
 
@@ -136,7 +163,7 @@ public class AddressService implements InitializingBean {
      * 分页查询
      */
     public ResponseDTO<PageResult<AddressVO>> query(AddressQueryForm queryForm) {
-        queryForm.setDeletedFlag(false);
+//        queryForm.setDeletedFlag(false);
         Page<?> page = SmartPageUtil.convert2PageQuery(queryForm);
         List<AddressVO> list = addressDao.query(page, queryForm);
         PageResult<AddressVO> pageResult = SmartPageUtil.convert2PageResult(page, list);
@@ -145,13 +172,23 @@ public class AddressService implements InitializingBean {
 
 
 
-    public Set<String> fquery(String keyword){
-        Set<String> set = SmartSearchUtil.search(keyword, addressMap.keySet());
+    public Set<String> fquery(String keyword, boolean containDeleted){
+        Set<String> set;
+        if(!containDeleted){
+            set = SmartSearchUtil.search(keyword, unDeletedAddressMap.keySet());
+        }
+        else {
+            set = SmartSearchUtil.search(keyword, addressMap.keySet());
+        }
         return set;
     }
 
     public Long getAddressId(String place){
-        return addressMap.get(place);
+        AddressEntity addressEntity =  addressMap.get(place);
+        if(addressEntity != null){
+            return addressEntity.getAddressId();
+        }
+        return null;
     }
 
 
@@ -164,7 +201,11 @@ public class AddressService implements InitializingBean {
     public void refresh(){
         List<AddressEntity> list = addressDao.selectByMap(new HashMap<>());
         for(AddressEntity entity:list){
-            addressMap.put(entity.getPlace().trim(), entity.getAddressId());
+            addressMap.put(entity.getPlace().trim(), entity);
+            if(!entity.getDeletedFlag()) {
+                unDeletedAddressMap.put(entity.getPlace().trim(), entity);
+            }
+
         }
     }
 

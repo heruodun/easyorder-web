@@ -5,7 +5,7 @@
  * @LastEditTime: 2022-06-23
  * @LastEditors: zhuoda
  */
-import {postRequest, getRequest, getDownload} from '/@/lib/axios';
+import { postRequest, getRequest, getDownload } from '/@/lib/axios';
 
 export const addressApi = {
   // 添加商品 @author zhuoda
@@ -16,6 +16,12 @@ export const addressApi = {
   deleteAddress: (addressId) => {
     return getRequest(`/address/delete/${addressId}`);
   },
+
+  // 恢复 @author zhuoda
+  recoverAddress: (addressId) => {
+    return getRequest(`/address/recover/${addressId}`);
+  },
+
   // 批量 @author zhuoda
   batchDelete: (addressIdList) => {
     return postRequest('/address/batchDelete', addressIdList);

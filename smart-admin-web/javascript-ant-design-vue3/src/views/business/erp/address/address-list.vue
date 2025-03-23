@@ -6,12 +6,9 @@
   <!---------- 查询表单form begin ----------->
   <a-form class="smart-query-form">
     <a-row class="smart-query-form-row" v-privilege="'address:query'">
-     
       <a-form-item label="地址" class="smart-query-form-item">
         <a-input style="width: 200px" v-model:value="queryForm.searchWord" placeholder="地址关键词" />
       </a-form-item>
-
-      
 
       <a-form-item class="smart-query-form-item">
         <a-button type="primary" @click="onSearch" v-privilege="'address:query'">
@@ -48,8 +45,6 @@
           </template>
           批量删除
         </a-button>
-
-       
       </div>
       <div class="smart-table-setting-block">
         <TableOperator v-model="columns" :tableId="TABLE_ID_CONST.BUSINESS.ERP.GOODS" :refresh="queryData" />
@@ -61,18 +56,17 @@
       size="small"
       :dataSource="tableData"
       :columns="columns"
-      rowKey="goodsId"
+      rowKey="addressId"
       bordered
       :pagination="false"
       :row-selection="{ selectedRowKeys: selectedRowKeyList, onChange: onSelectChange }"
     >
       <template #bodyCell="{ text, record, column }">
-        
-       
         <template v-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
             <a-button @click="addAddress(record)" type="link" v-privilege="'address:update'">编辑</a-button>
-            <!-- <a-button @click="deleteAddress(record)" danger type="link" v-privilege="'address:delete'">删除</a-button> -->
+            <a-button v-if="!record.deletedFlag" @click="deleteAddress(record)" danger type="link" v-privilege="'address:delete'">删除</a-button>
+            <a-button v-else @click="recoverAddress(record)" type="link" v-privilege="'address:delete'">恢复</a-button>
           </div>
         </template>
       </template>
@@ -95,8 +89,6 @@
     </div>
 
     <GoodsFormModal ref="formModal" @reloadList="queryData" />
-
-
   </a-card>
 </template>
 <script setup>
@@ -115,7 +107,7 @@
   import SmartEnumSelect from '/@/components/framework/smart-enum-select/index.vue';
   import { FILE_FOLDER_TYPE_ENUM } from '/@/constants/support/file-const.js';
   import FileUpload from '/@/components/support/file-upload/index.vue';
-import { addressApi } from '/@/api/business/address/address-api';
+  import { addressApi } from '/@/api/business/address/address-api';
 
   // ---------------------------- 表格列 ----------------------------
 
@@ -124,7 +116,7 @@ import { addressApi } from '/@/api/business/address/address-api';
       title: '编号',
       dataIndex: 'addressId',
     },
-  
+
     {
       title: '地址',
       dataIndex: 'place',
@@ -146,6 +138,11 @@ import { addressApi } from '/@/api/business/address/address-api';
       title: '修改时间',
       dataIndex: 'updateTime',
       width: 150,
+    },
+    {
+      title: '是否停用',
+      dataIndex: 'deletedFlag',
+      customRender: ({ text }) => (text ? '已停用' : '正常'),
     },
     {
       title: '操作',
@@ -227,8 +224,35 @@ import { addressApi } from '/@/api/business/address/address-api';
   async function singleDelete(addressData) {
     try {
       SmartLoading.show();
-      await goodsApi.deleteGoods(addressData.addressId);
+      await addressApi.deleteAddress(addressData.addressId);
       message.success('删除成功');
+      queryData();
+    } catch (e) {
+      smartSentry.captureError(e);
+    } finally {
+      SmartLoading.hide();
+    }
+  }
+
+  function recoverAddress(addressData) {
+    Modal.confirm({
+      title: '提示',
+      content: '确定要恢复【' + addressData.addressId + '】吗?',
+      okText: '恢复',
+      okType: 'danger',
+      onOk() {
+        singleRecover(addressData);
+      },
+      cancelText: '取消',
+      onCancel() {},
+    });
+  }
+
+  async function singleRecover(addressData) {
+    try {
+      SmartLoading.show();
+      await addressApi.recoverAddress(addressData.addressId);
+      message.success('恢复成功');
       queryData();
     } catch (e) {
       smartSentry.captureError(e);
@@ -273,6 +297,4 @@ import { addressApi } from '/@/api/business/address/address-api';
       SmartLoading.hide();
     }
   }
-
-  
 </script>

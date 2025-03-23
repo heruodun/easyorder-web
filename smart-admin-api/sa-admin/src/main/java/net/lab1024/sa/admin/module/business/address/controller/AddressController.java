@@ -43,8 +43,8 @@ public class AddressController {
     @Operation(summary = "模糊查询")
     @GetMapping("/address/fquery")
     @SaCheckPermission("address:fquery")
-    public ResponseDTO<Map> fquery(@RequestParam String key) {
-        Set<String> set = addressService.fquery(key);
+    public ResponseDTO<Map> fquery(@RequestParam String key, @RequestParam boolean containDeleted) {
+        Set<String> set = addressService.fquery(key, containDeleted);
         Map map = new HashMap();
         map.put("result", set);
         return ResponseDTO.ok(map);
@@ -70,6 +70,13 @@ public class AddressController {
     @SaCheckPermission("address:delete")
     public ResponseDTO<String> delete(@PathVariable Long addressId) {
         return addressService.delete(addressId);
+    }
+
+    @Operation(summary = "删除 @author 卓大")
+    @GetMapping("/address/recover/{addressId}")
+    @SaCheckPermission("address:recover")
+    public ResponseDTO<String> recover(@PathVariable Long addressId) {
+        return addressService.recover(addressId);
     }
 
     @Operation(summary = "批量 @author 卓大")

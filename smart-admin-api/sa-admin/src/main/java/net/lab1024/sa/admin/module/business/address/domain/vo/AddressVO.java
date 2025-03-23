@@ -26,6 +26,9 @@ public class AddressVO {
     @Schema(description = "备注|可选")
     private String remark;
 
+    @Schema(description = "删除状态")
+    private Boolean deletedFlag;
+
 
     private LocalDateTime updateTime;
 
