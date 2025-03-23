@@ -6,9 +6,7 @@
 import { hiPrintPlugin } from 'vue-plugin-hiprint';
 
 // 根据环境变量动态获取模板配置
-const env = process.env.NODE_ENV;
-
-console.log('env:' + env);
+const env = import.meta.env.VITE_APP_MODE; // 输出 'outerproduction'
 
 // 定义环境与模板的映射，示例根据实际需求调整
 const templateMapping = {
