@@ -55,12 +55,12 @@
   function orderPrint(time, orderId, orderIdStr) {
     let printData = {
       orderid: orderId,
-      orderid1: orderId,
       qrcodestr: orderIdStr,
-      qrcodestr1: orderIdStr,
+      orderid2: orderId,
+      qrcodestr2: orderIdStr,
       remark: formData.remark,
-      count: '桶',
-      guige: `${formData.guige}`,
+      count: '箱',
+      guige: formData.guige,
     };
     // 打印
     printProductionBucket(printData);
@@ -101,7 +101,7 @@
         remark: formData.remark,
         guige: formData.guige,
         count: 1,
-        danwei: '桶',
+        danwei: '箱',
         type: 2,
       };
 

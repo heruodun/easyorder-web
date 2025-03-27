@@ -59,7 +59,7 @@
       orderid2: orderId,
       qrcodestr2: orderIdStr,
       remark: formData.remark,
-      count: '盘',
+      count: '箱',
       guige: formData.guige,
     };
     // 打印
@@ -99,7 +99,7 @@
         remark: formData.remark,
         guige: formData.guige,
         count: 1,
-        danwei: '盘',
+        danwei: '箱',
         type: 5,
       };
 
