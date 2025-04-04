@@ -6,7 +6,7 @@
 export const ORDER_TYPE_ENUM = {
   PRODUCTION_BUCKET: {
     value: 2,
-    desc: '白桶订单',
+    desc: '下机订单',
   },
   PRODUCTION_BOX: {
     value: 3,
