@@ -20,13 +20,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * redis 一顿操作
- *
- * @Author 1024创新实验室: 罗伊
- * @Date 2020/8/25 21:57
- * @Wechat zhuoda1024
- * @Email lab1024@163.com
- * @Copyright  <a href="https://1024lab.net">1024创新实验室</a>
+ * redis
  */
 @Service
 public class RedisService {
@@ -219,6 +213,16 @@ public class RedisService {
 
     public Object mget(String key, String hashKey) {
         return redisHashOperations.get(key, hashKey);
+    }
+
+    /**
+     * redisTemplate hash key set 方法
+     * @param key
+     * @param hashKey
+     * @param value
+     */
+    public void setHash(String key, String hashKey, String value){
+        redisTemplate.opsForHash().put(key, hashKey, value);
     }
 
 }

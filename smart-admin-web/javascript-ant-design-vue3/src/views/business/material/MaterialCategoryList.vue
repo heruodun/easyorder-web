@@ -6,7 +6,12 @@
         <a-row style="margin-left: 14px">
           <a-button v-if="btnEnableList.indexOf(1) > -1" @click="handleAdd" type="primary">添加类别</a-button>
           <a-button v-if="btnEnableList.indexOf(1) > -1" title="删除多条数据" @click="batchDel" type="default">批量删除</a-button>
-          <a-button @click="refresh" type="default" icon="reload">刷新</a-button>
+          <a-button @click="refresh" type="default">
+            <template #icon>
+              <ReloadOutlined />
+            </template>
+            刷新</a-button
+          >
         </a-row>
         <div style="background: #fff; padding-left: 16px; height: 100%; margin-top: 5px">
           <a-alert type="info" :show-icon="true">
@@ -15,9 +20,10 @@
               <a v-if="currSelected.title" style="margin-left: 10px" @click="onClearSelected">取消选择</a>
             </template>
           </a-alert>
+
           <!-- 树形控件 -->
           <a-col :md="10" :sm="24">
-            <a-dropdown :trigger="[dropTrigger]" @visible-change="dropStatus">
+            <a-dropdown :trigger="[dropTrigger]" @open-change="dropStatus">
               <span style="user-select: none">
                 <a-tree
                   checkable
@@ -26,6 +32,7 @@
                   v-model:checkedKeys="checkedKeys"
                   v-model:expandedKeys="iExpandedKeys"
                   :tree-data="categoryTree"
+                  :defaultExpandAll="true"
                   :checkStrictly="checkStrictly"
                   :autoExpandParent="true"
                   @select="onSelect"
@@ -40,7 +47,7 @@
       </a-card>
       <!-- 树操作按钮 -->
       <div class="drawer-bootom-button">
-        <a-dropdown :trigger="['click']" placement="topCenter">
+        <a-dropdown :trigger="['click']" placement="top">
           <template #overlay>
             <a-menu>
               <a-menu-item key="1" @click="switchCheckStrictly(1)">父子关联</a-menu-item>
@@ -51,7 +58,7 @@
               <a-menu-item key="6" @click="closeAll">合并所有</a-menu-item>
             </a-menu>
           </template>
-          <a-button> 树操作 <a-icon type="up" /> </a-button>
+          <a-button> 树操作 </a-button>
         </a-dropdown>
       </div>
     </a-col>
@@ -83,8 +90,14 @@
           </a-form-item>
         </a-form>
         <div class="anty-form-btn">
-          <a-button @click="emptyCurrForm" type="default" html-type="button" icon="sync">重置</a-button>
-          <a-button @click="submitCurrForm" type="primary" html-type="button" icon="form">保存</a-button>
+          <a-button @click="emptyCurrForm" type="default" html-type="button">
+            <ReloadOutlined />
+            重置</a-button
+          >
+          <a-button @click="submitCurrForm" type="primary" html-type="button">
+            <SaveOutlined />
+            保存</a-button
+          >
         </div>
       </a-card>
       <a-card v-else>
@@ -97,348 +110,350 @@
   </a-row>
 </template>
 
-<script>
-  import { defineComponent, ref, reactive, onMounted, nextTick } from 'vue';
+<script setup>
+  import { ref, reactive, onMounted, nextTick } from 'vue';
   import { useRoute } from 'vue-router';
   import { message, Modal } from 'ant-design-vue';
   import MaterialCategoryModal from '../material/modules/MaterialCategoryModal.vue';
   import pick from 'lodash.pick';
-  import { queryMaterialCategoryTreeList, queryMaterialCategoryById, checkMaterialCategory } from '/@/api/api';
-  import { httpAction, deleteAction } from '/@/api/manage';
+  import {
+    queryMaterialCategoryTreeList,
+    queryMaterialCategoryById,
+    checkMaterialCategory,
+    updateMaterialCategory,
+    deleteMaterialCategory,
+  } from '/@/api/api';
 
-  export default defineComponent({
-    name: 'MaterialCategoryList',
-    components: {
-      MaterialCategoryModal,
-    },
-    setup() {
-      const route = useRoute();
-      const formRef = ref(null);
-      const materialCategoryModal = ref(null);
+  import { getRequest, postRequest, putRequest, deleteRequest } from '/@/lib/axios-erp';
 
-      // 响应式状态
-      const state = reactive({
-        iExpandedKeys: [],
-        loading: false,
-        currFlowId: route.params.id || '',
-        currFlowName: route.params.name || '',
-        treeData: [],
-        categoryTree: [],
-        rightClickSelectedKey: '',
-        dropTrigger: '',
-        checkedKeys: [],
-        selectedKeys: [],
-        currSelected: {},
-        allTreeKeys: [],
-        checkStrictly: true,
-        btnEnableList: [1], // 示例值，根据实际需求调整
-        labelCol: {
-          xs: { span: 24 },
-          sm: { span: 5 },
-        },
-        wrapperCol: {
-          xs: { span: 24 },
-          sm: { span: 16 },
-        },
-        url: {
-          delete: '/materialCategory/delete',
-          edit: '/materialCategory/update',
-          deleteBatch: '/materialCategory/deleteBatch',
-        },
-      });
+  import HelpDocCatalogTreeSelect from '../../support/help-doc/management/components/help-doc-catalog-tree-select.vue';
 
-      // 表单状态
-      const formState = reactive({
-        name: '',
-        serialNo: '',
-        parentId: undefined,
-        sort: undefined,
-        remark: '',
-      });
+  // 路由
+  const route = useRoute();
 
-      // 加载树数据
-      const loadTree = async () => {
-        state.treeData = [];
-        state.categoryTree = [];
-        const params = { id: '' };
-        state.loading = true;
+  // 响应式状态
+  const iExpandedKeys = ref([]);
+  const loading = ref(false);
+  const currFlowId = ref(route.params.id || '');
+  const currFlowName = ref(route.params.name || '');
+  const treeData = ref([]);
+  const categoryTree = ref([]);
+  const rightClickSelectedKey = ref('');
+  const dropTrigger = ref('');
+  const checkedKeys = ref([]);
+  const selectedKeys = ref([]);
+  const currSelected = reactive({});
+  const allTreeKeys = ref([]);
+  const checkStrictly = ref(true);
+  const btnEnableList = ref([1]);
+  const labelCol = reactive({
+    xs: { span: 24 },
+    sm: { span: 5 },
+  });
+  const wrapperCol = reactive({
+    xs: { span: 24 },
+    sm: { span: 16 },
+  });
+  const url = reactive({
+    delete: '/materialCategory/delete',
+    edit: '/materialCategory/update',
+    deleteBatch: '/materialCategory/deleteBatch',
+  });
 
+  // 表单状态
+  const formState = reactive({
+    name: '',
+    serialNo: '',
+    parentId: undefined,
+    sort: undefined,
+    remark: '',
+  });
+
+  // 模板引用
+  const formRef = ref(null);
+  const materialCategoryModal = ref(null);
+
+  // 加载树数据
+  const loadTree = async () => {
+    loading.value = true;
+    try {
+      const res = await queryMaterialCategoryTreeList({ id: '' });
+      if (res) {
+        // 1. 创建临时变量存储处理结果
+        const tempTree = [];
+        const tempExpandedKeys = [];
+        const tempAllKeys = [];
+
+        // 2. 深度优先处理节点（避免递归操作响应式变量）
+        const processNode = (node) => {
+          // 创建节点副本（断开响应式引用）
+          const nodeCopy = { ...node };
+
+          // 收集所有节点key
+          tempAllKeys.push(nodeCopy.key);
+
+          // 收集需要展开的节点key（有子节点的节点）
+          if (nodeCopy.children && nodeCopy.children.length > 0) {
+            tempExpandedKeys.push(nodeCopy.key);
+
+            // 递归处理子节点（使用副本）
+            nodeCopy.children = nodeCopy.children.map((child) => processNode(child));
+          }
+
+          return nodeCopy;
+        };
+
+        // 3. 处理每个根节点
+        for (let i = 0; i < res.length; i++) {
+          tempTree.push(processNode(res[i]));
+        }
+
+        // 4. 一次性赋值（避免多次响应式更新）
+        categoryTree.value = tempTree;
+        iExpandedKeys.value = tempExpandedKeys;
+        allTreeKeys.value = tempAllKeys;
+      }
+    } catch (error) {
+      console.error('加载类别树失败:', error);
+      message.error('加载类别树失败');
+    } finally {
+      loading.value = false;
+    }
+  };
+  // // 设置展开的节点
+  // const setThisExpandedKeys = (node) => {
+  //   if (node.children && node.children.length > 0) {
+  //     iExpandedKeys.value.push(node.key);
+  //     for (let a = 0; a < node.children.length; a++) {
+  //       setThisExpandedKeys(node.children[a]);
+  //     }
+  //   }
+  // };
+
+  // 刷新树
+  const refresh = () => {
+    loading.value = true;
+    loadTree();
+  };
+
+  // 右键操作
+  const rightHandle = (info) => {
+    dropTrigger.value = 'contextmenu';
+    rightClickSelectedKey.value = info.node.key;
+  };
+
+  // 节点展开
+  const onExpand = (expandedKeys) => {
+    iExpandedKeys.value = expandedKeys;
+  };
+
+  // 下拉状态变化
+  const dropStatus = (visible) => {
+    if (!visible) {
+      dropTrigger.value = '';
+    }
+  };
+
+  // 批量删除
+  const batchDel = () => {
+    if (checkedKeys.value.length <= 0) {
+      message.warning('请选择一条记录！');
+      return;
+    }
+
+    let ids = checkedKeys.value.join(',');
+
+    Modal.confirm({
+      title: '确认删除',
+      content: `确定要删除所选中的 ${checkedKeys.value.length} 条数据吗?`,
+      onOk: async () => {
         try {
-          const res = await queryMaterialCategoryTreeList(params);
-          if (res) {
-            state.allTreeKeys = [];
-            for (let i = 0; i < res.length; i++) {
-              const temp = res[i];
-              state.categoryTree.push(temp);
-              setThisExpandedKeys(temp);
-              getAllKeys(temp);
-            }
-          }
-        } catch (error) {
-          console.error('加载类别树失败:', error);
-          message.error('加载类别树失败');
-        } finally {
-          state.loading = false;
-        }
-      };
-
-      // 设置展开的节点
-      const setThisExpandedKeys = (node) => {
-        if (node.children && node.children.length > 0) {
-          state.iExpandedKeys.push(node.key);
-          for (let a = 0; a < node.children.length; a++) {
-            setThisExpandedKeys(node.children[a]);
-          }
-        }
-      };
-
-      // 刷新树
-      const refresh = () => {
-        state.loading = true;
-        loadTree();
-      };
-
-      // 右键操作
-      const rightHandle = (info) => {
-        state.dropTrigger = 'contextmenu';
-        state.rightClickSelectedKey = info.node.key;
-      };
-
-      // 节点展开
-      const onExpand = (expandedKeys) => {
-        state.iExpandedKeys = expandedKeys;
-      };
-
-      // 下拉状态变化
-      const dropStatus = (visible) => {
-        if (!visible) {
-          state.dropTrigger = '';
-        }
-      };
-
-      // 批量删除
-      const batchDel = () => {
-        if (state.checkedKeys.length <= 0) {
-          message.warning('请选择一条记录！');
-          return;
-        }
-
-        let ids = state.checkedKeys.join(',');
-
-        Modal.confirm({
-          title: '确认删除',
-          content: `确定要删除所选中的 ${state.checkedKeys.length} 条数据吗?`,
-          onOk: async () => {
-            try {
-              const res = await deleteAction(state.url.deleteBatch, { ids });
-              if (res.code == 200) {
-                message.success(res.data.message);
-                loadTree();
-                onClearSelected();
-              } else {
-                message.warning(res.data.message);
-              }
-            } catch (error) {
-              console.error('删除失败:', error);
-              message.error('删除失败');
-            }
-          },
-        });
-      };
-
-      // 节点选择
-      const onSelect = async (selectedKeys, e) => {
-        const record = e.node.dataRef;
-        const params = { id: record.id };
-
-        try {
-          const res = await queryMaterialCategoryById(params);
-          if (res && res.code == 200 && res.data) {
-            const data = res.data;
-            record.name = data.name;
-            record.serialNo = data.serialNo;
-            record.parentId = data.parentId;
-            record.sort = data.sort;
-            record.remark = data.remark;
-
-            state.currSelected = { ...record };
-            state.selectedKeys = [record.key];
-            formState.parentId = record.parentId;
-            setValuesToForm(record);
-          }
-        } catch (error) {
-          console.error('加载类别详情失败:', error);
-        }
-      };
-
-      // 节点勾选
-      const onCheck = (checkedKeysValue, info) => {
-        if (state.checkStrictly) {
-          state.checkedKeys = checkedKeysValue.checked;
-        } else {
-          state.checkedKeys = checkedKeysValue;
-        }
-      };
-
-      // 根据参数加载树
-      const getTreeByParams = async (params) => {
-        try {
-          const res = await queryMaterialCategoryTreeList(params);
-          if (res) {
-            state.treeData = [...res];
-          }
-        } catch (error) {
-          console.error('加载树数据失败:', error);
-        }
-      };
-
-      // 设置表单值
-      const setValuesToForm = (record) => {
-        nextTick(() => {
-          Object.assign(formState, pick(record, ['name', 'serialNo', 'parentId', 'sort', 'remark']));
-        });
-      };
-
-      // 获取当前选中标题
-      const getCurrSelectedTitle = () => {
-        return state.currSelected.title || '';
-      };
-
-      // 清除选中
-      const onClearSelected = () => {
-        state.checkedKeys = [];
-        state.currSelected = {};
-        formRef.value?.resetFields();
-        state.selectedKeys = [];
-      };
-
-      // 提交表单
-      const submitCurrForm = async () => {
-        try {
-          await formRef.value.validate();
-
-          if (!state.currSelected.id) {
-            message.warning('请点击选择要修改类别!');
-            return;
-          }
-
-          const formData = { ...state.currSelected, ...formState };
-
-          const res = await httpAction(state.url.edit, formData, 'put');
+          const res = await deleteRequest(url.deleteBatch, { ids: ids });
           if (res.code == 200) {
-            message.success('保存成功!');
+            message.success(res.data.message);
             loadTree();
-            getTreeByParams({ id: formData.id });
+            onClearSelected();
           } else {
             message.warning(res.data.message);
           }
         } catch (error) {
-          console.error('表单验证失败:', error);
+          console.error('删除失败:', error);
+          message.error('删除失败');
         }
+      },
+    });
+  };
+
+  // 节点选择
+  const onSelect = (selectedKeysValue, e) => {
+    doSelect(selectedKeysValue, e);
+  };
+
+  async function doSelect(selectedKeysValue, e) {
+    const record = e.node.dataRef;
+    const params = { id: record.id };
+
+    getTreeByParams(params);
+    const res = await queryMaterialCategoryById(params);
+    console.log('onselect ' + JSON.stringify(e.node.dataRef));
+
+    if (res && res.code == 200 && res.data) {
+      const data = res.data;
+      // 创建新对象而不是修改原始节点
+      const updatedRecord = {
+        ...record,
+        name: data.name,
+        serialNo: data.serialNo,
+        parentId: data.parentId,
+        sort: data.sort,
+        remark: data.remark,
       };
 
-      // 重置表单
-      const emptyCurrForm = () => {
-        formRef.value?.resetFields();
-      };
+      // 使用新对象更新状态
+      Object.assign(currSelected, updatedRecord);
+      selectedKeys.value = [record.key];
+      formState.parentId = data.parentId;
 
-      // 名称验证
-      const validateName = async (rule, value) => {
-        if (!value) return Promise.reject('请输入名称');
+      setValuesToForm(updatedRecord);
+    }
+  }
 
-        const params = {
-          name: value,
-          id: state.currSelected.id || 0,
-        };
+  // 节点勾选
+  const onCheck = (checkedKeysValue, info) => {
+    if (checkStrictly.value) {
+      checkedKeys.value = checkedKeysValue.checked;
+    } else {
+      checkedKeys.value = checkedKeysValue;
+    }
+  };
 
-        try {
-          const res = await checkMaterialCategory(params);
-          if (res && res.code === 200) {
-            if (res.data.status) {
-              return Promise.reject('名称已经存在');
-            } else {
-              return Promise.resolve();
-            }
-          }
-          return Promise.reject('验证失败，请重试');
-        } catch (error) {
-          return Promise.reject('名称验证失败');
-        }
-      };
+  // 根据参数加载树
+  const getTreeByParams = async (params) => {
+    try {
+      const res = await queryMaterialCategoryTreeList(params);
+      if (res) {
+        treeData.value = [...res];
+      }
+    } catch (error) {
+      console.error('加载树数据失败:', error);
+    }
+  };
 
-      // 添加类别
-      const handleAdd = () => {
-        if (materialCategoryModal.value) {
-          materialCategoryModal.value.add();
-          materialCategoryModal.value.title = '新增';
-        }
-      };
+  // 设置表单值
+  const setValuesToForm = (record) => {
+    nextTick(() => {
+      Object.assign(formState, pick(record, ['name', 'serialNo', 'parentId', 'sort', 'remark']));
+    });
+  };
 
-      // 树操作功能
-      const expandAll = () => {
-        state.iExpandedKeys = [...state.allTreeKeys];
-      };
+  // 获取当前选中标题
+  const getCurrSelectedTitle = () => {
+    return currSelected.title || '';
+  };
 
-      const closeAll = () => {
-        state.iExpandedKeys = [];
-      };
+  // 清除选中
+  const onClearSelected = () => {
+    checkedKeys.value = [];
+    Object.keys(currSelected).forEach((key) => delete currSelected[key]);
+    formRef.value?.resetFields();
+    selectedKeys.value = [];
+  };
 
-      const checkALL = () => {
-        state.checkStrictly = false;
-        state.checkedKeys = [...state.allTreeKeys];
-      };
+  // 提交表单
+  const submitCurrForm = async () => {
+    try {
+      await formRef.value.validate();
 
-      const cancelCheckALL = () => {
-        state.checkedKeys = [];
-      };
+      if (!currSelected.id) {
+        message.warning('请点击选择要修改类别!');
+        return;
+      }
 
-      const switchCheckStrictly = (v) => {
-        state.checkStrictly = v === 2;
-      };
+      const formData = { ...currSelected, ...formState };
 
-      const getAllKeys = (node) => {
-        state.allTreeKeys.push(node.key);
-        if (node.children && node.children.length > 0) {
-          for (let a = 0; a < node.children.length; a++) {
-            getAllKeys(node.children[a]);
-          }
-        }
-      };
-
-      // 初始化
-      onMounted(() => {
+      const res = await updateMaterialCategory(formData);
+      if (res.code == 200) {
         loadTree();
-      });
+        getTreeByParams({ id: formData.id });
+      } else {
+        message.warning(res.data.message);
+      }
+    } catch (error) {
+      console.error('表单验证失败:', error);
+    }
+  };
 
-      return {
-        ...state,
-        formState,
-        formRef,
-        materialCategoryModal,
-        loadTree,
-        refresh,
-        rightHandle,
-        onExpand,
-        dropStatus,
-        batchDel,
-        onSelect,
-        onCheck,
-        getTreeByParams,
-        setValuesToForm,
-        getCurrSelectedTitle,
-        onClearSelected,
-        submitCurrForm,
-        emptyCurrForm,
-        validateName,
-        handleAdd,
-        expandAll,
-        closeAll,
-        checkALL,
-        cancelCheckALL,
-        switchCheckStrictly,
-        getAllKeys,
-      };
-    },
+  // 重置表单
+  const emptyCurrForm = () => {
+    formRef.value?.resetFields();
+  };
+
+  // 名称验证
+  const validateName = async (rule, value) => {
+    if (!value) return Promise.reject('请输入名称');
+
+    const params = {
+      name: value,
+      id: currSelected.id || 0,
+    };
+
+    try {
+      const res = await checkMaterialCategory(params);
+      if (res && res.code === 200) {
+        if (res.data.status) {
+          return Promise.reject('名称已经存在');
+        } else {
+          return Promise.resolve();
+        }
+      }
+      return Promise.reject('验证失败，请重试');
+    } catch (error) {
+      return Promise.reject('名称验证失败');
+    }
+  };
+
+  // 添加类别
+  const handleAdd = () => {
+    if (materialCategoryModal.value) {
+      materialCategoryModal.value.add();
+      materialCategoryModal.value.title = '新增';
+    }
+  };
+
+  // 树操作功能
+  const expandAll = () => {
+    iExpandedKeys.value = [...allTreeKeys.value];
+  };
+
+  const closeAll = () => {
+    iExpandedKeys.value = [];
+  };
+
+  const checkALL = () => {
+    checkStrictly.value = false;
+    checkedKeys.value = [...allTreeKeys.value];
+  };
+
+  const cancelCheckALL = () => {
+    checkedKeys.value = [];
+  };
+
+  const switchCheckStrictly = (v) => {
+    checkStrictly.value = v === 2;
+  };
+
+  const getAllKeys = (node) => {
+    allTreeKeys.value.push(node.key);
+    if (node.children && node.children.length > 0) {
+      for (let a = 0; a < node.children.length; a++) {
+        getAllKeys(node.children[a]);
+      }
+    }
+  };
+
+  // // 初始化
+  onMounted(() => {
+    loadTree();
   });
 </script>
 

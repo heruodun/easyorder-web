@@ -1,11 +1,5 @@
 /*
  *  ajax请求
- *
- * @Author:    1024创新实验室-主任：卓大
- * @Date:      2022-09-06 20:46:03
- * @Wechat:    zhuda1024
- * @Email:     lab1024@163.com
- * @Copyright  1024创新实验室 （ https://1024lab.net ），Since 2012
  */
 import { message, Modal } from 'ant-design-vue';
 import axios from 'axios';
@@ -16,13 +10,14 @@ import _ from 'lodash';
 import LocalStorageKeyConst from '/@/constants/local-storage-key-const.js';
 
 // token的消息头
-const TOKEN_HEADER = 'x-access-token';
-// erp token的消息头
 const ERP_TOKEN_HEADER = 'x-erp-access-token';
 
 // 创建axios对象
-const smartAxios = axios.create({
-  baseURL: import.meta.env.VITE_APP_API_URL,
+const smartAxios4Erp = axios.create({
+  baseURL: import.meta.env.VITE_APP_ERP_API_URL + '/jshERP-boot',
+  headers: {
+    'Content-Type': 'application/json;charset=UTF-8', // 所有请求默认使用 JSON[10](@ref)
+  },
 });
 
 // 退出系统
@@ -31,22 +26,14 @@ function logout() {
   location.href = '/';
 }
 
-// ================================= 请求拦截器 =================================
+// ================================= todo 请求拦截器 =================================
 
-smartAxios.interceptors.request.use(
+smartAxios4Erp.interceptors.request.use(
   (config) => {
-    // 在发送请求之前消息头加入token token
-    const token = localRead(LocalStorageKeyConst.USER_TOKEN);
-    if (token) {
-      config.headers[TOKEN_HEADER] = token;
-    } else {
-      delete config.headers[TOKEN_HEADER];
-    }
-
     //todo临时方案 在发送请求之前消息头加入erp token token
     const erpToken = localRead(LocalStorageKeyConst.USER_ERP_TOKEN);
     if (erpToken) {
-      config.headers[ERP_TOKEN_HEADER] = token;
+      config.headers[ERP_TOKEN_HEADER] = erpToken;
     } else {
       delete config.headers[ERP_TOKEN_HEADER];
     }
@@ -62,7 +49,7 @@ smartAxios.interceptors.request.use(
 // ================================= 响应拦截器 =================================
 
 // 添加响应拦截器
-smartAxios.interceptors.response.use(
+smartAxios4Erp.interceptors.response.use(
   (response) => {
     // 根据content-type ，判断是否为 json 数据
     let contentType = response.headers['content-type'] ? response.headers['content-type'] : response.headers['Content-Type'];
@@ -85,7 +72,8 @@ smartAxios.interceptors.response.use(
     }
 
     const res = response.data;
-    if (res.code && res.code !== 1) {
+    console.info('smartAxios4Erp-----');
+    if (res.code && res.code !== 200) {
       // `token` 过期或者账号已在别处登录
       if (res.code === 30007 || res.code === 30008) {
         message.destroy();
@@ -139,18 +127,18 @@ smartAxios.interceptors.response.use(
 // ================================= 对外提供请求方法：通用请求，get， post, 下载download等 =================================
 
 /**
- * get请求
- */
-export const getRequest = (url, params) => {
-  return request({ url, method: 'get', params });
-};
-
-/**
  * 通用请求封装
  * @param config
  */
 export const request = (config) => {
-  return smartAxios.request(config);
+  return smartAxios4Erp.request(config);
+};
+
+/**
+ * get请求
+ */
+export const getRequest = (url, params) => {
+  return request({ url, method: 'get', params });
 };
 
 /**
@@ -161,6 +149,24 @@ export const postRequest = (url, data) => {
     data,
     url,
     method: 'post',
+  });
+};
+
+/**
+ * put请求
+ */
+export const putRequest = (url, data) => {
+  return smartAxios4Erp.put(url, data); // 正确传递参数[9,10](@ref)
+};
+
+/**
+ * delete请求
+ */
+export const deleteRequest = (url, params) => {
+  return request({
+    params: params,
+    url,
+    method: 'delete',
   });
 };
 

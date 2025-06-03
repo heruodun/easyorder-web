@@ -53,3 +53,25 @@ export const useAppConfigStore = defineStore({
     },
   },
 });
+
+/**
+ * 新增erp系统的app配置
+ */
+export const useAppStore = defineStore('app', {
+  state: () => ({
+    layout: 'sidemenu',
+    theme: 'dark',
+    color: '#1890FF',
+    weak: false,
+    multipage: true,
+    fixedHeader: true,
+    fixSiderbar: true,
+    contentWidth: 'Fluid',
+    autoHideHeader: false,
+    sidebar: { opened: true },
+    device: 'desktop',
+  }),
+  getters: {
+    sidebarOpened: (state) => state.sidebar.opened,
+  },
+});

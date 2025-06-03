@@ -1,24 +1,15 @@
 import { computed } from 'vue';
-import { useStore } from 'vuex';
+import { useAppStore } from '/@/store/modules/system/app-config';
 
-// 设备相关功能
 export const useDevice = () => {
-  const store = useStore();
+  const appStore = useAppStore();
 
-  // 设备状态计算属性
-  const device = computed(() => store.state.app.device);
-
-  // 设备检测方法
-  const isMobile = () => device.value === 'mobile';
-  const isDesktop = () => device.value === 'desktop';
-
-  // 模态框类名生成
-  const wrapClassNameInfo = computed(() => {
-    return isDesktop() ? 'ant-modal-cust-warp depot-mask' : 'ant-modal-cust-warp';
-  });
+  const isMobile = computed(() => appStore.device === 'mobile');
+  const isDesktop = computed(() => appStore.device === 'desktop');
+  const wrapClassNameInfo = computed(() => (isDesktop.value ? 'ant-modal-cust-warp depot-mask' : 'ant-modal-cust-warp'));
 
   return {
-    device,
+    device: computed(() => appStore.device),
     isMobile,
     isDesktop,
     wrapClassNameInfo,

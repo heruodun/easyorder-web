@@ -53,6 +53,14 @@ export default {
   server: {
     host: '0.0.0.0',
     port: 8081,
+    proxy: {
+      // ✅ 代理配置移至此
+      '/jshERP-boot': {
+        target: 'http://localhost:9999',
+        changeOrigin: true,
+        ws: false,
+      },
+    },
   },
   plugins: [vue()],
   optimizeDeps: {

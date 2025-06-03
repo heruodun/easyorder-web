@@ -25,6 +25,12 @@ public class LoginResultVO extends RequestEmployee {
     @Schema(description = "token")
     private String token;
 
+    /**
+     * 临时方案，使用erpToken可以访问erp服务端
+     */
+    @Schema(description = "erp token")
+    private String erpToken;
+
     @Schema(description = "菜单列表")
     private List<MenuVO> menuList;
 

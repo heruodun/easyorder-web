@@ -41,7 +41,6 @@
   import { useUserStore } from '/@/store/modules/system/user';
   import loginQR from '/@/assets/images/login/login-qr.png';
 
-
   import { buildRoutes } from '/@/router/index';
   import { smartSentry } from '/@/lib/smart-sentry';
   import { encryptData } from '/@/lib/encrypt';
@@ -81,18 +80,18 @@
       description: '欢迎使用！',
       duration: 8,
       onClick: () => {},
-    //   btn: () =>
-    //     h(
-    //       Button,
-    //       {
-    //         type: 'primary',
-    //         target: '_blank',
-    //         size: 'small',
-    //         // href: 'https://smartadmin.vip/views/v3/front/Login.html',
-    //         onClick: () => {},
-    //       },
-    //       { default: () => '去看看' }
-    //     ),
+      //   btn: () =>
+      //     h(
+      //       Button,
+      //       {
+      //         type: 'primary',
+      //         target: '_blank',
+      //         size: 'small',
+      //         // href: 'https://smartadmin.vip/views/v3/front/Login.html',
+      //         onClick: () => {},
+      //       },
+      //       { default: () => '去看看' }
+      //     ),
     });
   });
 
@@ -112,6 +111,8 @@
         const res = await loginApi.login(encryptPasswordForm);
         stopRefrestCaptchaInterval();
         localSave(LocalStorageKeyConst.USER_TOKEN, res.data.token ? res.data.token : '');
+        //todo 临时方案
+        localSave(LocalStorageKeyConst.USER_ERP_TOKEN, res.data.erpToken ? res.data.erpToken : '');
         message.success('登录成功');
         //更新用户信息到pinia
         useUserStore().setUserLoginInfo(res.data);

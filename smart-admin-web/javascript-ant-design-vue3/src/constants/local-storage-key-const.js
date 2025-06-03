@@ -18,6 +18,8 @@ const KEY_PREFIX = 'smart_admin_';
 export default {
   // 用户token
   USER_TOKEN: `${KEY_PREFIX}user_token`,
+  //todo 临时方案 erp用户token
+  USER_ERP_TOKEN: `${KEY_PREFIX}user_erp_token`,
   // 用户信息
   USER_INFO: `${KEY_PREFIX}user_info`,
   // 用户权限点

@@ -37,6 +37,7 @@ import net.lab1024.sa.base.module.support.loginlog.LoginLogResultEnum;
 import net.lab1024.sa.base.module.support.loginlog.LoginLogService;
 import net.lab1024.sa.base.module.support.loginlog.domain.LoginLogEntity;
 import net.lab1024.sa.base.module.support.loginlog.domain.LoginLogVO;
+import net.lab1024.sa.base.module.support.redis.RedisService;
 import net.lab1024.sa.base.module.support.securityprotect.domain.LoginFailEntity;
 import net.lab1024.sa.base.module.support.securityprotect.service.ProtectLoginService;
 import net.lab1024.sa.base.module.support.securityprotect.service.ProtectPasswordService;
@@ -110,6 +111,9 @@ public class LoginService implements StpInterface {
 
     @Resource
     private ProtectPasswordService profectPasswordService;
+
+    @Resource
+    private RedisService redisService;
 
     /**
      * 获取验证码
@@ -200,7 +204,8 @@ public class LoginService implements StpInterface {
             // 对于万能密码：受限制sa token 要求loginId唯一，万能密码只能插入一段uuid
             String saTokenLoginId = SUPER_PASSWORD_LOGIN_ID_PREFIX + StringConst.COLON + UUID.randomUUID().toString().replace("-", "") + StringConst.COLON + employeeEntity.getEmployeeId();
             // 万能密码登录只能登录15分钟
-            StpUtil.login(saTokenLoginId, 900);
+            //todo 测试
+            StpUtil.login(saTokenLoginId, 900000);
 
         } else {
 
@@ -241,6 +246,16 @@ public class LoginService implements StpInterface {
 
         // 设置 token
         loginResultVO.setToken(StpUtil.getTokenValue());
+
+        //****************************************erp token**************************************************
+        String erpToken = java.util.UUID.randomUUID().toString().replaceAll("-", "") + "";
+        erpToken = erpToken + "_63" ;
+
+        //开启redis，用户数据放到redis中
+        redisService.setHash(erpToken, "userId", "63");
+
+        loginResultVO.setErpToken(erpToken);
+        //****************************************erp token**************************************************
 
         String scanRules = null;
         try {

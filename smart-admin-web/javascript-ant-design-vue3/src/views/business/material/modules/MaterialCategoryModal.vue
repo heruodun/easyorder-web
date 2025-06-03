@@ -4,7 +4,7 @@
       :title="title"
       :width="800"
       :ok="false"
-      :visible="visible"
+      :open="visible"
       :confirm-loading="confirmLoading"
       :ok-button-props="{ disabled: disableSubmit }"
       :get-container="() => container"
@@ -64,8 +64,7 @@
 
 <script>
   import { defineComponent, ref, reactive, getCurrentInstance, nextTick, computed } from 'vue';
-  import { httpAction } from '/@/api/manage';
-  import { queryMaterialCategoryTreeList, checkMaterialCategory } from '@/api/api';
+  import { queryMaterialCategoryTreeList, checkMaterialCategory, addMaterialCategory } from '/@/api/api';
   import { useDevice } from '/@/utils/device-util'; // 引入设备工具函数
   import pick from 'lodash.pick';
 
@@ -185,7 +184,7 @@
           this.confirmLoading = true;
           const formData = { ...this.formState };
 
-          const res = await httpAction('/materialCategory/add', formData, 'post');
+          const res = await addMaterialCategory(formData);
 
           if (res.code == 200) {
             this.$message.success(res.data.message);
