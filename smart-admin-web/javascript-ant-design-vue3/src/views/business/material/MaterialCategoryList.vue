@@ -58,7 +58,7 @@
               <a-menu-item key="6" @click="closeAll">合并所有</a-menu-item>
             </a-menu>
           </template>
-          <a-button> 树操作 </a-button>
+          <a-button> 树操作<UpOutlined /> </a-button>
         </a-dropdown>
       </div>
     </a-col>

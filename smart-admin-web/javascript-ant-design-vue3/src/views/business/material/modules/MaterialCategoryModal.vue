@@ -8,7 +8,7 @@
       :confirm-loading="confirmLoading"
       :ok-button-props="{ disabled: disableSubmit }"
       :get-container="() => container"
-      :mask-style="{ top: '93px', left: '154px' }"
+      :mask-style="{ top: '0px', left: '0px' }"
       :wrap-class-name="wrapClassNameInfo"
       :mask="isDesktop"
       :mask-closable="false"

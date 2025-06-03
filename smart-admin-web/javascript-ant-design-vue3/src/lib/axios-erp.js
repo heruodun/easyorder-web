@@ -20,6 +20,15 @@ const smartAxios4Erp = axios.create({
   },
 });
 
+const api = {
+  user: '/api/user',
+  role: '/api/role',
+  service: '/api/service',
+  permission: '/api/permission',
+  permissionNoPager: '/api/permission/no-pager',
+  exportExcelByParam: '/systemConfig/exportExcelByParam',
+};
+
 // 退出系统
 function logout() {
   localClear();
@@ -263,4 +272,68 @@ function handleDownloadData(response) {
   // 下载完释放
   document.body.removeChild(link); // 下载完成移除元素
   window.URL.revokeObjectURL(url); // 释放掉blob对象
+}
+
+/**
+ * 下载文件 用于excel导出
+ * @param url
+ * @param parameter
+ * @returns {*}
+ */
+export function downFile(url, parameter) {
+  return axios({
+    url: url,
+    params: parameter,
+    method: 'get',
+    responseType: 'blob',
+  });
+}
+
+/**
+ * 下载文件 用于excel导出
+ * @param url
+ * @param parameter
+ * @returns {*}
+ */
+export function downFilePost(parameter) {
+  return axios({
+    url: api.exportExcelByParam,
+    data: parameter,
+    method: 'post',
+    responseType: 'blob',
+  });
+}
+
+/**
+ * 文件上传 用于富文本上传图片
+ * @param url
+ * @param parameter
+ * @returns {*}
+ */
+export function uploadAction(url, parameter) {
+  return axios({
+    url: url,
+    data: parameter,
+    method: 'post',
+    headers: {
+      'Content-Type': 'multipart/form-data', // 文件上传
+    },
+  });
+}
+
+/**
+ * 获取文件服务访问路径
+ * @param avatar
+ * @param subStr
+ * @returns {*}
+ */
+export function getFileAccessHttpUrl(avatar, subStr) {
+  if (!subStr) subStr = 'http';
+  if (avatar && avatar.startsWith(subStr)) {
+    return avatar;
+  } else {
+    if (avatar && avatar.length > 0 && avatar.indexOf('[') == -1) {
+      return window._CONFIG['domianURL'] + '/' + avatar;
+    }
+  }
 }
