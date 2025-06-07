@@ -143,6 +143,7 @@
   function updateColumn(changeColumnArray) {
     //合并列
     const newColumns = mergeColumn(_.cloneDeep(originalColumn), changeColumnArray);
+    console.log('buildUserTableColumns......................', JSON.stringify(newColumns));
     emit(
       'update:modelValue',
       newColumns.filter((e) => e.showFlag)

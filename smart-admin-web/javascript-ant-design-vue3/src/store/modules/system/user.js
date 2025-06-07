@@ -18,7 +18,12 @@ import LocalStorageKeyConst from '/@/constants/local-storage-key-const';
 export const useUserStore = defineStore({
   id: 'userStore',
   state: () => ({
+    //token
     token: '',
+    //erp token
+    erpToken: '',
+    //按钮功能列表 JSON字符串
+    winBtnStrList: [],
     //员工id
     employeeId: '',
     //登录名
@@ -63,6 +68,16 @@ export const useUserStore = defineStore({
       }
       return localRead(LocalStorageKeyConst.USER_TOKEN);
     },
+    getErpToken(state) {
+      if (state.erpToken) {
+        return state.erpToken;
+      }
+      return localRead(LocalStorageKeyConst.USER_ERP_TOKEN);
+    },
+
+    getWinBtnStrList(state) {
+      return state.winBtnStrList;
+    },
     //是否初始化了 路由
     getMenuRouterInitFlag(state) {
       return state.menuRouterInitFlag;
@@ -105,6 +120,7 @@ export const useUserStore = defineStore({
   actions: {
     logout() {
       this.token = '';
+      this.erpToken = '';
       this.menuList = [];
       this.tagNav = [];
       this.userInfo = {};
@@ -114,6 +130,7 @@ export const useUserStore = defineStore({
     setUserLoginInfo(data) {
       // 用户基本信息
       this.token = data.token;
+      this.erpToken = data.erpToken;
       this.employeeId = data.employeeId;
       this.loginName = data.loginName;
       this.actualName = data.actualName;
@@ -140,6 +157,14 @@ export const useUserStore = defineStore({
     },
     setToken(token) {
       this.token = token;
+    },
+
+    setErpToken(erpToken) {
+      this.erpToken = erpToken;
+    },
+
+    setWinBtnStrList(winBtnStrList) {
+      this.winBtnStrList = winBtnStrList;
     },
     //设置标签页
     setTagNav(route, from) {

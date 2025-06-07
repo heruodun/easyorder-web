@@ -1291,3 +1291,8 @@
 /smart-admin-api/sa-admin/src/main/resources/static/index.html
 /smart-admin-api/sa-admin/src/main/resources/static/print-lock.css
 smart-app/package-lock.json
+smart-admin-api/${project.log-directory}/*
+smart-admin-api/${sys:project.log-directory}/*
+smart-admin-web/javascript-ant-design-vue3/vite.config.js.timestamp-*
+smart-admin-api/${sys_project.log-directory}/debug/*
+smart-admin-api/${sys_project.log-directory}/*

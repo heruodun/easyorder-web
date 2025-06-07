@@ -1,92 +1,84 @@
 <template>
-  <a-row :gutter="24">
-    <a-col :md="24">
-      <a-card :style="cardStyle" :bordered="false">
-        <!-- 查询区域 -->
-        <div class="table-page-search-wrapper">
-          <a-form layout="inline" @submit.prevent="searchQuery">
-            <a-form-item label="属性名" class="smart-query-form-item">
-              <a-input placeholder="请输入属性名查询" v-model:value="queryParam.attributeName" />
-            </a-form-item>
+  <!-- 查询区域 -->
+  <a-form class="smart-query-form" layout="inline" @submit.prevent="searchQuery">
+    <a-row class="smart-query-form-row">
+      <a-form-item label="属性名" class="smart-query-form-item">
+        <a-input placeholder="请输入属性名查询" v-model:value="queryParam.attributeName" />
+      </a-form-item>
 
-            <a-form-item label="属性值" class="smart-query-form-item">
-              <a-input placeholder="请输入属性值查询" v-model:value="queryParam.attributeValue" />
-            </a-form-item>
+      <a-form-item label="属性值" class="smart-query-form-item">
+        <a-input placeholder="请输入属性值查询" v-model:value="queryParam.attributeValue" />
+      </a-form-item>
 
-            <a-form-item class="smart-query-form-item">
-              <a-button type="primary" @click="searchQuery">
-                <template #icon>
-                  <ReloadOutlined />
-                </template>
-                查询
-              </a-button>
-              <a-button @click="searchReset" class="smart-margin-left10">
-                <template #icon>
-                  <SearchOutlined />
-                </template>
-                重置
-              </a-button>
-            </a-form-item>
-          </a-form>
-        </div>
+      <a-form-item class="smart-query-form-item">
+        <a-button type="primary" @click="searchQuery">
+          <template #icon>
+            <ReloadOutlined />
+          </template>
+          查询
+        </a-button>
+        <a-button @click="searchReset" class="smart-margin-left10">
+          <template #icon>
+            <SearchOutlined />
+          </template>
+          重置
+        </a-button>
+      </a-form-item>
+    </a-row>
+  </a-form>
+  <a-card size="small" :bordered="false" :hoverable="true">
+    <!-- 操作按钮区域 -->
+    <a-row class="smart-table-btn-block">
+      <div class="smart-table-operate-block">
+        <a-button @click="handleAdd" type="primary">
+          <PlusOutlined />
+          新增
+        </a-button>
+        <a-button @click="batchDel" danger>
+          <template #icon><DeleteOutlined /></template>
+          删除
+        </a-button>
+      </div>
+      <div class="smart-table-setting-block">
+        <TableOperator v-model="columns" :tableId="TABLE_ID_CONST.BUSINESS.ERP.GOODS_ATTRIBUTE" :refresh="loadData" />
+      </div>
+    </a-row>
 
-        <!-- 操作按钮区域 -->
-        <div class="table-operator" style="margin-top: 5px">
-          <a-row class="smart-table-btn-block">
-            <a-button @click="handleAdd" type="primary">
-              <template #icon><PlusOutlined /></template>
-              新增
-            </a-button>
-            <a-button v-if="btnEnableList.includes(1)" @click="batchDel" danger>
-              <template #icon><DeleteOutlined /></template>
-              删除
-            </a-button>
-            <div class="smart-table-setting-block">
-              <TableOperator v-model="columns" :tableId="TABLE_ID_CONST.BUSINESS.ERP.GOODS_ATTRIBUTE" :refresh="loadData" />
-            </div>
-          </a-row>
-        </div>
+    <!-- table区域 -->
+    <div>
+      <a-table
+        ref="table"
+        size="middle"
+        bordered
+        rowKey="id"
+        :columns="columns"
+        :data-source="dataSource"
+        :pagination="ipagination"
+        :loading="loading"
+        :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
+        @change="handleTableChange"
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.dataIndex === 'action'">
+            <a @click="handleEdit(record)">编辑</a>
+            <a-divider type="vertical" />
+            <a-popconfirm title="确定删除吗?" @confirm="() => handleDelete(record.id)">
+              <a>删除</a>
+            </a-popconfirm>
+          </template>
 
-        <!-- table区域 -->
-        <div>
-          <a-table
-            ref="table"
-            size="middle"
-            bordered
-            rowKey="id"
-            :columns="columns"
-            :data-source="dataSource"
-            :pagination="ipagination"
-            :loading="loading"
-            :row-selection="{
-              selectedRowKeys: selectedRowKeys,
-              onChange: onSelectChange,
-            }"
-            @change="handleTableChange"
-          >
-            <template #bodyCell="{ column, record }">
-              <template v-if="column.dataIndex === 'action'">
-                <a @click="handleEdit(record)">编辑</a>
-                <a-divider v-if="btnEnableList.includes(1)" type="vertical" />
-                <a-popconfirm v-if="btnEnableList.includes(1)" title="确定删除吗?" @confirm="() => handleDelete(record.id)">
-                  <a>删除</a>
-                </a-popconfirm>
-              </template>
+          <template v-else-if="column.dataIndex === 'attributeValue'">
+            <a-tag v-for="(item, index) in getTagArr(record.attributeValue)" :key="index" color="blue">
+              {{ item }}
+            </a-tag>
+          </template>
+        </template>
+      </a-table>
+    </div>
 
-              <template v-else-if="column.dataIndex === 'attributeValue'">
-                <a-tag v-for="(item, index) in getTagArr(record.attributeValue)" :key="index" color="blue">
-                  {{ item }}
-                </a-tag>
-              </template>
-            </template>
-          </a-table>
-        </div>
-
-        <!-- 表单区域 -->
-        <material-attribute-modal ref="modalForm" @ok="modalFormOk"></material-attribute-modal>
-      </a-card>
-    </a-col>
-  </a-row>
+    <!-- 表单区域 -->
+    <material-attribute-modal ref="modalForm" @ok="modalFormOk"></material-attribute-modal>
+  </a-card>
 </template>
 
 <script setup>
@@ -154,7 +146,7 @@
 
   // 初始化加载数据
   onMounted(() => {
-    loadData();
+    loadData(1);
   });
 
   // 修改 getTagArr 方法

@@ -4,8 +4,6 @@
 import { message, Modal } from 'ant-design-vue';
 import axios from 'axios';
 import { localClear, localRead } from '/@/utils/local-util';
-import { decryptData, encryptData } from './encrypt';
-import { DATA_TYPE_ENUM } from '../constants/common-const';
 import _ from 'lodash';
 import LocalStorageKeyConst from '/@/constants/local-storage-key-const.js';
 
@@ -56,82 +54,72 @@ smartAxios4Erp.interceptors.request.use(
 );
 
 // ================================= 响应拦截器 =================================
+const err = (error) => {
+  if (error.response) {
+    let data = error.response.data;
+    const token = Vue.ls.get(ACCESS_TOKEN);
+    switch (error.response.status) {
+      case 403:
+        notification.error({
+          message: '系统提示',
+          description: '拒绝访问',
+          duration: 4,
+        });
+        break;
+      case 500:
+        if (token && data === 'loginOut') {
+          Modal.error({
+            title: '登录已过期',
+            content: '很抱歉，登录已过期，请重新登录',
+            okText: '重新登录',
+            mask: false,
+            onOk: () => {
+              Vue.ls.remove(ACCESS_TOKEN);
+              window.location.reload();
+            },
+          });
+        }
+        break;
+      case 404:
+        notification.error({
+          message: '系统提示',
+          description: '很抱歉，资源未找到!',
+          duration: 4,
+        });
+        break;
+      case 504:
+        notification.error({ message: '系统提示', description: '网络超时' });
+        break;
+      case 401:
+        notification.error({
+          message: '系统提示',
+          description: '未授权，请重新登录',
+          duration: 4,
+        });
+        if (token) {
+          store.dispatch('Logout').then(() => {
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
+          });
+        }
+        break;
+      default:
+        notification.error({
+          message: '系统提示',
+          description: data.message,
+          duration: 4,
+        });
+        break;
+    }
+  }
+  return Promise.reject(error);
+};
 
 // 添加响应拦截器
-smartAxios4Erp.interceptors.response.use(
-  (response) => {
-    // 根据content-type ，判断是否为 json 数据
-    let contentType = response.headers['content-type'] ? response.headers['content-type'] : response.headers['Content-Type'];
-    if (contentType.indexOf('application/json') === -1) {
-      return Promise.resolve(response);
-    }
-
-    // 如果是json数据
-    if (response.data && response.data instanceof Blob) {
-      return Promise.reject(response.data);
-    }
-
-    // 如果是加密数据
-    if (response.data.dataType === DATA_TYPE_ENUM.ENCRYPT.value) {
-      response.data.encryptData = response.data.data;
-      let decryptStr = decryptData(response.data.data);
-      if (decryptStr) {
-        response.data.data = JSON.parse(decryptStr);
-      }
-    }
-
-    const res = response.data;
-    console.info('smartAxios4Erp-----');
-    if (res.code && res.code !== 200) {
-      // `token` 过期或者账号已在别处登录
-      if (res.code === 30007 || res.code === 30008) {
-        message.destroy();
-        message.error('您没有登录，请重新登录');
-        setTimeout(logout, 300);
-        return Promise.reject(response);
-      }
-
-      // 等保安全的登录提醒
-      if (res.code === 30010 || res.code === 30011) {
-        Modal.error({
-          title: '重要提醒',
-          content: res.msg,
-        });
-        return Promise.reject(response);
-      }
-
-      // 长时间未操作系统，需要重新登录
-      if (res.code === 30012) {
-        Modal.error({
-          title: '重要提醒',
-          content: res.msg,
-          onOk: logout,
-        });
-        setTimeout(logout, 3000);
-        return Promise.reject(response);
-      }
-      message.destroy();
-      message.error(res.msg);
-      return Promise.reject(response);
-    } else {
-      return Promise.resolve(res);
-    }
-  },
-  (error) => {
-    // 对响应错误做点什么
-    if (error.message.indexOf('timeout') !== -1) {
-      message.destroy();
-      message.error('网络超时');
-    } else if (error.message === 'Network Error') {
-      message.destroy();
-      message.error('网络连接错误');
-    } else if (error.message.indexOf('Request') !== -1) {
-      message.destroy();
-      message.error('网络发生错误');
-    }
-    return Promise.reject(error);
-  }
-);
+smartAxios4Erp.interceptors.response.use((response) => {
+  return response.data;
+}, err);
 
 // ================================= 对外提供请求方法：通用请求，get， post, 下载download等 =================================
 

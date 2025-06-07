@@ -52,7 +52,10 @@
     "lodash.get": "^4.4.2",
     "lodash.pick": "^4.4.0",
     "vue-draggable-resizable": "^3.0.0",
-    "intro.js": "^7.2.0"
+    "intro.js": "^7.2.0",
+    "moment": "^2.30.1",
+    "vuex": "^4.1.0",
+    "vue3-draggable-next": "^4.1.4"
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.12",

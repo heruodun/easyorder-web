@@ -5,6 +5,7 @@ import { useDevice } from '/@/utils/device-util';
 import VueDraggableResizable from 'vue-draggable-resizable';
 import { useUserStore } from '/@/store/modules/system/user';
 import { columnSettingStore } from '/@/store/modules/system/column';
+import { Modal, message } from 'ant-design-vue';
 
 export function useJeecgList(options = {}) {
   // 引入设备相关功能
@@ -132,9 +133,10 @@ export function useJeecgList(options = {}) {
     return str;
   };
 
-  const onSelectChange = (selectedRowKeys, selectionRows) => {
-    selectedRowKeys.value = selectedRowKeys;
-    selectionRows.value = selectionRows;
+  const onSelectChange = (rowKeys, rows) => {
+    selectedRowKeys.value = rowKeys;
+    selectionRows.value = rows;
+    console.log('选中Keys:', JSON.stringify(selectedRowKeys.value), '选中Rows:', JSON.stringify(selectionRows.value)); // 观察控制台输出
   };
 
   // 清空选择
@@ -153,7 +155,7 @@ export function useJeecgList(options = {}) {
   // 批量设置状态方法
   const batchSetStatus = (status) => {
     // 1. 检查 URL 配置
-    if (!url.value.batchSetStatusUrl) {
+    if (!options.url?.batchSetStatusUrl) {
       message.error('请设置url.batchSetStatusUrl属性!');
       return;
     }
@@ -176,7 +178,7 @@ export function useJeecgList(options = {}) {
           loading.value = true;
 
           // 5. 发送请求
-          const res = await postRequest(url.value.batchSetStatusUrl, { status, ids });
+          const res = await postRequest(options.url.batchSetStatusUrl, { status, ids });
 
           // 6. 处理响应
           if (res.code === 200) {
@@ -203,25 +205,39 @@ export function useJeecgList(options = {}) {
     }
 
     if (selectedRowKeys.value.length <= 0) {
+      console.warn('selectedRowKeys' + JSON.stringify(selectedRowKeys.value));
       console.warn('请选择一条记录！');
       return;
     }
 
     const ids = selectedRowKeys.value.join(',');
 
-    if (confirm('是否删除选中数据?')) {
-      loading.value = true;
-      try {
-        const res = await deleteRequest(options.url.deleteBatch, { ids });
-        if (res.code === 200) {
-          loadData();
-        } else {
-          console.warn(res.data?.message || res.message);
+    // 4. 弹出确认框
+    Modal.confirm({
+      title: '确认删除',
+      content: '是否删除选中数据?',
+      onOk: async () => {
+        try {
+          loading.value = true;
+
+          // 5. 发送请求
+          const res = await deleteRequest(options.url.deleteBatch, { ids });
+
+          // 6. 处理响应
+          if (res.code === 200) {
+            message.success('操作成功');
+            loadData(); // 重新加载数据
+          } else {
+            message.warning(res.data?.message || '操作失败');
+          }
+        } catch (error) {
+          console.error('操作异常:', error);
+          message.error('操作异常');
+        } finally {
+          loading.value = false;
         }
-      } finally {
-        loading.value = false;
-      }
-    }
+      },
+    });
   };
 
   // 编辑方法
@@ -607,6 +623,7 @@ export function useJeecgList(options = {}) {
     getQueryParams,
     onClearSelected,
     batchDel,
+    batchSetStatus,
     initDictConfig,
     initActiveBtnStr,
     initScroll,
@@ -614,6 +631,7 @@ export function useJeecgList(options = {}) {
     handleExportXls,
     handleAdd,
     tableAddTotalRow,
+    onSelectChange,
     searchQuery,
     searchReset,
     handleDelete,

@@ -131,6 +131,9 @@
         const res = await loginApi.login(encryptPasswordForm);
         stopRefrestCaptchaInterval();
         localSave(LocalStorageKeyConst.USER_TOKEN, res.data.token ? res.data.token : '');
+        //todo 临时方案 erp用户token
+        localSave(LocalStorageKeyConst.USER_ERP_TOKEN, res.data.erpToken ? res.data.erpToken : '');
+
         message.success('登录成功');
         //更新用户信息到pinia
         useUserStore().setUserLoginInfo(res.data);
