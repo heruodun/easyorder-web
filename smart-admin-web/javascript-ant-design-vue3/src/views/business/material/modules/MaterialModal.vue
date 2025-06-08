@@ -18,8 +18,8 @@
     </template>
     <a-spin :spinning="confirmLoading">
       <a-form :ref="formRef" :model="formState">
-        <a-tabs v-model:activeKey="activeKey" size="small">
-          <a-tab-pane key="1" tab="基本信息" id="materialHeadModal" forceRender>
+        <a-tabs v-model:activeKey="activeKey" size="small" id="materialHeadModal">
+          <a-tab-pane key="1" tab="基本信息" forceRender>
             <a-row class="form-row" :gutter="24">
               <a-col :md="6" :sm="24">
                 <a-form-item
@@ -687,7 +687,7 @@
     },
     mounted() {
       document.getElementById(this.prefixNo).addEventListener('keydown', this.handleOkKey);
-      console.log('materialModal..............', this.$refs.form);
+      console.log('materialModal..............', document.getElementById('materialHeadModal'));
     },
     beforeUnmount() {
       document.getElementById(this.prefixNo).removeEventListener('keydown', this.handleOkKey);
@@ -780,40 +780,10 @@
               'skuThree',
             ])
           );
+          autoJumpNextInput('materialHeadModal');
+          autoJumpNextInput('materialDetailModal');
         });
 
-        // this.$nextTick(() => {
-        //   this.formRef.setFieldsValue(
-        //     pick(
-        //       this.model,
-        //       'name',
-        //       'standard',
-        //       'unit',
-        //       'unitId',
-        //       'model',
-        //       'color',
-        //       'brand',
-        //       'mnemonic',
-        //       'categoryId',
-        //       'enableSerialNumber',
-        //       'enableBatchNumber',
-        //       'position',
-        //       'expiryNum',
-        //       'weight',
-        //       'remark',
-        //       'mfrs',
-        //       'otherField1',
-        //       'otherField2',
-        //       'otherField3',
-        //       'manySku',
-        //       'skuOne',
-        //       'skuTwo',
-        //       'skuThree'
-        //     )
-        //   );
-        //   autoJumpNextInput('materialHeadModal');
-        //   autoJumpNextInput('materialDetailModal');
-        // });
         this.initMaterialAttribute();
         this.loadTreeData();
         this.loadUnitListData();
@@ -845,6 +815,8 @@
           this.meTable.columns[2].readonly = true;
           this.requestDepotTableData(this.url.depotWithStock, { mId: 0 }, this.depotTable);
         }
+
+        console.log('requestMeTableData........', JSON.stringify(this.meTable));
       },
 
       requestMeTableData(url, params, tab) {
@@ -1364,10 +1336,10 @@
       },
       onAdded(event) {
         const { row, target } = event;
+        console.log('materialmodal........', JSON.stringify(this.formState));
         let unit = '';
         if (this.unitStatus == false) {
-          console.log('materialmodal........', JSON.stringify(this.form));
-          unit = this.form.getFieldValue('unit');
+          unit = this.formState.unit;
         }
         if (this.maxBarCodeInfo === '') {
           getMaxBarCode({}).then((res) => {

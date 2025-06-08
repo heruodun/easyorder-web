@@ -680,6 +680,7 @@ export function handleIntroJs(module, cur_version) {
  */
 export function autoJumpNextInput(domInfo) {
   let domIndex = 0;
+  console.log('autoJumpNextInput', JSON.stringify(domInfo), JSON.stringify(document.getElementById(domInfo)));
   let inputs = document.getElementById(domInfo).getElementsByTagName('input');
   inputs[domIndex].focus();
   document.getElementById(domInfo).addEventListener('keydown', function (e) {

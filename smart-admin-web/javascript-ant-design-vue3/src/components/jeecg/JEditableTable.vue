@@ -7,15 +7,18 @@
       <a-col>
         <!-- 操作按钮 -->
         <div v-if="actionButton" class="action-button">
-          <a-button type="primary" icon="plus" @click="handleClickAdd" :disabled="disabled">插入行</a-button>
+          <a-button type="primary" @click="handleClickAdd" :disabled="disabled">
+            <PlusOutlined />
+            插入行</a-button
+          >
           <span class="gap"></span>
           <template v-if="selectedRowIds.length > 0">
             <a-popconfirm :title="`确定要移除这 ${selectedRowIds.length} 项吗?`" @confirm="handleConfirmDelete">
-              <a-button type="primary" icon="minus" :disabled="disabled">移除行</a-button>
+              <a-button type="primary" :disabled="disabled"> <MinusOutlined />移除行</a-button>
               <span class="gap"></span>
             </a-popconfirm>
             <template v-if="showClearSelectButton">
-              <a-button icon="delete" @click="handleClickClearSelection">清空选择</a-button>
+              <a-button @click="handleClickClearSelection"><DeleteOutlined />清空选择</a-button>
               <span class="gap"></span>
             </template>
           </template>
@@ -23,7 +26,7 @@
         <div v-if="actionDeleteButton" class="action-button">
           <template v-if="selectedRowIds.length > 0">
             <a-popconfirm :title="`确定要移除这 ${selectedRowIds.length} 项吗?`" @confirm="handleConfirmDelete">
-              <a-button type="primary" icon="minus" :disabled="disabled">移除行</a-button>
+              <a-button type="primary" :disabled="disabled"> <MinusOutlined />移除行</a-button>
               <span class="gap"></span>
             </a-popconfirm>
           </template>
@@ -76,340 +79,301 @@
             <span>暂无数据</span>
           </div>
           <!-- v-model="rows"-->
-          <draggable :value="rows" item-key="id" handle=".td-ds-icons" @start="handleDragMoveStart" @end="handleDragMoveEnd">
-            <!-- 动态生成tr -->
-            <!-- <template v-for="(row, rowIndex) in rows"> -->
+          <!-- <draggable :value="rows" item-key="id" handle=".td-ds-icons" @start="handleDragMoveStart" @end="handleDragMoveEnd"> -->
+          <!-- 动态生成tr -->
+          <template v-for="(row, rowIndex) in rows">
+            <!-- <template #item="{ element: row, index: rowIndex }"> -->
+            <!-- 关键：添加item插槽 -->
+            <!-- <template #item="{ row, rowIndex }"> -->
+            <!-- tr 如果超出200条，则只加载可见的和预加载的总共十条数据 -->
+            <div
+              v-if="
+                rows.length <= 200 ||
+                (rows.length > 200 &&
+                  rowIndex >= parseInt(`${(scrollTop - rowHeight) / rowHeight}`) &&
+                  parseInt(`${scrollTop / rowHeight}`) + 9 > rowIndex)
+              "
+              :id="`${caseId}tbody-tr-${rowIndex}`"
+              :data-idx="rowIndex"
+              class="tr"
+              :class="selectedRowIds.indexOf(row.id) !== -1 ? 'tr-checked' : ''"
+              :style="buildTrStyle(rowIndex)"
+            >
+              <!-- 左侧固定td  -->
 
-            <template #item="{ row, rowIndex }">
-              <!-- tr 如果超出200条，则只加载可见的和预加载的总共十条数据 -->
-              <div
-                v-if="
-                  rows.length <= 200 ||
-                  (rows.length > 200 &&
-                    rowIndex >= parseInt(`${(scrollTop - rowHeight) / rowHeight}`) &&
-                    parseInt(`${scrollTop / rowHeight}`) + 9 > rowIndex)
-                "
-                :id="`${caseId}tbody-tr-${rowIndex}`"
-                :data-idx="rowIndex"
-                class="tr"
-                :class="selectedRowIds.indexOf(row.id) !== -1 ? 'tr-checked' : ''"
-                :style="buildTrStyle(rowIndex)"
-              >
-                <!-- 左侧固定td  -->
+              <div v-if="dragSort" class="td td-ds" :style="style.tdLeftDs">
+                <a-dropdown :trigger="['click']" :getPopupContainer="getParentContainer">
+                  <div class="td-ds-icons">
+                    <AlignLeftOutlined />
+                    <AlignRightOutlined />
+                  </div>
 
-                <div v-if="dragSort" class="td td-ds" :style="style.tdLeftDs">
-                  <a-dropdown :trigger="['click']" :getPopupContainer="getParentContainer">
-                    <div class="td-ds-icons">
-                      <AlignLeftOutlined />
-                      <AlignRightOutlined />
-                    </div>
-
-                    <template v-slot:overlay>
-                      <a-menu>
-                        <a-menu-item key="0" :disabled="rowIndex === 0" @click="_handleRowMoveUp(rowIndex)">向上移</a-menu-item>
-                        <a-menu-item key="1" :disabled="rowIndex === rows.length - 1" @click="_handleRowMoveDown(rowIndex)">向下移</a-menu-item>
-                        <!-- <a-menu-divider/>
+                  <template v-slot:overlay>
+                    <a-menu>
+                      <a-menu-item key="0" :disabled="rowIndex === 0" @click="_handleRowMoveUp(rowIndex)">向上移</a-menu-item>
+                      <a-menu-item key="1" :disabled="rowIndex === rows.length - 1" @click="_handleRowMoveDown(rowIndex)">向下移</a-menu-item>
+                      <!-- <a-menu-divider/>
                         <a-menu-item key="3" @click="_handleRowInsertDown(rowIndex)">插入一行</a-menu-item> -->
-                      </a-menu>
-                    </template>
-                  </a-dropdown>
-                </div>
-
-                <div v-if="dragSortAndNumber" class="td td-ds" :style="style.tdLeftDs">
-                  <a-dropdown :trigger="['click']" :getPopupContainer="getParentContainer">
-                    <div class="td-ds-icons" title="点击不放可以拖动" style="text-align: center; line-height: 32px">
-                      <span>{{ rowIndex + 1 }}</span>
-                    </div>
-
-                    <template v-slot:overlay>
-                      <a-menu>
-                        <a-menu-item key="0" :disabled="rowIndex === 0" @click="_handleRowMoveUp(rowIndex)">向上移</a-menu-item>
-                        <a-menu-item key="1" :disabled="rowIndex === rows.length - 1" @click="_handleRowMoveDown(rowIndex)">向下移</a-menu-item>
-                        <!-- <a-menu-divider/>
-                        <a-menu-item key="3" @click="_handleRowInsertDown(rowIndex)">插入一行</a-menu-item> -->
-                      </a-menu>
-                    </template>
-                  </a-dropdown>
-                </div>
-
-                <div v-if="rowNumber" class="td td-num" :style="style.tdLeft">
-                  <span>{{ rowIndex + 1 }}</span>
-                </div>
-
-                <div v-if="rowSelection" class="td td-cb" :style="style.tdLeft">
-                  <!-- 此 v-for 只是为了拼接 id 字符串 -->
-                  <template v-for="(id, i) in [`${row.id}`]" :key="i">
-                    <a-checkbox :id="id" :checked="selectedRowIds.indexOf(id) !== -1" @change="handleChangeLeftCheckbox" />
+                    </a-menu>
                   </template>
-                </div>
+                </a-dropdown>
+              </div>
 
-                <!-- 右侧动态生成td -->
-                <div class="td" v-for="col in columns" v-show="col.type !== formTypes.hidden" :key="col.key" :style="buildTdStyle(col)">
-                  <!-- 此 v-for 只是为了拼接 id 字符串 -->
-                  <template v-for="(id, i) in [`${col.key}${row.id}`]">
-                    <!-- native input -->
-                    <label v-if="col.type === formTypes.input || col.type === formTypes.inputNumber">
-                      <a-tooltip
+              <div v-if="dragSortAndNumber" class="td td-ds" :style="style.tdLeftDs">
+                <a-dropdown :trigger="['click']" :getPopupContainer="getParentContainer">
+                  <div class="td-ds-icons" title="点击不放可以拖动" style="text-align: center; line-height: 32px">
+                    <span>{{ rowIndex + 1 }}</span>
+                  </div>
+
+                  <template v-slot:overlay>
+                    <a-menu>
+                      <a-menu-item key="0" :disabled="rowIndex === 0" @click="_handleRowMoveUp(rowIndex)">向上移</a-menu-item>
+                      <a-menu-item key="1" :disabled="rowIndex === rows.length - 1" @click="_handleRowMoveDown(rowIndex)">向下移</a-menu-item>
+                      <!-- <a-menu-divider/>
+                        <a-menu-item key="3" @click="_handleRowInsertDown(rowIndex)">插入一行</a-menu-item> -->
+                    </a-menu>
+                  </template>
+                </a-dropdown>
+              </div>
+
+              <div v-if="rowNumber" class="td td-num" :style="style.tdLeft">
+                <span>{{ rowIndex + 1 }}</span>
+              </div>
+
+              <div v-if="rowSelection" class="td td-cb" :style="style.tdLeft">
+                <!-- 此 v-for 只是为了拼接 id 字符串 -->
+                <template v-for="(id, i) in [`${row.id}`]" :key="i">
+                  <a-checkbox :id="id" :checked="selectedRowIds.indexOf(id) !== -1" @change="handleChangeLeftCheckbox" />
+                </template>
+              </div>
+
+              <!-- 右侧动态生成td -->
+              <div class="td" v-for="col in columns" v-show="col.type !== formTypes.hidden" :key="col.key" :style="buildTdStyle(col)">
+                <!-- 此 v-for 只是为了拼接 id 字符串 -->
+                <template v-for="(id, i) in [`${col.key}${row.id}`]">
+                  <!-- native input -->
+                  <label v-if="col.type === formTypes.input || col.type === formTypes.inputNumber">
+                    <a-tooltip
+                      :id="id"
+                      placement="top"
+                      :title="(tooltips[id] || {}).title"
+                      :visible="(tooltips[id] || {}).visible || false"
+                      :autoAdjustOverflow="true"
+                      :getPopupContainer="getParentContainer"
+                    >
+                      <input
+                        v-bind="buildProps(row, col)"
                         :id="id"
-                        placement="top"
-                        :title="(tooltips[id] || {}).title"
-                        :visible="(tooltips[id] || {}).visible || false"
-                        :autoAdjustOverflow="true"
-                        :getPopupContainer="getParentContainer"
+                        :readonly="col.readonly"
+                        :visible="col.visible"
+                        :data-input-number="col.type === formTypes.inputNumber"
+                        :placeholder="replaceProps(col, col.placeholder)"
+                        @blur="
+                          (e) => {
+                            handleBlurCommono(e.target, rowIndex, row, col);
+                          }
+                        "
+                        @input="
+                          (e) => {
+                            handleInputCommono(e.target, rowIndex, row, col);
+                          }
+                        "
+                        @mouseover="
+                          () => {
+                            handleMouseoverCommono(row, col);
+                          }
+                        "
+                        @mouseout="
+                          () => {
+                            handleMouseoutCommono(row, col);
+                          }
+                        "
+                      />
+                    </a-tooltip>
+                  </label>
+                  <!-- checkbox -->
+                  <template v-else-if="col.type === formTypes.checkbox">
+                    <a-checkbox
+                      v-bind="buildProps(row, col)"
+                      :key="i"
+                      :id="id"
+                      :checked="checkboxValues[id]"
+                      @change="(e) => handleChangeCheckboxCommon(e, row, col)"
+                    />
+                  </template>
+                  <!-- select -->
+                  <template v-else-if="col.type === formTypes.select">
+                    <a-tooltip
+                      :key="i"
+                      :id="id"
+                      placement="top"
+                      :title="(tooltips[id] || {}).title"
+                      :visible="(tooltips[id] || {}).visible || false"
+                      :autoAdjustOverflow="true"
+                      :getPopupContainer="getParentContainer"
+                    >
+                      <span
+                        @mouseover="
+                          () => {
+                            handleMouseoverCommono(row, col);
+                          }
+                        "
+                        @mouseout="
+                          () => {
+                            handleMouseoutCommono(row, col);
+                          }
+                        "
                       >
-                        <input
+                        <a-select
                           v-bind="buildProps(row, col)"
                           :id="id"
-                          :readonly="col.readonly"
-                          :visible="col.visible"
-                          :data-input-number="col.type === formTypes.inputNumber"
-                          :placeholder="replaceProps(col, col.placeholder)"
-                          @blur="
-                            (e) => {
-                              handleBlurCommono(e.target, rowIndex, row, col);
-                            }
-                          "
-                          @input="
-                            (e) => {
-                              handleInputCommono(e.target, rowIndex, row, col);
-                            }
-                          "
-                          @mouseover="
-                            () => {
-                              handleMouseoverCommono(row, col);
-                            }
-                          "
-                          @mouseout="
-                            () => {
-                              handleMouseoutCommono(row, col);
-                            }
-                          "
-                        />
-                      </a-tooltip>
-                    </label>
-                    <!-- checkbox -->
-                    <template v-else-if="col.type === formTypes.checkbox">
-                      <a-checkbox
-                        v-bind="buildProps(row, col)"
-                        :key="i"
-                        :id="id"
-                        :checked="checkboxValues[id]"
-                        @change="(e) => handleChangeCheckboxCommon(e, row, col)"
-                      />
-                    </template>
-                    <!-- select -->
-                    <template v-else-if="col.type === formTypes.select">
-                      <a-tooltip
-                        :key="i"
-                        :id="id"
-                        placement="top"
-                        :title="(tooltips[id] || {}).title"
-                        :visible="(tooltips[id] || {}).visible || false"
-                        :autoAdjustOverflow="true"
-                        :getPopupContainer="getParentContainer"
-                      >
-                        <span
-                          @mouseover="
-                            () => {
-                              handleMouseoverCommono(row, col);
-                            }
-                          "
-                          @mouseout="
-                            () => {
-                              handleMouseoutCommono(row, col);
-                            }
-                          "
-                        >
-                          <a-select
-                            v-bind="buildProps(row, col)"
-                            :id="id"
-                            :key="i"
-                            style="width: 100%"
-                            :value="getSelectValue(id)"
-                            :options="col.options"
-                            :getPopupContainer="getParentContainer"
-                            :placeholder="replaceProps(col, col.placeholder)"
-                            :filterOption="(i, o) => handleSelectFilterOption(i, o, col)"
-                            @change="(v) => handleChangeSelectCommon(v, id, row, col)"
-                            @search="(v) => handleSearchSelect(v, id, row, col)"
-                            @blur="(v) => handleBlurSearch(v, id, row, col)"
-                            allowClear
-                          >
-                            <template v-slot:dropdownRender="menu">
-                              <div>
-                                <v-nodes :vnodes="menu" />
-                                <slot name="depotAdd" v-if="col.key === 'depotId'" :target="getVM()" />
-                                <slot name="inOutItemAdd" v-if="col.key === 'inOutItemId'" :target="getVM()" />
-                              </div>
-                            </template>
-                            <!--<template v-for="(opt,optKey) in col.options">-->
-                            <!--<a-select-option :value="opt.value" :key="optKey">{{ opt.title }}</a-select-option>-->
-                            <!--</template>-->
-                          </a-select>
-                        </span>
-                      </a-tooltip>
-                    </template>
-                    <!-- date -->
-                    <template v-else-if="col.type === formTypes.date || col.type === formTypes.datetime">
-                      <a-tooltip
-                        :key="i"
-                        :id="id"
-                        placement="top"
-                        :title="(tooltips[id] || {}).title"
-                        :visible="(tooltips[id] || {}).visible || false"
-                        :autoAdjustOverflow="true"
-                        :getPopupContainer="getParentContainer"
-                      >
-                        <span
-                          @mouseover="
-                            () => {
-                              handleMouseoverCommono(row, col);
-                            }
-                          "
-                          @mouseout="
-                            () => {
-                              handleMouseoutCommono(row, col);
-                            }
-                          "
-                        >
-                          <j-date
-                            v-bind="buildProps(row, col)"
-                            :id="id"
-                            :key="i"
-                            style="width: 100%"
-                            :value="jdateValues[id]"
-                            :getCalendarContainer="getParentContainer"
-                            :placeholder="replaceProps(col, col.placeholder)"
-                            :trigger-change="true"
-                            :showTime="col.type === formTypes.datetime"
-                            :dateFormat="col.type === formTypes.date ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss'"
-                            allowClear
-                            @change="(v) => handleChangeJDateCommon(v, id, row, col, col.type === formTypes.datetime)"
-                          />
-                        </span>
-                      </a-tooltip>
-                    </template>
-
-                    <!-- input_pop -->
-                    <template v-else-if="col.type === formTypes.input_pop">
-                      <a-tooltip
-                        :key="i"
-                        :id="id"
-                        placement="top"
-                        :title="(tooltips[id] || {}).title"
-                        :visible="(tooltips[id] || {}).visible || false"
-                        :autoAdjustOverflow="true"
-                        :getPopupContainer="getParentContainer"
-                      >
-                        <span
-                          @mouseover="
-                            () => {
-                              handleMouseoverCommono(row, col);
-                            }
-                          "
-                          @mouseout="
-                            () => {
-                              handleMouseoutCommono(row, col);
-                            }
-                          "
-                        >
-                          <j-input-pop
-                            v-bind="buildProps(row, col)"
-                            :id="id"
-                            :key="i"
-                            :width="300"
-                            :height="210"
-                            :pop-container="`${caseId}tbody`"
-                            style="width: 100%"
-                            :value="jInputPopValues[id]"
-                            :getCalendarContainer="getParentContainer"
-                            :placeholder="replaceProps(col, col.placeholder)"
-                            @change="(v) => handleChangeJInputPopCommon(v, id, row, col)"
-                          >
-                          </j-input-pop>
-                        </span>
-                      </a-tooltip>
-                    </template>
-
-                    <div v-else-if="col.type === formTypes.upload">
-                      <template v-for="(file, fileKey) of [uploadValues[id] || {}]">
-                        <template v-if="uploadValues[id] != null">
-                          <a-input :key="fileKey" :readOnly="true" :value="file.name">
-                            <template style="width: 30px" v-slot:addonBefore>
-                              <a-tooltip v-if="file.status === 'uploading'" :title="`上传中(${Math.floor(file.percent)}%)`">
-                                <LoadingOutlined />
-                              </a-tooltip>
-                              <a-tooltip v-else-if="file.status === 'done'" title="上传完成">
-                                <CheckCircleOutlined style="color: #00db00" />
-                              </a-tooltip>
-                              <a-tooltip v-else title="上传失败">
-                                <ExclamationCircleOutlined style="color: red" />
-                              </a-tooltip>
-                            </template>
-
-                            <template v-if="col.allowDownload !== false || col.allowRemove !== false" style="width: 30px" v-slot:addonAfter>
-                              <a-dropdown :trigger="['click']" placement="bottomRight" :getPopupContainer="getParentContainer">
-                                <a-tooltip title="操作" :getPopupContainer="getParentContainer">
-                                  <SettingOutlined v-if="file.status !== 'uploading'" style="cursor: pointer" />
-                                </a-tooltip>
-
-                                <template v-slot:overlay>
-                                  <a-menu>
-                                    <a-menu-item v-if="col.allowDownload !== false" @click="handleClickDownloadFile(id)">
-                                      <span><DownloadOutlined />&nbsp;下载</span>
-                                    </a-menu-item>
-                                    <a-menu-item v-if="col.allowRemove !== false" @click="handleClickDelFile(id)">
-                                      <span><DeleteOutlined />&nbsp;删除</span>
-                                    </a-menu-item>
-                                  </a-menu>
-                                </template>
-                              </a-dropdown>
-                            </template>
-                          </a-input>
-                        </template>
-                      </template>
-
-                      <div :hidden="uploadValues[id] != null">
-                        <a-tooltip
                           :key="i"
-                          :id="id"
-                          placement="top"
-                          :title="(tooltips[id] || {}).title"
-                          :visible="(tooltips[id] || {}).visible || false"
-                          :autoAdjustOverflow="true"
+                          style="width: 100%"
+                          :value="getSelectValue(id)"
+                          :options="col.options"
                           :getPopupContainer="getParentContainer"
+                          :placeholder="replaceProps(col, col.placeholder)"
+                          :filterOption="(i, o) => handleSelectFilterOption(i, o, col)"
+                          @change="(v) => handleChangeSelectCommon(v, id, row, col)"
+                          @search="(v) => handleSearchSelect(v, id, row, col)"
+                          @blur="(v) => handleBlurSearch(v, id, row, col)"
+                          allowClear
                         >
-                          <span
-                            @mouseover="
-                              () => {
-                                handleMouseoverCommono(row, col);
-                              }
-                            "
-                            @mouseout="
-                              () => {
-                                handleMouseoutCommono(row, col);
-                              }
-                            "
-                          >
-                            <a-upload
-                              v-bind="buildProps(row, col)"
-                              name="file"
-                              :data="{ isup: 1 }"
-                              :multiple="false"
-                              :action="col.action"
-                              :headers="uploadGetHeaders(row, col)"
-                              :showUploadList="false"
-                              @change="(v) => handleChangeUpload(v, id, row, col)"
-                            >
-                              <a-button icon="upload">{{ col.placeholder }}</a-button>
-                            </a-upload>
-                          </span>
-                        </a-tooltip>
-                      </div>
-                    </div>
+                          <template v-slot:dropdownRender="menu">
+                            <div>
+                              <v-nodes :vnodes="menu" />
+                              <slot name="depotAdd" v-if="col.key === 'depotId'" :target="getVM()" />
+                              <slot name="inOutItemAdd" v-if="col.key === 'inOutItemId'" :target="getVM()" />
+                            </div>
+                          </template>
+                          <!--<template v-for="(opt,optKey) in col.options">-->
+                          <!--<a-select-option :value="opt.value" :key="optKey">{{ opt.title }}</a-select-option>-->
+                          <!--</template>-->
+                        </a-select>
+                      </span>
+                    </a-tooltip>
+                  </template>
+                  <!-- date -->
+                  <template v-else-if="col.type === formTypes.date || col.type === formTypes.datetime">
+                    <a-tooltip
+                      :key="i"
+                      :id="id"
+                      placement="top"
+                      :title="(tooltips[id] || {}).title"
+                      :visible="(tooltips[id] || {}).visible || false"
+                      :autoAdjustOverflow="true"
+                      :getPopupContainer="getParentContainer"
+                    >
+                      <span
+                        @mouseover="
+                          () => {
+                            handleMouseoverCommono(row, col);
+                          }
+                        "
+                        @mouseout="
+                          () => {
+                            handleMouseoutCommono(row, col);
+                          }
+                        "
+                      >
+                        <j-date
+                          v-bind="buildProps(row, col)"
+                          :id="id"
+                          :key="i"
+                          style="width: 100%"
+                          :value="jdateValues[id]"
+                          :getCalendarContainer="getParentContainer"
+                          :placeholder="replaceProps(col, col.placeholder)"
+                          :trigger-change="true"
+                          :showTime="col.type === formTypes.datetime"
+                          :dateFormat="col.type === formTypes.date ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss'"
+                          allowClear
+                          @change="(v) => handleChangeJDateCommon(v, id, row, col, col.type === formTypes.datetime)"
+                        />
+                      </span>
+                    </a-tooltip>
+                  </template>
 
-                    <!-- update-begin-author:taoyan date:0827 for：popup -->
-                    <template v-else-if="col.type === formTypes.popup">
+                  <!-- input_pop -->
+                  <template v-else-if="col.type === formTypes.input_pop">
+                    <a-tooltip
+                      :key="i"
+                      :id="id"
+                      placement="top"
+                      :title="(tooltips[id] || {}).title"
+                      :visible="(tooltips[id] || {}).visible || false"
+                      :autoAdjustOverflow="true"
+                      :getPopupContainer="getParentContainer"
+                    >
+                      <span
+                        @mouseover="
+                          () => {
+                            handleMouseoverCommono(row, col);
+                          }
+                        "
+                        @mouseout="
+                          () => {
+                            handleMouseoutCommono(row, col);
+                          }
+                        "
+                      >
+                        <j-input-pop
+                          v-bind="buildProps(row, col)"
+                          :id="id"
+                          :key="i"
+                          :width="300"
+                          :height="210"
+                          :pop-container="`${caseId}tbody`"
+                          style="width: 100%"
+                          :value="jInputPopValues[id]"
+                          :getCalendarContainer="getParentContainer"
+                          :placeholder="replaceProps(col, col.placeholder)"
+                          @change="(v) => handleChangeJInputPopCommon(v, id, row, col)"
+                        >
+                        </j-input-pop>
+                      </span>
+                    </a-tooltip>
+                  </template>
+
+                  <div v-else-if="col.type === formTypes.upload">
+                    <template v-for="(file, fileKey) of [uploadValues[id] || {}]">
+                      <template v-if="uploadValues[id] != null">
+                        <a-input :key="fileKey" :readOnly="true" :value="file.name">
+                          <template style="width: 30px" v-slot:addonBefore>
+                            <a-tooltip v-if="file.status === 'uploading'" :title="`上传中(${Math.floor(file.percent)}%)`">
+                              <LoadingOutlined />
+                            </a-tooltip>
+                            <a-tooltip v-else-if="file.status === 'done'" title="上传完成">
+                              <CheckCircleOutlined style="color: #00db00" />
+                            </a-tooltip>
+                            <a-tooltip v-else title="上传失败">
+                              <ExclamationCircleOutlined style="color: red" />
+                            </a-tooltip>
+                          </template>
+
+                          <template v-if="col.allowDownload !== false || col.allowRemove !== false" style="width: 30px" v-slot:addonAfter>
+                            <a-dropdown :trigger="['click']" placement="bottomRight" :getPopupContainer="getParentContainer">
+                              <a-tooltip title="操作" :getPopupContainer="getParentContainer">
+                                <SettingOutlined v-if="file.status !== 'uploading'" style="cursor: pointer" />
+                              </a-tooltip>
+
+                              <template v-slot:overlay>
+                                <a-menu>
+                                  <a-menu-item v-if="col.allowDownload !== false" @click="handleClickDownloadFile(id)">
+                                    <span><DownloadOutlined />&nbsp;下载</span>
+                                  </a-menu-item>
+                                  <a-menu-item v-if="col.allowRemove !== false" @click="handleClickDelFile(id)">
+                                    <span><DeleteOutlined />&nbsp;删除</span>
+                                  </a-menu-item>
+                                </a-menu>
+                              </template>
+                            </a-dropdown>
+                          </template>
+                        </a-input>
+                      </template>
+                    </template>
+
+                    <div :hidden="uploadValues[id] != null">
                       <a-tooltip
                         :key="i"
                         :id="id"
@@ -431,7 +395,47 @@
                             }
                           "
                         >
-                          <j-popup
+                          <a-upload
+                            v-bind="buildProps(row, col)"
+                            name="file"
+                            :data="{ isup: 1 }"
+                            :multiple="false"
+                            :action="col.action"
+                            :headers="uploadGetHeaders(row, col)"
+                            :showUploadList="false"
+                            @change="(v) => handleChangeUpload(v, id, row, col)"
+                          >
+                            <a-button><UploadOutlined />{{ col.placeholder }}</a-button>
+                          </a-upload>
+                        </span>
+                      </a-tooltip>
+                    </div>
+                  </div>
+
+                  <!-- update-begin-author:taoyan date:0827 for：popup -->
+                  <template v-else-if="col.type === formTypes.popup">
+                    <a-tooltip
+                      :key="i"
+                      :id="id"
+                      placement="top"
+                      :title="(tooltips[id] || {}).title"
+                      :visible="(tooltips[id] || {}).visible || false"
+                      :autoAdjustOverflow="true"
+                      :getPopupContainer="getParentContainer"
+                    >
+                      <span
+                        @mouseover="
+                          () => {
+                            handleMouseoverCommono(row, col);
+                          }
+                        "
+                        @mouseout="
+                          () => {
+                            handleMouseoutCommono(row, col);
+                          }
+                        "
+                      >
+                        <!-- <j-popup
                             v-bind="buildProps(row, col)"
                             :id="id"
                             :key="i"
@@ -444,408 +448,406 @@
                             :code="col.popupCode"
                             :groupId="caseId"
                             @input="(value, others) => popupCallback(value, others, id, row, col, rowIndex)"
-                          />
-                        </span>
-                      </a-tooltip>
-                    </template>
-                    <!-- update-end-author:taoyan date:0827 for：popup -->
-
-                    <!-- update-begin-author:jsh date:20210308 for：popupJsh -->
-                    <template v-else-if="col.type === formTypes.popupJsh">
-                      <a-tooltip
-                        :key="i"
-                        :id="id"
-                        placement="top"
-                        :title="(tooltips[id] || {}).title"
-                        :visible="(tooltips[id] || {}).visible || false"
-                        :autoAdjustOverflow="true"
-                        :getPopupContainer="getParentContainer"
-                      >
-                        <span
-                          @mouseover="
-                            () => {
-                              handleMouseoverCommono(row, col);
-                            }
-                          "
-                          @mouseout="
-                            () => {
-                              handleMouseoutCommono(row, col);
-                            }
-                          "
-                        >
-                          <j-select-list
-                            :rows="getPopupJshRows(row)"
-                            :kind="col.kind"
-                            :multi="col.multi"
-                            :value="getPopupJshValue(id)"
-                            @change="(v) => handleChangePopupJshCommon(v, id, row, col, rowIndex)"
-                          />
-                        </span>
-                      </a-tooltip>
-                    </template>
-                    <!-- update-end-author:jsh date:20210308 for：popupJsh -->
-
-                    <!-- update-beign-author:taoyan date:0827 for：文件/图片逻辑新增 -->
-                    <div v-else-if="col.type === formTypes.file">
-                      <template v-for="(file, fileKey) of [uploadValues[id] || {}]">
-                        <template v-if="uploadValues[id] != null">
-                          <div :key="fileKey" style="position: relative">
-                            <a-tooltip v-if="file.status === 'uploading'" :title="`上传中(${Math.floor(file.percent)}%)`">
-                              <LoadingOutlined style="color: red" />
-                              <span style="color: red; margin-left: 5px">{{ file.status }}</span>
-                            </a-tooltip>
-
-                            <a-tooltip v-else-if="file.status === 'done'" :title="file.name">
-                              <PaperClipOutlined />
-                              <span style="margin-left: 5px">{{ getEllipsisWord(file.name, 5) }}</span>
-                            </a-tooltip>
-
-                            <a-tooltip v-else :title="file.name">
-                              <PaperClipOutlined style="color: red" />
-                              <span style="color: red; margin-left: 5px">{{ getEllipsisWord(file.name, 5) }}</span>
-                            </a-tooltip>
-
-                            <template style="width: 30px">
-                              <a-dropdown
-                                :trigger="['click']"
-                                placement="bottomRight"
-                                :getPopupContainer="getParentContainer"
-                                style="margin-left: 10px"
-                              >
-                                <a-tooltip title="操作" :getPopupContainer="getParentContainer">
-                                  <UploadOutlined v-if="file.status !== 'uploading'" type="setting" style="cursor: pointer" />
-                                </a-tooltip>
-
-                                <template v-slot:overlay>
-                                  <a-menu>
-                                    <a-menu-item v-if="col.allowDownload !== false" @click="handleClickDownFileByUrl(id)">
-                                      <span><DownloadOutlined />&nbsp;下载</span>
-                                    </a-menu-item>
-                                    <a-menu-item @click="handleClickDelFile(id)">
-                                      <span><DeleteOutlined />&nbsp;删除</span>
-                                    </a-menu-item>
-                                    <a-menu-item @click="handleMoreOperation(id)">
-                                      <span><BarsOutlined /> 更多</span>
-                                    </a-menu-item>
-                                  </a-menu>
-                                </template>
-                              </a-dropdown>
-                            </template>
-                          </div>
-                        </template>
-                      </template>
-
-                      <div :hidden="uploadValues[id] != null">
-                        <a-tooltip
-                          :key="i"
-                          :id="id"
-                          placement="top"
-                          :title="(tooltips[id] || {}).title"
-                          :visible="(tooltips[id] || {}).visible || false"
-                          :autoAdjustOverflow="true"
-                          :getPopupContainer="getParentContainer"
-                        >
-                          <span
-                            @mouseover="
-                              () => {
-                                handleMouseoverCommono(row, col);
-                              }
-                            "
-                            @mouseout="
-                              () => {
-                                handleMouseoutCommono(row, col);
-                              }
-                            "
-                          >
-                            <a-upload
-                              v-bind="buildProps(row, col)"
-                              name="file"
-                              :data="{ isup: 1 }"
-                              :multiple="false"
-                              :action="getUploadAction(col.action)"
-                              :headers="uploadGetHeaders(row, col)"
-                              :showUploadList="false"
-                              @change="(v) => handleChangeUpload(v, id, row, col)"
-                            >
-                              <a-button icon="upload">上传文件</a-button>
-                            </a-upload>
-                          </span>
-                        </a-tooltip>
-                      </div>
-                    </div>
-
-                    <div v-else-if="col.type === formTypes.image">
-                      <template v-for="(file, fileKey) of [uploadValues[id] || {}]">
-                        <template v-if="uploadValues[id] != null">
-                          <div :key="fileKey" style="position: relative">
-                            <template
-                              v-if="!uploadValues[id] || !(uploadValues[id]['url'] || uploadValues[id]['path'] || uploadValues[id]['message'])"
-                            >
-                              <LoadingOutlined />
-                            </template>
-                            <template v-else-if="uploadValues[id]['path']">
-                              <img class="j-editable-image" :src="getCellImageView(id)" alt="无图片" @click="handleMoreOperation(id, 'img')" />
-                            </template>
-                            <template v-else>
-                              <ExclamationCircleOutlined style="color: red" @click="handleClickShowImageError(id)" />
-                            </template>
-                            <!-- todo 少了这段 v-slot:addonBefore -->
-                            <template style="width: 30px">
-                              <a-tooltip v-if="file.status === 'uploading'" :title="`上传中(${Math.floor(file.percent)}%)`">
-                                <LoadingOutlined />
-                              </a-tooltip>
-                              <a-tooltip v-else-if="file.status === 'done'" title="上传完成">
-                                <CheckCircleOutlined style="color: #00db00" />
-                              </a-tooltip>
-                              <a-tooltip v-else title="上传失败">
-                                <ExclamationCircleOutlined style="color: red" />
-                              </a-tooltip>
-                            </template>
-
-                            <template style="width: 30px">
-                              <a-dropdown
-                                :trigger="['click']"
-                                placement="bottomRight"
-                                :getPopupContainer="getParentContainer"
-                                style="margin-left: 10px"
-                              >
-                                <a-tooltip title="操作" :getPopupContainer="getParentContainer">
-                                  <SettingOutlined v-if="file.status !== 'uploading'" style="cursor: pointer" />
-                                </a-tooltip>
-
-                                <template v-slot:overlay>
-                                  <a-menu>
-                                    <a-menu-item v-if="col.allowDownload !== false" @click="handleClickDownFileByUrl(id)">
-                                      <span><DownloadOutlined />&nbsp;下载</span>
-                                    </a-menu-item>
-                                    <a-menu-item @click="handleClickDelFile(id)">
-                                      <span><DeleteOutlined />&nbsp;删除</span>
-                                    </a-menu-item>
-                                    <a-menu-item @click="handleMoreOperation(id, 'img')">
-                                      <span><BarChartOutlined /> 更多</span>
-                                    </a-menu-item>
-                                  </a-menu>
-                                </template>
-                              </a-dropdown>
-                            </template>
-                          </div>
-                        </template>
-                      </template>
-
-                      <div :hidden="uploadValues[id] != null">
-                        <a-tooltip
-                          :key="i"
-                          :id="id"
-                          placement="top"
-                          :title="(tooltips[id] || {}).title"
-                          :visible="(tooltips[id] || {}).visible || false"
-                          :autoAdjustOverflow="true"
-                          :getPopupContainer="getParentContainer"
-                        >
-                          <span
-                            @mouseover="
-                              () => {
-                                handleMouseoverCommono(row, col);
-                              }
-                            "
-                            @mouseout="
-                              () => {
-                                handleMouseoutCommono(row, col);
-                              }
-                            "
-                          >
-                            <a-upload
-                              v-bind="buildProps(row, col)"
-                              name="file"
-                              :data="{ isup: 1 }"
-                              :multiple="false"
-                              :action="getUploadAction(col.action)"
-                              :headers="uploadGetHeaders(row, col)"
-                              :showUploadList="false"
-                              @change="(v) => handleChangeUpload(v, id, row, col)"
-                            >
-                              <a-button icon="upload">上传图片</a-button>
-                            </a-upload>
-                          </span>
-                        </a-tooltip>
-                      </div>
-                    </div>
-                    <!-- update-end-author:taoyan date:0827 for：图片逻辑新增 -->
-
-                    <!-- radio-begin -->
-                    <template v-else-if="col.type === formTypes.radio">
-                      <a-tooltip
-                        :key="i"
-                        :id="id"
-                        placement="top"
-                        :title="(tooltips[id] || {}).title"
-                        :visible="(tooltips[id] || {}).visible || false"
-                        :autoAdjustOverflow="true"
-                        :getPopupContainer="getParentContainer"
-                      >
-                        <span
-                          @mouseover="
-                            () => {
-                              handleMouseoverCommono(row, col);
-                            }
-                          "
-                          @mouseout="
-                            () => {
-                              handleMouseoutCommono(row, col);
-                            }
-                          "
-                        >
-                          <a-radio-group
-                            v-bind="buildProps(row, col)"
-                            :id="id"
-                            :key="i"
-                            :value="radioValues[id]"
-                            @change="(e) => handleRadioChange(e.target.value, id, row, col)"
-                          >
-                            <a-radio v-for="(item, key) in col.options" :key="key" :value="item.value">{{ item.text }}</a-radio>
-                          </a-radio-group>
-                        </span>
-                      </a-tooltip>
-                    </template>
-                    <!-- radio-end -->
-
-                    <!-- select多选 -begin -->
-                    <template v-else-if="col.type === formTypes.list_multi">
-                      <a-tooltip
-                        :key="i"
-                        :id="id"
-                        placement="top"
-                        :title="(tooltips[id] || {}).title"
-                        :visible="(tooltips[id] || {}).visible || false"
-                        :autoAdjustOverflow="true"
-                        :getPopupContainer="getParentContainer"
-                      >
-                        <span
-                          @mouseover="
-                            () => {
-                              handleMouseoverCommono(row, col);
-                            }
-                          "
-                          @mouseout="
-                            () => {
-                              handleMouseoutCommono(row, col);
-                            }
-                          "
-                        >
-                          <a-select
-                            v-bind="buildProps(row, col)"
-                            :id="id"
-                            :key="i"
-                            mode="multiple"
-                            :maxTagCount="1"
-                            style="width: 100%"
-                            :value="multiSelectValues[id]"
-                            :options="col.options"
-                            :getPopupContainer="getParentContainer"
-                            :placeholder="replaceProps(col, col.placeholder)"
-                            @change="(v) => handleMultiSelectChange(v, id, row, col)"
-                            allowClear
-                          >
-                          </a-select>
-                        </span>
-                      </a-tooltip>
-                    </template>
-                    <!-- select多选 -end -->
-
-                    <!-- select搜索 -begin -->
-                    <template v-else-if="col.type === formTypes.sel_search">
-                      <a-tooltip
-                        :key="i"
-                        :id="id"
-                        placement="top"
-                        :title="(tooltips[id] || {}).title"
-                        :visible="(tooltips[id] || {}).visible || false"
-                        :autoAdjustOverflow="true"
-                        :getPopupContainer="getParentContainer"
-                      >
-                        <span
-                          @mouseover="
-                            () => {
-                              handleMouseoverCommono(row, col);
-                            }
-                          "
-                          @mouseout="
-                            () => {
-                              handleMouseoutCommono(row, col);
-                            }
-                          "
-                        >
-                          <a-select
-                            v-bind="buildProps(row, col)"
-                            :id="id"
-                            :key="i"
-                            showSearch
-                            optionFilterProp="children"
-                            :filterOption="filterOption"
-                            style="width: 100%"
-                            :value="searchSelectValues[id]"
-                            :options="col.options"
-                            :getPopupContainer="getParentContainer"
-                            :placeholder="replaceProps(col, col.placeholder)"
-                            @change="(v) => handleSearchSelectChange(v, id, row, col)"
-                            allowClear
-                          >
-                          </a-select>
-                        </span>
-                      </a-tooltip>
-                    </template>
-                    <!-- select搜索 -end -->
-
-                    <div v-else-if="col.type === formTypes.slot">
-                      <a-tooltip
-                        :key="i"
-                        :id="id"
-                        placement="top"
-                        :title="(tooltips[id] || {}).title"
-                        :visible="(tooltips[id] || {}).visible || false"
-                        :autoAdjustOverflow="true"
-                        :getPopupContainer="getParentContainer"
-                      >
-                        <span
-                          @mouseover="
-                            () => {
-                              handleMouseoverCommono(row, col);
-                            }
-                          "
-                          @mouseout="
-                            () => {
-                              handleMouseoutCommono(row, col);
-                            }
-                          "
-                        >
-                          <slot
-                            :name="col.slot || col.slotName || col.key"
-                            :index="rowIndex"
-                            :text="slotValues[id]"
-                            :value="slotValues[id]"
-                            :column="col"
-                            :rowId="getCleanId(row.id)"
-                            :getValue="() => _getValueForSlot(row.id)"
-                            :caseId="caseId"
-                            :allValues="_getAllValuesForSlot()"
-                            :target="getVM()"
-                            :handleChange="(v) => handleChangeSlotCommon(v, id, row, col)"
-                            :isNotPass="notPassedIds.includes(col.key + row.id)"
-                          />
-                        </span>
-                      </a-tooltip>
-                    </div>
-
-                    <!-- else (normal) -->
-                    <span v-bind="buildProps(row, col)" v-else class="td-span" :title="inputValues[rowIndex][col.key]">
-                      {{ inputValues[rowIndex][col.key] }}
-                    </span>
+                          /> -->
+                      </span>
+                    </a-tooltip>
                   </template>
-                </div>
+                  <!-- update-end-author:taoyan date:0827 for：popup -->
+
+                  <!-- update-begin-author:jsh date:20210308 for：popupJsh -->
+                  <template v-else-if="col.type === formTypes.popupJsh">
+                    <a-tooltip
+                      :key="i"
+                      :id="id"
+                      placement="top"
+                      :title="(tooltips[id] || {}).title"
+                      :visible="(tooltips[id] || {}).visible || false"
+                      :autoAdjustOverflow="true"
+                      :getPopupContainer="getParentContainer"
+                    >
+                      <span
+                        @mouseover="
+                          () => {
+                            handleMouseoverCommono(row, col);
+                          }
+                        "
+                        @mouseout="
+                          () => {
+                            handleMouseoutCommono(row, col);
+                          }
+                        "
+                      >
+                        <j-select-list
+                          :rows="getPopupJshRows(row)"
+                          :kind="col.kind"
+                          :multi="col.multi"
+                          :value="getPopupJshValue(id)"
+                          @change="(v) => handleChangePopupJshCommon(v, id, row, col, rowIndex)"
+                        />
+                      </span>
+                    </a-tooltip>
+                  </template>
+                  <!-- update-end-author:jsh date:20210308 for：popupJsh -->
+
+                  <!-- update-beign-author:taoyan date:0827 for：文件/图片逻辑新增 -->
+                  <div v-else-if="col.type === formTypes.file">
+                    <template v-for="(file, fileKey) of [uploadValues[id] || {}]">
+                      <template v-if="uploadValues[id] != null">
+                        <div :key="fileKey" style="position: relative">
+                          <a-tooltip v-if="file.status === 'uploading'" :title="`上传中(${Math.floor(file.percent)}%)`">
+                            <LoadingOutlined style="color: red" />
+                            <span style="color: red; margin-left: 5px">{{ file.status }}</span>
+                          </a-tooltip>
+
+                          <a-tooltip v-else-if="file.status === 'done'" :title="file.name">
+                            <PaperClipOutlined />
+                            <span style="margin-left: 5px">{{ getEllipsisWord(file.name, 5) }}</span>
+                          </a-tooltip>
+
+                          <a-tooltip v-else :title="file.name">
+                            <PaperClipOutlined style="color: red" />
+                            <span style="color: red; margin-left: 5px">{{ getEllipsisWord(file.name, 5) }}</span>
+                          </a-tooltip>
+
+                          <template style="width: 30px">
+                            <a-dropdown
+                              :trigger="['click']"
+                              placement="bottomRight"
+                              :getPopupContainer="getParentContainer"
+                              style="margin-left: 10px"
+                            >
+                              <a-tooltip title="操作" :getPopupContainer="getParentContainer">
+                                <UploadOutlined v-if="file.status !== 'uploading'" type="setting" style="cursor: pointer" />
+                              </a-tooltip>
+
+                              <template v-slot:overlay>
+                                <a-menu>
+                                  <a-menu-item v-if="col.allowDownload !== false" @click="handleClickDownFileByUrl(id)">
+                                    <span><DownloadOutlined />&nbsp;下载</span>
+                                  </a-menu-item>
+                                  <a-menu-item @click="handleClickDelFile(id)">
+                                    <span><DeleteOutlined />&nbsp;删除</span>
+                                  </a-menu-item>
+                                  <a-menu-item @click="handleMoreOperation(id)">
+                                    <span><BarsOutlined /> 更多</span>
+                                  </a-menu-item>
+                                </a-menu>
+                              </template>
+                            </a-dropdown>
+                          </template>
+                        </div>
+                      </template>
+                    </template>
+
+                    <div :hidden="uploadValues[id] != null">
+                      <a-tooltip
+                        :key="i"
+                        :id="id"
+                        placement="top"
+                        :title="(tooltips[id] || {}).title"
+                        :visible="(tooltips[id] || {}).visible || false"
+                        :autoAdjustOverflow="true"
+                        :getPopupContainer="getParentContainer"
+                      >
+                        <span
+                          @mouseover="
+                            () => {
+                              handleMouseoverCommono(row, col);
+                            }
+                          "
+                          @mouseout="
+                            () => {
+                              handleMouseoutCommono(row, col);
+                            }
+                          "
+                        >
+                          <a-upload
+                            v-bind="buildProps(row, col)"
+                            name="file"
+                            :data="{ isup: 1 }"
+                            :multiple="false"
+                            :action="getUploadAction(col.action)"
+                            :headers="uploadGetHeaders(row, col)"
+                            :showUploadList="false"
+                            @change="(v) => handleChangeUpload(v, id, row, col)"
+                          >
+                            <a-button><UploadOutlined />上传文件</a-button>
+                          </a-upload>
+                        </span>
+                      </a-tooltip>
+                    </div>
+                  </div>
+
+                  <div v-else-if="col.type === formTypes.image">
+                    <template v-for="(file, fileKey) of [uploadValues[id] || {}]">
+                      <template v-if="uploadValues[id] != null">
+                        <div :key="fileKey" style="position: relative">
+                          <template v-if="!uploadValues[id] || !(uploadValues[id]['url'] || uploadValues[id]['path'] || uploadValues[id]['message'])">
+                            <LoadingOutlined />
+                          </template>
+                          <template v-else-if="uploadValues[id]['path']">
+                            <img class="j-editable-image" :src="getCellImageView(id)" alt="无图片" @click="handleMoreOperation(id, 'img')" />
+                          </template>
+                          <template v-else>
+                            <ExclamationCircleOutlined style="color: red" @click="handleClickShowImageError(id)" />
+                          </template>
+                          <!-- todo 少了这段 v-slot:addonBefore -->
+                          <template style="width: 30px">
+                            <a-tooltip v-if="file.status === 'uploading'" :title="`上传中(${Math.floor(file.percent)}%)`">
+                              <LoadingOutlined />
+                            </a-tooltip>
+                            <a-tooltip v-else-if="file.status === 'done'" title="上传完成">
+                              <CheckCircleOutlined style="color: #00db00" />
+                            </a-tooltip>
+                            <a-tooltip v-else title="上传失败">
+                              <ExclamationCircleOutlined style="color: red" />
+                            </a-tooltip>
+                          </template>
+
+                          <template style="width: 30px">
+                            <a-dropdown
+                              :trigger="['click']"
+                              placement="bottomRight"
+                              :getPopupContainer="getParentContainer"
+                              style="margin-left: 10px"
+                            >
+                              <a-tooltip title="操作" :getPopupContainer="getParentContainer">
+                                <SettingOutlined v-if="file.status !== 'uploading'" style="cursor: pointer" />
+                              </a-tooltip>
+
+                              <template v-slot:overlay>
+                                <a-menu>
+                                  <a-menu-item v-if="col.allowDownload !== false" @click="handleClickDownFileByUrl(id)">
+                                    <span><DownloadOutlined />&nbsp;下载</span>
+                                  </a-menu-item>
+                                  <a-menu-item @click="handleClickDelFile(id)">
+                                    <span><DeleteOutlined />&nbsp;删除</span>
+                                  </a-menu-item>
+                                  <a-menu-item @click="handleMoreOperation(id, 'img')">
+                                    <span><BarChartOutlined /> 更多</span>
+                                  </a-menu-item>
+                                </a-menu>
+                              </template>
+                            </a-dropdown>
+                          </template>
+                        </div>
+                      </template>
+                    </template>
+
+                    <div :hidden="uploadValues[id] != null">
+                      <a-tooltip
+                        :key="i"
+                        :id="id"
+                        placement="top"
+                        :title="(tooltips[id] || {}).title"
+                        :visible="(tooltips[id] || {}).visible || false"
+                        :autoAdjustOverflow="true"
+                        :getPopupContainer="getParentContainer"
+                      >
+                        <span
+                          @mouseover="
+                            () => {
+                              handleMouseoverCommono(row, col);
+                            }
+                          "
+                          @mouseout="
+                            () => {
+                              handleMouseoutCommono(row, col);
+                            }
+                          "
+                        >
+                          <a-upload
+                            v-bind="buildProps(row, col)"
+                            name="file"
+                            :data="{ isup: 1 }"
+                            :multiple="false"
+                            :action="getUploadAction(col.action)"
+                            :headers="uploadGetHeaders(row, col)"
+                            :showUploadList="false"
+                            @change="(v) => handleChangeUpload(v, id, row, col)"
+                          >
+                            <a-button><UploadOutlined />上传图片</a-button>
+                          </a-upload>
+                        </span>
+                      </a-tooltip>
+                    </div>
+                  </div>
+                  <!-- update-end-author:taoyan date:0827 for：图片逻辑新增 -->
+
+                  <!-- radio-begin -->
+                  <template v-else-if="col.type === formTypes.radio">
+                    <a-tooltip
+                      :key="i"
+                      :id="id"
+                      placement="top"
+                      :title="(tooltips[id] || {}).title"
+                      :visible="(tooltips[id] || {}).visible || false"
+                      :autoAdjustOverflow="true"
+                      :getPopupContainer="getParentContainer"
+                    >
+                      <span
+                        @mouseover="
+                          () => {
+                            handleMouseoverCommono(row, col);
+                          }
+                        "
+                        @mouseout="
+                          () => {
+                            handleMouseoutCommono(row, col);
+                          }
+                        "
+                      >
+                        <a-radio-group
+                          v-bind="buildProps(row, col)"
+                          :id="id"
+                          :key="i"
+                          :value="radioValues[id]"
+                          @change="(e) => handleRadioChange(e.target.value, id, row, col)"
+                        >
+                          <a-radio v-for="(item, key) in col.options" :key="key" :value="item.value">{{ item.text }}</a-radio>
+                        </a-radio-group>
+                      </span>
+                    </a-tooltip>
+                  </template>
+                  <!-- radio-end -->
+
+                  <!-- select多选 -begin -->
+                  <template v-else-if="col.type === formTypes.list_multi">
+                    <a-tooltip
+                      :key="i"
+                      :id="id"
+                      placement="top"
+                      :title="(tooltips[id] || {}).title"
+                      :visible="(tooltips[id] || {}).visible || false"
+                      :autoAdjustOverflow="true"
+                      :getPopupContainer="getParentContainer"
+                    >
+                      <span
+                        @mouseover="
+                          () => {
+                            handleMouseoverCommono(row, col);
+                          }
+                        "
+                        @mouseout="
+                          () => {
+                            handleMouseoutCommono(row, col);
+                          }
+                        "
+                      >
+                        <a-select
+                          v-bind="buildProps(row, col)"
+                          :id="id"
+                          :key="i"
+                          mode="multiple"
+                          :maxTagCount="1"
+                          style="width: 100%"
+                          :value="multiSelectValues[id]"
+                          :options="col.options"
+                          :getPopupContainer="getParentContainer"
+                          :placeholder="replaceProps(col, col.placeholder)"
+                          @change="(v) => handleMultiSelectChange(v, id, row, col)"
+                          allowClear
+                        >
+                        </a-select>
+                      </span>
+                    </a-tooltip>
+                  </template>
+                  <!-- select多选 -end -->
+
+                  <!-- select搜索 -begin -->
+                  <template v-else-if="col.type === formTypes.sel_search">
+                    <a-tooltip
+                      :key="i"
+                      :id="id"
+                      placement="top"
+                      :title="(tooltips[id] || {}).title"
+                      :visible="(tooltips[id] || {}).visible || false"
+                      :autoAdjustOverflow="true"
+                      :getPopupContainer="getParentContainer"
+                    >
+                      <span
+                        @mouseover="
+                          () => {
+                            handleMouseoverCommono(row, col);
+                          }
+                        "
+                        @mouseout="
+                          () => {
+                            handleMouseoutCommono(row, col);
+                          }
+                        "
+                      >
+                        <a-select
+                          v-bind="buildProps(row, col)"
+                          :id="id"
+                          :key="i"
+                          showSearch
+                          optionFilterProp="children"
+                          :filterOption="filterOption"
+                          style="width: 100%"
+                          :value="searchSelectValues[id]"
+                          :options="col.options"
+                          :getPopupContainer="getParentContainer"
+                          :placeholder="replaceProps(col, col.placeholder)"
+                          @change="(v) => handleSearchSelectChange(v, id, row, col)"
+                          allowClear
+                        >
+                        </a-select>
+                      </span>
+                    </a-tooltip>
+                  </template>
+                  <!-- select搜索 -end -->
+
+                  <div v-else-if="col.type === formTypes.slot">
+                    <a-tooltip
+                      :key="i"
+                      :id="id"
+                      placement="top"
+                      :title="(tooltips[id] || {}).title"
+                      :visible="(tooltips[id] || {}).visible || false"
+                      :autoAdjustOverflow="true"
+                      :getPopupContainer="getParentContainer"
+                    >
+                      <span
+                        @mouseover="
+                          () => {
+                            handleMouseoverCommono(row, col);
+                          }
+                        "
+                        @mouseout="
+                          () => {
+                            handleMouseoutCommono(row, col);
+                          }
+                        "
+                      >
+                        <slot
+                          :name="col.slot || col.slotName || col.key"
+                          :index="rowIndex"
+                          :text="slotValues[id]"
+                          :value="slotValues[id]"
+                          :column="col"
+                          :rowId="getCleanId(row.id)"
+                          :getValue="() => _getValueForSlot(row.id)"
+                          :caseId="caseId"
+                          :allValues="_getAllValuesForSlot()"
+                          :target="getVM()"
+                          :handleChange="(v) => handleChangeSlotCommon(v, id, row, col)"
+                          :isNotPass="notPassedIds.includes(col.key + row.id)"
+                        />
+                      </span>
+                    </a-tooltip>
+                  </div>
+
+                  <!-- else (normal) -->
+                  <span v-bind="buildProps(row, col)" v-else class="td-span" :title="inputValues[rowIndex][col.key]">
+                    {{ inputValues[rowIndex][col.key] }}
+                  </span>
+                </template>
               </div>
-              <!-- -- tr end -- -->
-            </template>
-          </draggable>
+            </div>
+            <!-- -- tr end -- -->
+          </template>
+          <!-- </draggable> -->
 
           <!-- 统计行 -->
           <div
@@ -890,6 +892,7 @@
   import JInputPop from '/@/components/jeecg/minipop/JInputPop.vue';
   import JFilePop from '/@/components/jeecg/minipop/JFilePop.vue';
   import JSelectList from '/@/components/jeecgbiz/JSelectList.vue';
+  import { useUserStore } from '/@/store/modules/system/user';
 
   // 行高，需要在实例加载完成前用到
   let rowHeight = 42;
@@ -1100,7 +1103,7 @@
         return count > 0;
       },
       accessToken() {
-        return Vue.ls.get(ACCESS_TOKEN);
+        return useUserStore().getErpToken;
       },
       realTrWidth() {
         let splice = ' + ';
@@ -1154,6 +1157,7 @@
           this.getElementPromise('tbody').then(() => {
             this.initialize();
             this._pushByDataSource(newValue);
+            console.log('watch dataSource...', JSON.stringify(this.rows), JSON.stringify(this.inputValues));
           });
         },
       },
@@ -1196,7 +1200,6 @@
     mounted() {
       let vm = this;
       /** 监听滚动条事件 */
-      console.log('JEditableTable---------', this.getElement('tbody'));
 
       const inputTable = this.getElement('inputTable');
       if (inputTable) {
@@ -1227,6 +1230,8 @@
 
         vm.recalcTrHiddenItem(event.target.scrollTop);
       };
+
+      console.log('JEditableTable mounted---------', this.getElement('tbody'), JSON.stringify(this.rows));
     },
     methods: {
       getElement(id, noCaseId = false) {
@@ -1342,6 +1347,7 @@
        *
        */
       _pushByDataSource(dataSource, insertIndexes = null, update = true, rows = null, setDefaultValue = false) {
+        console.log('_pushByDataSource............', JSON.stringify(rows));
         if (!(rows instanceof Array)) {
           rows = [...this.rows] || [];
         }
@@ -1569,6 +1575,7 @@
           row: (() => {
             let r = Object.assign({}, row);
             r.id = this.getCleanId(r.id);
+            console.info('JEditableTable...', JSON.stringify(r));
             return r;
           })(),
           target: this,
@@ -2802,7 +2809,7 @@
       uploadGetHeaders(row, column) {
         let headers = {};
         if (column.token === true) {
-          headers['X-Access-Token'] = this.accessToken;
+          headers['X-Erp-Access-Token'] = this.accessToken;
         }
         return headers;
       },

@@ -21,7 +21,7 @@
       <div class="ant-upload-text">{{ text }}</div>
     </div>
     <a-modal :open="previewVisible" :width="1000" :footer="null" @cancel="handleCancel()">
-      <img alt="example" style="width: 100%" :src="previewImage" />
+      <img alt="预览图片" style="width: 100%" :src="previewImage" />
     </a-modal>
   </a-upload>
 </template>
@@ -87,13 +87,17 @@
       },
     },
     watch: {
-      value(val) {
-        console.log('JImageUpload..........', JSON.stringify(val));
-        if (val instanceof Array) {
-          this.initFileList(val.join(','));
-        } else {
-          this.initFileList(val);
-        }
+      value: {
+        handler(val) {
+          console.log('JImageUpload watch:', JSON.stringify(val));
+          if (Array.isArray(val)) {
+            this.initFileList(val.join(','));
+          } else {
+            this.initFileList(val);
+          }
+        },
+        immediate: true, // 确保组件创建时立即执行
+        deep: true, // 深度监听对象/数组变化
       },
     },
     created() {
@@ -110,6 +114,7 @@
         });
       },
       initFileList(paths) {
+        console.log('JImageUpload value changed:', JSON.stringify(paths));
         if (!paths || paths.length == 0) {
           this.fileList = [];
           this.picUrl = false;
@@ -207,7 +212,10 @@
         if (arr.length > 0) {
           path = arr.join(',');
         }
-        $emit(this, 'change', path);
+        console.log('New path:', path, 'Old value:', this.value);
+
+        this.initFileList(path);
+        this.$emit('change', path);
       },
       handleDelete(file) {
         //如有需要新增 删除逻辑
