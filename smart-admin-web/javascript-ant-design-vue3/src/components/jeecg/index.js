@@ -1,9 +1,11 @@
-import JModal from './JModal'
-import JFormContainer from './JFormContainer.vue'
+import JModal from './JModal/index.vue';
+import JFormContainer from './JFormContainer.vue';
 
 export default {
-  install(Vue) {
-    window.$vueApp.component('JFormContainer', JFormContainer)
-    window.$vueApp.component(JModal.name, JModal)
+  install(app) {
+    // Vue 3 接收 app 实例作为参数
+    // 注册全局组件
+    app.component('JFormContainer', JFormContainer);
+    app.component(JModal.name, JModal);
   },
-}
+};

@@ -16,7 +16,8 @@
   >
     <img v-if="!isMultiple && picUrl" :src="getAvatarView()" style="height: 104px; max-width: 300px" />
     <div v-else>
-      <a-icon :type="uploadLoading ? 'loading' : 'plus'" />
+      <LoadingOutlined v-if="uploadLoading" />
+      <PlusOutlined v-else />
       <div class="ant-upload-text">{{ text }}</div>
     </div>
     <a-modal :open="previewVisible" :width="1000" :footer="null" @cancel="handleCancel()">
@@ -47,7 +48,7 @@
     name: 'JImageUpload',
     data() {
       return {
-        uploadAction: import.meta.env.VITE_APP_ERP_API_URL + '/systemConfig/upload',
+        uploadAction: import.meta.env.VITE_APP_ERP_API_URL + '/jshERP-boot/systemConfig/upload',
         uploadLoading: false,
         picUrl: false,
         headers: {},
@@ -87,6 +88,7 @@
     },
     watch: {
       value(val) {
+        console.log('JImageUpload..........', JSON.stringify(val));
         if (val instanceof Array) {
           this.initFileList(val.join(','));
         } else {

@@ -1,13 +1,13 @@
 <template>
   <div ref="container">
     <a-modal
+      :open="visible"
       v-bind="_attrs"
       ref="modal"
       :class="getClass(modalClass)"
       :style="getStyle(modalStyle)"
-      :open="visible"
       :getContainer="() => $refs.container"
-      :maskStyle="{ top: '93px', left: '154px' }"
+      :maskStyle="{ top: '0px', left: '0px' }"
       :wrapClassName="wrapClassNameInfo()"
       :mask="isDesktop()"
       :maskClosable="false"
@@ -23,24 +23,14 @@
           </a-col>
           <a-col class="right">
             <a-tooltip title="新手引导">
-              <a-button
-                v-if="switchHelp"
-                @click="handleHelp"
-                style="right: 112px"
-                class="ant-modal-close ant-modal-close-x"
-                ghost
-                type="link"
-                icon="question-circle"
-              />
+              <a-button v-if="switchHelp" @click="handleHelp" style="right: 100px" class="ant-modal-close ant-modal-close-x" ghost type="link">
+                <QuestionCircleOutlined />
+              </a-button>
             </a-tooltip>
-            <a-button
-              v-if="switchFullscreen"
-              @click="toggleFullscreen"
-              class="ant-modal-close ant-modal-close-x"
-              ghost
-              type="link"
-              :icon="fullscreenButtonIcon"
-            />
+            <a-button v-if="switchFullscreen" @click="toggleFullscreen" class="ant-modal-close ant-modal-close-x" ghost type="link">
+              <FullscreenExitOutlined v-if="innerFullscreen" />
+              <FullscreenOutlined v-else />
+            </a-button>
           </a-col>
         </a-row>
       </template>
@@ -143,10 +133,6 @@
       },
       allSlotsKeys() {
         return this.slotsKeys.concat(this.scopedSlotsKeys);
-      },
-      // 切换全屏的按钮图标
-      fullscreenButtonIcon() {
-        return this.innerFullscreen ? 'fullscreen-exit' : 'fullscreen';
       },
     },
     watch: {

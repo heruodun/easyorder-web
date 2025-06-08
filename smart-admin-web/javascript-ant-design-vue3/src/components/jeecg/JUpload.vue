@@ -66,7 +66,7 @@
     name: 'JUpload',
     data() {
       return {
-        uploadAction: window._CONFIG['domianURL'] + '/systemConfig/upload',
+        uploadAction: import.meta.env.VITE_APP_ERP_API_URL + '/jshERP-boot/systemConfig/upload',
         headers: {},
         fileList: [],
         newFileList: [],

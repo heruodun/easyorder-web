@@ -100,8 +100,8 @@
                 <div v-if="dragSort" class="td td-ds" :style="style.tdLeftDs">
                   <a-dropdown :trigger="['click']" :getPopupContainer="getParentContainer">
                     <div class="td-ds-icons">
-                      <a-icon type="align-left" />
-                      <a-icon type="align-right" />
+                      <AlignLeftOutlined />
+                      <AlignRightOutlined />
                     </div>
 
                     <template v-slot:overlay>
@@ -337,29 +337,29 @@
                           <a-input :key="fileKey" :readOnly="true" :value="file.name">
                             <template style="width: 30px" v-slot:addonBefore>
                               <a-tooltip v-if="file.status === 'uploading'" :title="`上传中(${Math.floor(file.percent)}%)`">
-                                <a-icon type="loading" />
+                                <LoadingOutlined />
                               </a-tooltip>
                               <a-tooltip v-else-if="file.status === 'done'" title="上传完成">
-                                <a-icon type="check-circle" style="color: #00db00" />
+                                <CheckCircleOutlined style="color: #00db00" />
                               </a-tooltip>
                               <a-tooltip v-else title="上传失败">
-                                <a-icon type="exclamation-circle" style="color: red" />
+                                <ExclamationCircleOutlined style="color: red" />
                               </a-tooltip>
                             </template>
 
                             <template v-if="col.allowDownload !== false || col.allowRemove !== false" style="width: 30px" v-slot:addonAfter>
                               <a-dropdown :trigger="['click']" placement="bottomRight" :getPopupContainer="getParentContainer">
                                 <a-tooltip title="操作" :getPopupContainer="getParentContainer">
-                                  <a-icon v-if="file.status !== 'uploading'" type="setting" style="cursor: pointer" />
+                                  <SettingOutlined v-if="file.status !== 'uploading'" style="cursor: pointer" />
                                 </a-tooltip>
 
                                 <template v-slot:overlay>
                                   <a-menu>
                                     <a-menu-item v-if="col.allowDownload !== false" @click="handleClickDownloadFile(id)">
-                                      <span><a-icon type="download" />&nbsp;下载</span>
+                                      <span><DownloadOutlined />&nbsp;下载</span>
                                     </a-menu-item>
                                     <a-menu-item v-if="col.allowRemove !== false" @click="handleClickDelFile(id)">
-                                      <span><a-icon type="delete" />&nbsp;删除</span>
+                                      <span><DeleteOutlined />&nbsp;删除</span>
                                     </a-menu-item>
                                   </a-menu>
                                 </template>
@@ -491,17 +491,17 @@
                         <template v-if="uploadValues[id] != null">
                           <div :key="fileKey" style="position: relative">
                             <a-tooltip v-if="file.status === 'uploading'" :title="`上传中(${Math.floor(file.percent)}%)`">
-                              <a-icon type="loading" style="color: red" />
+                              <LoadingOutlined style="color: red" />
                               <span style="color: red; margin-left: 5px">{{ file.status }}</span>
                             </a-tooltip>
 
                             <a-tooltip v-else-if="file.status === 'done'" :title="file.name">
-                              <a-icon type="paper-clip" />
+                              <PaperClipOutlined />
                               <span style="margin-left: 5px">{{ getEllipsisWord(file.name, 5) }}</span>
                             </a-tooltip>
 
                             <a-tooltip v-else :title="file.name">
-                              <a-icon type="paper-clip" style="color: red" />
+                              <PaperClipOutlined style="color: red" />
                               <span style="color: red; margin-left: 5px">{{ getEllipsisWord(file.name, 5) }}</span>
                             </a-tooltip>
 
@@ -513,19 +513,19 @@
                                 style="margin-left: 10px"
                               >
                                 <a-tooltip title="操作" :getPopupContainer="getParentContainer">
-                                  <a-icon v-if="file.status !== 'uploading'" type="setting" style="cursor: pointer" />
+                                  <UploadOutlined v-if="file.status !== 'uploading'" type="setting" style="cursor: pointer" />
                                 </a-tooltip>
 
                                 <template v-slot:overlay>
                                   <a-menu>
                                     <a-menu-item v-if="col.allowDownload !== false" @click="handleClickDownFileByUrl(id)">
-                                      <span><a-icon type="download" />&nbsp;下载</span>
+                                      <span><DownloadOutlined />&nbsp;下载</span>
                                     </a-menu-item>
                                     <a-menu-item @click="handleClickDelFile(id)">
-                                      <span><a-icon type="delete" />&nbsp;删除</span>
+                                      <span><DeleteOutlined />&nbsp;删除</span>
                                     </a-menu-item>
                                     <a-menu-item @click="handleMoreOperation(id)">
-                                      <span><a-icon type="bars" /> 更多</span>
+                                      <span><BarsOutlined /> 更多</span>
                                     </a-menu-item>
                                   </a-menu>
                                 </template>
@@ -581,24 +581,24 @@
                             <template
                               v-if="!uploadValues[id] || !(uploadValues[id]['url'] || uploadValues[id]['path'] || uploadValues[id]['message'])"
                             >
-                              <a-icon type="loading" />
+                              <LoadingOutlined />
                             </template>
                             <template v-else-if="uploadValues[id]['path']">
                               <img class="j-editable-image" :src="getCellImageView(id)" alt="无图片" @click="handleMoreOperation(id, 'img')" />
                             </template>
                             <template v-else>
-                              <a-icon type="exclamation-circle" style="color: red" @click="handleClickShowImageError(id)" />
+                              <ExclamationCircleOutlined style="color: red" @click="handleClickShowImageError(id)" />
                             </template>
                             <!-- todo 少了这段 v-slot:addonBefore -->
                             <template style="width: 30px">
                               <a-tooltip v-if="file.status === 'uploading'" :title="`上传中(${Math.floor(file.percent)}%)`">
-                                <a-icon type="loading" />
+                                <LoadingOutlined />
                               </a-tooltip>
                               <a-tooltip v-else-if="file.status === 'done'" title="上传完成">
-                                <a-icon type="check-circle" style="color: #00db00" />
+                                <CheckCircleOutlined style="color: #00db00" />
                               </a-tooltip>
                               <a-tooltip v-else title="上传失败">
-                                <a-icon type="exclamation-circle" style="color: red" />
+                                <ExclamationCircleOutlined style="color: red" />
                               </a-tooltip>
                             </template>
 
@@ -610,19 +610,19 @@
                                 style="margin-left: 10px"
                               >
                                 <a-tooltip title="操作" :getPopupContainer="getParentContainer">
-                                  <a-icon v-if="file.status !== 'uploading'" type="setting" style="cursor: pointer" />
+                                  <SettingOutlined v-if="file.status !== 'uploading'" style="cursor: pointer" />
                                 </a-tooltip>
 
                                 <template v-slot:overlay>
                                   <a-menu>
                                     <a-menu-item v-if="col.allowDownload !== false" @click="handleClickDownFileByUrl(id)">
-                                      <span><a-icon type="download" />&nbsp;下载</span>
+                                      <span><DownloadOutlined />&nbsp;下载</span>
                                     </a-menu-item>
                                     <a-menu-item @click="handleClickDelFile(id)">
-                                      <span><a-icon type="delete" />&nbsp;删除</span>
+                                      <span><DeleteOutlined />&nbsp;删除</span>
                                     </a-menu-item>
                                     <a-menu-item @click="handleMoreOperation(id, 'img')">
-                                      <span><a-icon type="bars" /> 更多</span>
+                                      <span><BarChartOutlined /> 更多</span>
                                     </a-menu-item>
                                   </a-menu>
                                 </template>

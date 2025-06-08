@@ -20,13 +20,7 @@
     >
       <a-spin :spinning="confirmLoading">
         <a-form :model="formState" ref="formRef" layout="vertical">
-          <a-form-item
-            :label-col="labelCol"
-            :wrapper-col="wrapperCol"
-            label="名称"
-            name="name"
-            :rules="[{ required: true, message: '请输入名称!' }, { validator: validateName }]"
-          >
+          <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="名称" name="name" :rules="[{ validator: validateName }]">
             <a-input placeholder="请输入名称" v-model:value="formState.name" />
           </a-form-item>
           <a-form-item

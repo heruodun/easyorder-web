@@ -46,7 +46,8 @@
                 </a-button>
                 <a @click="handleToggleSearch" style="margin-left: 8px">
                   {{ toggleSearchStatus ? '收起' : '展开' }}
-                  <a-icon :type="toggleSearchStatus ? 'up' : 'down'" />
+                  <UpOutlined v-if="toggleSearchStatus" />
+                  <DownOutlined v-else />
                 </a>
               </a-form-item>
             </a-row>
@@ -149,15 +150,15 @@
             <a-button v-if="btnEnableList.indexOf(1) > -1" @click="batchSetMaterialCurrentStock()" icon="stock">修正库存</a-button>
             <a-button v-if="btnEnableList.indexOf(1) > -1" @click="batchSetMaterialCurrentUnitPrice()" icon="fund">修正成本</a-button> -->
 
-            <a-button @click="handleAdd" type="primary" icon="plus">新增</a-button>
-            <a-button @click="batchDel" icon="delete">删除</a-button>
-            <a-button @click="batchSetStatus(true)" icon="check-square">启用</a-button>
-            <a-button @click="batchSetStatus(false)" icon="close-square">禁用</a-button>
-            <a-button @click="handleImportXls()" icon="import">导入</a-button>
-            <a-button @click="handleExportXls('商品信息')" icon="download">导出</a-button>
-            <a-button @click="batchEdit()" icon="edit">批量编辑</a-button>
-            <a-button @click="batchSetMaterialCurrentStock()" icon="stock">修正库存</a-button>
-            <a-button @click="batchSetMaterialCurrentUnitPrice()" icon="fund">修正成本</a-button>
+            <a-button @click="handleAdd" type="primary"><PlusOutlined />新增</a-button>
+            <a-button @click="batchDel"><DeleteOutlined />删除</a-button>
+            <a-button @click="batchSetStatus(true)"><CheckSquareOutlined />启用</a-button>
+            <a-button @click="batchSetStatus(false)"><CloseSquareOutlined />禁用</a-button>
+            <a-button @click="handleImportXls()"><ImportOutlined />导入</a-button>
+            <a-button @click="handleExportXls('商品信息')"><DownloadOutlined />导出</a-button>
+            <a-button @click="batchEdit()"><EditOutlined />批量编辑</a-button>
+            <a-button @click="batchSetMaterialCurrentStock()"><StockOutlined />修正库存</a-button>
+            <a-button @click="batchSetMaterialCurrentUnitPrice()"><FundOutlined />修正成本</a-button>
           </div>
           <!-- <a-popover trigger="click" placement="right">
             <template v-slot:content>
@@ -209,7 +210,7 @@
             }"
             @change="handleTableChange"
           >
-            <template #bodyCell="{ column, record, index }">
+            <template #bodyCell="{ text, column, record, index }">
               <template v-if="column.dataIndex === 'action'">
                 <span>
                   <a @click="handleEdit(record)">编辑</a>

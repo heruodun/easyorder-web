@@ -65,7 +65,7 @@
     <a-col :md="12" :sm="24">
       <a-card :bordered="false" v-if="selectedKeys.length > 0">
         <a-form :model="formState" ref="formRef" :label-col="labelCol" :wrapper-col="wrapperCol">
-          <a-form-item label="名称" name="name" :rules="[{ required: true, message: '请输入名称!' }, { validator: validateName }]">
+          <a-form-item label="名称" name="name" :rules="[{ validator: validateName }]">
             <a-input placeholder="请输入名称" v-model:value="formState.name" />
           </a-form-item>
           <a-form-item label="编号" name="serialNo" :rules="[{ required: true, message: '请输入编号!' }]">
